@@ -51,4 +51,5 @@ export const Icons = {
   alert: AlertCircle,
   check: CheckCircle2,
   error: XCircle,
+  logo: Package,
 };

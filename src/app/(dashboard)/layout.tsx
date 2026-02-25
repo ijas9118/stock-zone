@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
-import { logout } from "@/app/auth/actions";
+import { DashboardNavbar } from "@/components/dashboard/dashboard-navbar";
 
 export default async function DashboardLayout({
   children,
@@ -48,38 +48,8 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="bg-background sticky top-0 z-40 border-b">
-        <div className="container flex h-16 items-center justify-between py-4">
-          <div className="flex gap-6 md:gap-10">
-            <Link href="/" className="flex items-center space-x-2">
-              <span className="inline-block font-bold">StockZone</span>
-            </Link>
-            <nav className="hidden gap-6 md:flex">
-              {navItems.map((item, index) => (
-                <Link
-                  key={index}
-                  href={item.href}
-                  className="text-muted-foreground hover:text-foreground flex items-center text-sm font-medium transition-colors"
-                >
-                  {item.title}
-                </Link>
-              ))}
-            </nav>
-          </div>
-          <div className="flex items-center space-x-4">
-            <span className="text-muted-foreground bg-muted rounded-md px-2 py-1 text-sm text-[10px] font-bold uppercase">
-              {role}
-            </span>
-            <form action={logout}>
-              <Button variant="ghost" size="sm">
-                <Icons.logout className="mr-2 h-4 w-4" />
-                Sign Out
-              </Button>
-            </form>
-          </div>
-        </div>
-      </header>
-      <div className="container flex-1 items-start py-6 md:grid md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10">
+      <DashboardNavbar role={role} />
+      <div className="container mx-auto flex-1 items-start py-6 md:grid md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10">
         <aside className="fixed top-24 z-30 -ml-2 hidden h-[calc(100vh-8rem)] w-full shrink-0 md:sticky md:block">
           <div className="space-y-4">
             <div className="px-3 py-2">
