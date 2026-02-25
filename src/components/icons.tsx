@@ -3,6 +3,7 @@ import {
   ArrowRightLeft,
   CheckCircle2,
   ChevronRight,
+  ChevronsUpDown,
   LayoutDashboard,
   Loader2,
   Lock,
@@ -51,5 +52,6 @@ export const Icons = {
   alert: AlertCircle,
   check: CheckCircle2,
   error: XCircle,
+  chevronsUpDown: ChevronsUpDown,
   logo: Package,
 };
