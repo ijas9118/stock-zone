@@ -26,8 +26,6 @@ export async function updateSession(request: NextRequest) {
   );
 
   // IMPORTANT: use getClaims() not getSession() in server middleware
-  await supabase.auth.getClaims();
-
   const {
     data: { user },
   } = await supabase.auth.getUser();

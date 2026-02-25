@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   ArrowRight,
   BarChart3,
@@ -59,10 +60,14 @@ export default function Home() {
 
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <Button variant="ghost" className="hidden sm:inline-flex">
-              Sign In
-            </Button>
-            <Button>Get Started</Button>
+            <Link href="/auth/login">
+              <Button variant="ghost" className="hidden sm:inline-flex">
+                Sign In
+              </Button>
+            </Link>
+            <Link href="/auth/signup">
+              <Button>Get Started</Button>
+            </Link>
           </div>
         </div>
       </header>
@@ -93,17 +98,21 @@ export default function Home() {
               here.
             </p>
             <div className="animate-in fade-in slide-in-from-bottom-10 flex flex-col items-center justify-center gap-4 duration-1000 sm:flex-row">
-              <Button size="lg" className="group h-12 px-8 text-base">
-                Start Free Trial
-                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="h-12 px-8 text-base"
-              >
-                View Live Demo
-              </Button>
+              <Link href="/auth/signup">
+                <Button size="lg" className="group h-12 px-8 text-base">
+                  Start Free Trial
+                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Button>
+              </Link>
+              <Link href="/auth/login">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="h-12 px-8 text-base"
+                >
+                  View Live Demo
+                </Button>
+              </Link>
             </div>
 
             {/* Mockup Figure */}
