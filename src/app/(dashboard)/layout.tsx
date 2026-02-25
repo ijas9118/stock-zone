@@ -30,9 +30,7 @@ export default async function DashboardLayout({
         <div className="flex min-h-screen flex-col">
           <DashboardNavbar role={role} />
           <main className="flex-1 overflow-y-auto">
-            <div className="container mx-auto p-4 md:p-6 lg:p-8">
-              {children}
-            </div>
+            <div className="h-full w-full p-4 md:p-6">{children}</div>
           </main>
         </div>
       </SidebarInset>
