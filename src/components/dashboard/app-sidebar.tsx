@@ -2,7 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { type User } from "@supabase/supabase-js";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Sidebar,
   SidebarContent,
@@ -17,16 +26,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { Icons } from "@/components/icons";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { logout } from "@/app/auth/actions";
-import { type User } from "@supabase/supabase-js";
 
 interface AppSidebarProps {
   role: string;
@@ -69,9 +69,7 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
                   <Icons.logo className="size-5" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-bold text-lg">
-                    StockZone
-                  </span>
+                  <span className="truncate text-lg font-bold">StockZone</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -127,9 +125,7 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
                     <span className="truncate font-semibold">
                       {user.user_metadata?.full_name || user.email}
                     </span>
-                    <span className="truncate text-xs opacity-70">
-                      {role}
-                    </span>
+                    <span className="truncate text-xs opacity-70">{role}</span>
                   </div>
                   <Icons.chevronsUpDown className="ml-auto size-4" />
                 </SidebarMenuButton>
@@ -149,7 +145,7 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <form action={logout} className="w-full">
-                    <button className="flex w-full items-center cursor-pointer">
+                    <button className="flex w-full cursor-pointer items-center">
                       <Icons.logout className="mr-2 h-4 w-4" />
                       <span>Log out</span>
                     </button>
