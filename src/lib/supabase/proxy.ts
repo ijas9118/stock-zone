@@ -35,13 +35,45 @@ export async function updateSession(request: NextRequest) {
   if (user) {
     const claims = await supabase.auth.getClaims();
     const status = claims?.data?.claims?.user_status;
+    const role = claims?.data?.claims?.user_role;
 
     const isAppRoute = !request.nextUrl.pathname.startsWith("/auth");
+
+    // 1. Status Protection
     if (isAppRoute && status === "pending") {
       return NextResponse.redirect(new URL("/auth/pending", request.url));
     }
     if (isAppRoute && status === "rejected") {
       return NextResponse.redirect(new URL("/auth/rejected", request.url));
+    }
+
+    // 2. Role Protection
+    if (isAppRoute) {
+      const path = request.nextUrl.pathname;
+      const dashboardPath =
+        role === "admin" ? "/admin" : role === "manager" ? "/manager" : "/user";
+
+      // Prevent users from accessing other roles' dashboards
+      if (path.startsWith("/admin") && role !== "admin") {
+        return NextResponse.redirect(new URL(dashboardPath, request.url));
+      }
+      if (path.startsWith("/manager") && role !== "manager") {
+        return NextResponse.redirect(new URL(dashboardPath, request.url));
+      }
+      if (path.startsWith("/user") && role !== "user") {
+        return NextResponse.redirect(new URL(dashboardPath, request.url));
+      }
+
+      // 3. Shared Route Protection
+      const isManagerOrAdmin = role === "admin" || role === "manager";
+      const restrictedRoutes = ["/warehouses", "/products", "/shops"];
+
+      if (
+        restrictedRoutes.some((route) => path.startsWith(route)) &&
+        !isManagerOrAdmin
+      ) {
+        return NextResponse.redirect(new URL(dashboardPath, request.url));
+      }
     }
   }
 
