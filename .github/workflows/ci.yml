@@ -30,9 +30,18 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Lint commit message
-        run: npx commitlint --from ${{ github.event.push.before || github.event.pull_request.base.sha }} --to ${{ github.event.push.after || github.event.pull_request.head.sha }} --verbose
-        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000')
+      - name: Lint commit message (PR)
+        if: github.event_name == 'pull_request'
+        run: |
+          npx commitlint \
+            --from ${{ github.event.pull_request.base.sha }} \
+            --to ${{ github.event.pull_request.head.sha }} \
+            --verbose
+
+      - name: Lint commit message (Push)
+        if: github.event_name == 'push'
+        run: |
+          npx commitlint --last --verbose
 
       - name: Check formatting
         run: pnpm run format:check
