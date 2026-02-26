@@ -39,13 +39,20 @@ export const getAuthContext = cache(async () => {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getClaims();
   const claims = (data?.claims ?? {}) as Claims;
+  const metadata = (claims.user_metadata ?? {}) as Claims;
 
   return {
     isAuthenticated: !error && Boolean(getStringClaim(claims, "sub")),
     userId: getStringClaim(claims, "sub"),
     email: getStringClaim(claims, "email"),
-    fullName: getStringClaim(claims, "full_name"),
-    avatarUrl: getStringClaim(claims, "avatar_url"),
+    fullName:
+      getStringClaim(claims, "full_name") ||
+      getStringClaim(metadata, "full_name") ||
+      getStringClaim(metadata, "name"),
+    avatarUrl:
+      getStringClaim(claims, "avatar_url") ||
+      getStringClaim(metadata, "avatar_url") ||
+      getStringClaim(metadata, "picture"),
     role: getStringClaim(claims, "user_role") ?? "user",
     status: getStringClaim(claims, "user_status") ?? "pending",
   };

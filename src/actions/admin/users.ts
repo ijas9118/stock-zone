@@ -103,8 +103,7 @@ export async function getShopTypes() {
 
       const { data, error } = await adminClient
         .from("shop_types")
-        .select("id, name")
-        .eq("is_active", true)
+        .select("id, name, is_active")
         .order("name");
 
       if (error) {

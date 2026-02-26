@@ -20,13 +20,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Table,
   TableBody,
   TableCell,
@@ -39,7 +32,6 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   totalCount: number;
-  shopTypes: { id: string; name: string; is_active: boolean }[];
   pageCount: number;
 }
 
@@ -47,7 +39,6 @@ export function DataTable<TData, TValue>({
   columns,
   data,
   totalCount,
-  shopTypes,
   pageCount,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
@@ -61,7 +52,6 @@ export function DataTable<TData, TValue>({
   const page = Number(searchParams.get("page")) || 1;
   const pageSize = Number(searchParams.get("pageSize")) || 10;
   const currentQuery = searchParams.get("q") ?? "";
-  const currentShopType = searchParams.get("shop_type") ?? "all";
 
   const [searchValue, setSearchValue] = React.useState(currentQuery);
 
@@ -83,9 +73,6 @@ export function DataTable<TData, TValue>({
         pageSize,
       },
     },
-    meta: {
-      shopTypes,
-    },
   });
 
   const createQueryString = React.useCallback(
@@ -93,7 +80,7 @@ export function DataTable<TData, TValue>({
       const newSearchParams = new URLSearchParams(searchParams.toString());
 
       for (const [key, value] of Object.entries(params)) {
-        if (value === null || value === "all") {
+        if (value === null) {
           newSearchParams.delete(key);
         } else {
           newSearchParams.set(key, String(value));
@@ -105,24 +92,17 @@ export function DataTable<TData, TValue>({
     [searchParams]
   );
 
-  // Handle debounced search
   React.useEffect(() => {
     if (searchValue === currentQuery) return;
 
     const timer = setTimeout(() => {
       router.push(
-        `${pathname}?${createQueryString({ q: searchValue, page: 1 })}`
+        `${pathname}?${createQueryString({ q: searchValue || null, page: 1 })}`
       );
     }, 500);
 
     return () => clearTimeout(timer);
   }, [searchValue, currentQuery, pathname, router, createQueryString]);
-
-  const handleShopTypeChange = (value: string) => {
-    router.push(
-      `${pathname}?${createQueryString({ shop_type: value, page: 1 })}`
-    );
-  };
 
   const handlePageChange = (newPage: number) => {
     router.push(`${pathname}?${createQueryString({ page: newPage })}`);
@@ -135,11 +115,11 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-4">
-        <div className="relative max-w-sm min-w-[200px] flex-1">
+      <div className="flex items-center justify-between gap-4">
+        <div className="relative max-w-sm flex-1">
           <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
           <Input
-            placeholder="Search name or email..."
+            placeholder="Search shops..."
             value={searchValue}
             onChange={(event) => setSearchValue(event.target.value)}
             className="pl-9"
@@ -147,22 +127,7 @@ export function DataTable<TData, TValue>({
         </div>
 
         <div className="flex items-center gap-2">
-          <Select value={currentShopType} onValueChange={handleShopTypeChange}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Shop Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Shops</SelectItem>
-              <SelectItem value="none">Unassigned</SelectItem>
-              {shopTypes.map((type) => (
-                <SelectItem key={type.id} value={type.id}>
-                  {type.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {(currentQuery || currentShopType !== "all") && (
+          {currentQuery && (
             <Button
               variant="ghost"
               onClick={handleReset}
@@ -172,34 +137,34 @@ export function DataTable<TData, TValue>({
               <X className="ml-2 h-4 w-4" />
             </Button>
           )}
-        </div>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                Columns <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       <div className="bg-card rounded-md border">
@@ -255,8 +220,7 @@ export function DataTable<TData, TValue>({
 
       <div className="flex items-center justify-between">
         <div className="text-muted-foreground text-sm">
-          {table.getFilteredSelectedRowModel().rows.length} of {totalCount}{" "}
-          row(s) selected (Total: {totalCount})
+          Total: {totalCount} records
         </div>
         <div className="flex items-center space-x-6 lg:space-x-8">
           <div className="flex items-center justify-center text-sm font-medium">

@@ -47,12 +47,18 @@ interface TableMeta {
   shopTypes: {
     id: string;
     name: string;
+    is_active: boolean;
   }[];
 }
 
 export function UserActions({ user, table }: UserActionsProps) {
   const [isPending, startTransition] = useTransition();
-  const shopTypes = (table.options.meta as TableMeta)?.shopTypes;
+  const allShopTypes = (table.options.meta as TableMeta)?.shopTypes;
+
+  // Filter for active shops, but keep the user's current shop even if it's inactive
+  const shopTypes = allShopTypes?.filter(
+    (type) => type.is_active || type.id === user.shop_type_id
+  );
 
   const handleStatusChange = (newStatus: AccountStatus) => {
     startTransition(async () => {
@@ -140,7 +146,7 @@ export function UserActions({ user, table }: UserActionsProps) {
               <DropdownMenuRadioItem value="none">None</DropdownMenuRadioItem>
               {shopTypes?.map((type) => (
                 <DropdownMenuRadioItem key={type.id} value={type.id}>
-                  {type.name}
+                  {type.name} {!type.is_active && "(Inactive)"}
                 </DropdownMenuRadioItem>
               ))}
             </DropdownMenuRadioGroup>
