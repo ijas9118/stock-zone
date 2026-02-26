@@ -2,14 +2,7 @@
 
 import { useState } from "react";
 import { deleteShop, ShopType, updateShop } from "@/actions/admin/shops";
-import {
-  Edit2,
-  MoreHorizontal,
-  Power,
-  ToggleLeft,
-  ToggleRight,
-  Trash2,
-} from "lucide-react";
+import { Edit2, MoreHorizontal, Power, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import {
