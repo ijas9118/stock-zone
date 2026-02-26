@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 
 import { LoginForm } from "@/components/auth/login-form";
+import GradientBlinds from "@/components/gradient-blinds";
 
 export const metadata: Metadata = {
   title: "Login | StockZone",
@@ -11,32 +12,22 @@ export const metadata: Metadata = {
 export default function LoginPage() {
   return (
     <div className="relative container flex min-h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-      <div className="bg-muted relative hidden h-full flex-col p-10 text-white lg:flex dark:border-r">
-        <div className="absolute inset-0 bg-zinc-900" />
-        <div className="relative z-20 flex items-center text-lg font-medium">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="mr-2 h-6 w-6"
-          >
-            <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
-          </svg>
-          StockZone
-        </div>
-        <div className="relative z-20 mt-auto">
-          <blockquote className="space-y-2">
-            <p className="text-lg">
-              &ldquo;StockZone has revolutionized how we manage our inventory
-              across multiple locations. The real-time tracking is a
-              game-changer.&rdquo;
-            </p>
-            <footer className="text-sm">Sofia Davis</footer>
-          </blockquote>
+      <div className="bg-dark relative hidden h-full w-full flex-col text-white lg:flex">
+        <div className="relative h-full w-full">
+          <GradientBlinds
+            gradientColors={["#a14bf7ff", "#818cf8", "#1423f6ff"]}
+            angle={20}
+            noise={0.1}
+            blindCount={33}
+            blindMinWidth={70}
+            spotlightRadius={0.5}
+            spotlightSoftness={1}
+            spotlightOpacity={1}
+            mouseDampening={0.5}
+            distortAmount={17}
+            shineDirection="right"
+            mixBlendMode="screen"
+          />
         </div>
       </div>
       <div className="lg:p-8">
