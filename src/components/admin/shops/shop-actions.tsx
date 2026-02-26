@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { deleteShop, ShopType } from "@/actions/admin/shops";
-import { Edit2, MoreHorizontal, Trash2 } from "lucide-react";
+import { deleteShop, ShopType, updateShop } from "@/actions/admin/shops";
+import { Edit2, MoreHorizontal, Power, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -35,6 +35,24 @@ export function ShopActions({ shop }: ShopActionsProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  async function onToggleStatus() {
+    try {
+      setIsLoading(true);
+      const result = await updateShop(shop.id, { is_active: !shop.is_active });
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        toast.success(
+          `Shop type ${shop.is_active ? "deactivated" : "activated"} successfully`
+        );
+      }
+    } catch {
+      toast.error("Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   async function onDelete() {
     try {
       setIsLoading(true);
@@ -56,7 +74,7 @@ export function ShopActions({ shop }: ShopActionsProps) {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
+          <Button variant="ghost" className="h-8 w-8 p-0" disabled={isLoading}>
             <span className="sr-only">Open menu</span>
             <MoreHorizontal className="h-4 w-4" />
           </Button>
@@ -64,6 +82,19 @@ export function ShopActions({ shop }: ShopActionsProps) {
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
             <Edit2 className="mr-2 h-4 w-4" /> Edit
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={onToggleStatus}>
+            {shop.is_active ? (
+              <>
+                <Power className="text-destructive mr-2 h-4 w-4" />
+                Deactivate
+              </>
+            ) : (
+              <>
+                <Power className="mr-2 h-4 w-4 text-emerald-500" />
+                Activate
+              </>
+            )}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem

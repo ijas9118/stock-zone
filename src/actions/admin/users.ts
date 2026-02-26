@@ -8,9 +8,13 @@ import { getAuthContext } from "@/lib/supabase/server";
 
 export type ProfileWithShopType =
   Database["public"]["Tables"]["profiles"]["Row"] & {
-    shop_types: {
-      name: string;
-    } | null;
+    profile_shop_types: {
+      access_level: Database["public"]["Enums"]["access_level"];
+      shop_types: {
+        id: string;
+        name: string;
+      } | null;
+    }[];
   };
 
 // Helper to verify admin role
@@ -45,8 +49,12 @@ export async function getUsers(
         .select(
           `
           *,
-          shop_types (
-            name
+          profile_shop_types (
+            access_level,
+            shop_types (
+              id,
+              name
+            )
           )
         `,
           { count: "exact" }
@@ -61,9 +69,15 @@ export async function getUsers(
 
       if (shopTypeId) {
         if (shopTypeId === "none") {
-          supabaseQuery = supabaseQuery.is("shop_type_id", null);
+          // Users who have no entries in profile_shop_types
+          supabaseQuery = supabaseQuery.is("profile_shop_types", null);
         } else {
-          supabaseQuery = supabaseQuery.eq("shop_type_id", shopTypeId);
+          // Filter profiles that have at least one profile_shop_types entry with this shopTypeId
+          supabaseQuery = supabaseQuery.eq(
+            "profile_shop_types.shop_type_id",
+            shopTypeId
+          );
+          supabaseQuery = supabaseQuery.not("profile_shop_types", "is", null);
         }
       }
 
@@ -176,25 +190,48 @@ export async function updateUserRole(
   }
 }
 
-export async function updateUserShopType(
+export async function updateUserShopTypes(
   userId: string,
-  shopTypeId: string | null
+  shopTypes: {
+    shopTypeId: string;
+    accessLevel: Database["public"]["Enums"]["access_level"];
+  }[]
 ) {
   try {
     await verifyAdmin();
     const adminClient = createAdminClient();
 
-    const { error } = await adminClient
-      .from("profiles")
-      .update({
-        shop_type_id: shopTypeId,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", userId);
+    // Start a transaction-like approach (delete then insert)
+    // Supabase doesn't have multi-statement transactions in the JS client easily
+    // without RPC, but we can do it sequentially and it's usually fine for admin actions.
 
-    if (error) {
-      console.error("Error updating user shop type:", error);
-      return { error: error.message };
+    // 1. Delete existing shop types for this user
+    const { error: deleteError } = await adminClient
+      .from("profile_shop_types")
+      .delete()
+      .eq("profile_id", userId);
+
+    if (deleteError) {
+      console.error("Error deleting user shop types:", deleteError);
+      return { error: deleteError.message };
+    }
+
+    // 2. Insert new shop types if any
+    if (shopTypes.length > 0) {
+      const { error: insertError } = await adminClient
+        .from("profile_shop_types")
+        .insert(
+          shopTypes.map((st) => ({
+            profile_id: userId,
+            shop_type_id: st.shopTypeId,
+            access_level: st.accessLevel,
+          }))
+        );
+
+      if (insertError) {
+        console.error("Error inserting user shop types:", insertError);
+        return { error: insertError.message };
+      }
     }
 
     revalidateTag("admin:users", "default");

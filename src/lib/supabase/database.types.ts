@@ -67,6 +67,48 @@ export type Database = {
           },
         ];
       };
+      profile_shop_types: {
+        Row: {
+          access_level: Database["public"]["Enums"]["access_level"];
+          created_at: string;
+          id: string;
+          profile_id: string;
+          shop_type_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          access_level?: Database["public"]["Enums"]["access_level"];
+          created_at?: string;
+          id?: string;
+          profile_id: string;
+          shop_type_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          access_level?: Database["public"]["Enums"]["access_level"];
+          created_at?: string;
+          id?: string;
+          profile_id?: string;
+          shop_type_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "profile_shop_types_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "profile_shop_types_shop_type_id_fkey";
+            columns: ["shop_type_id"];
+            isOneToOne: false;
+            referencedRelation: "shop_types";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       profiles: {
         Row: {
           avatar_url: string | null;
@@ -78,7 +120,6 @@ export type Database = {
           perm_stock_own_shop: boolean;
           perm_stock_read_all: boolean;
           role: Database["public"]["Enums"]["app_role"];
-          shop_type_id: string | null;
           status: Database["public"]["Enums"]["account_status"];
           updated_at: string;
         };
@@ -92,7 +133,6 @@ export type Database = {
           perm_stock_own_shop?: boolean;
           perm_stock_read_all?: boolean;
           role?: Database["public"]["Enums"]["app_role"];
-          shop_type_id?: string | null;
           status?: Database["public"]["Enums"]["account_status"];
           updated_at?: string;
         };
@@ -106,19 +146,10 @@ export type Database = {
           perm_stock_own_shop?: boolean;
           perm_stock_read_all?: boolean;
           role?: Database["public"]["Enums"]["app_role"];
-          shop_type_id?: string | null;
           status?: Database["public"]["Enums"]["account_status"];
           updated_at?: string;
         };
-        Relationships: [
-          {
-            foreignKeyName: "profiles_shop_type_id_fkey";
-            columns: ["shop_type_id"];
-            isOneToOne: false;
-            referencedRelation: "shop_types";
-            referencedColumns: ["id"];
-          },
-        ];
+        Relationships: [];
       };
       role_permissions: {
         Row: {
@@ -170,6 +201,7 @@ export type Database = {
           id: string;
           product_id: string;
           quantity: number;
+          shop_type_id: string;
           updated_at: string;
           warehouse_id: string;
         };
@@ -177,6 +209,7 @@ export type Database = {
           id?: string;
           product_id: string;
           quantity?: number;
+          shop_type_id: string;
           updated_at?: string;
           warehouse_id: string;
         };
@@ -184,6 +217,7 @@ export type Database = {
           id?: string;
           product_id?: string;
           quantity?: number;
+          shop_type_id?: string;
           updated_at?: string;
           warehouse_id?: string;
         };
@@ -193,6 +227,13 @@ export type Database = {
             columns: ["product_id"];
             isOneToOne: false;
             referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "stock_shop_type_id_fkey";
+            columns: ["shop_type_id"];
+            isOneToOne: false;
+            referencedRelation: "shop_types";
             referencedColumns: ["id"];
           },
           {
@@ -213,6 +254,8 @@ export type Database = {
           product_id: string;
           quantity_delta: number;
           reason: string | null;
+          shop_type_id: string;
+          status: Database["public"]["Enums"]["transaction_status"];
           warehouse_id: string;
         };
         Insert: {
@@ -223,6 +266,8 @@ export type Database = {
           product_id: string;
           quantity_delta: number;
           reason?: string | null;
+          shop_type_id: string;
+          status?: Database["public"]["Enums"]["transaction_status"];
           warehouse_id: string;
         };
         Update: {
@@ -233,6 +278,8 @@ export type Database = {
           product_id?: string;
           quantity_delta?: number;
           reason?: string | null;
+          shop_type_id?: string;
+          status?: Database["public"]["Enums"]["transaction_status"];
           warehouse_id?: string;
         };
         Relationships: [
@@ -248,6 +295,13 @@ export type Database = {
             columns: ["product_id"];
             isOneToOne: false;
             referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "stock_adjustments_shop_type_id_fkey";
+            columns: ["shop_type_id"];
+            isOneToOne: false;
+            referencedRelation: "shop_types";
             referencedColumns: ["id"];
           },
           {
@@ -267,7 +321,9 @@ export type Database = {
           product_id: string;
           quantity: number;
           reason: string | null;
+          shop_type_id: string;
           source_warehouse_id: string;
+          status: Database["public"]["Enums"]["transaction_status"];
           transferred_at: string;
           transferred_by: string | null;
         };
@@ -278,7 +334,9 @@ export type Database = {
           product_id: string;
           quantity: number;
           reason?: string | null;
+          shop_type_id: string;
           source_warehouse_id: string;
+          status?: Database["public"]["Enums"]["transaction_status"];
           transferred_at?: string;
           transferred_by?: string | null;
         };
@@ -289,7 +347,9 @@ export type Database = {
           product_id?: string;
           quantity?: number;
           reason?: string | null;
+          shop_type_id?: string;
           source_warehouse_id?: string;
+          status?: Database["public"]["Enums"]["transaction_status"];
           transferred_at?: string;
           transferred_by?: string | null;
         };
@@ -306,6 +366,13 @@ export type Database = {
             columns: ["product_id"];
             isOneToOne: false;
             referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "stock_transfers_shop_type_id_fkey";
+            columns: ["shop_type_id"];
+            isOneToOne: false;
+            referencedRelation: "shop_types";
             referencedColumns: ["id"];
           },
           {
@@ -383,6 +450,7 @@ export type Database = {
       };
     };
     Enums: {
+      access_level: "read_only" | "write";
       account_status: "pending" | "active" | "inactive" | "rejected";
       app_permission:
         | "products.create"
@@ -394,6 +462,7 @@ export type Database = {
         | "stock.read_own_shop"
         | "users.manage";
       app_role: "admin" | "manager" | "user";
+      transaction_status: "pending" | "approved" | "rejected";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -524,6 +593,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      access_level: ["read_only", "write"],
       account_status: ["pending", "active", "inactive", "rejected"],
       app_permission: [
         "products.create",
@@ -536,6 +606,7 @@ export const Constants = {
         "users.manage",
       ],
       app_role: ["admin", "manager", "user"],
+      transaction_status: ["pending", "approved", "rejected"],
     },
   },
 } as const;
