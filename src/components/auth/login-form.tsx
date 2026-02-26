@@ -38,6 +38,21 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
+  const searchParams =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search)
+      : null;
+  const errorParam = searchParams?.get("error");
+
+  React.useEffect(() => {
+    if (errorParam) {
+      toast.error(errorParam);
+      // Clean up the URL
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, "", newUrl);
+    }
+  }, [errorParam]);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {

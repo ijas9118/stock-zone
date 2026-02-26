@@ -20,8 +20,20 @@ export async function login(formData: FormData) {
     return { error: error.message };
   }
 
-  const claims = await supabase.auth.getClaims();
-  const role = claims?.data?.claims?.user_role || "user";
+  const claimsData = await supabase.auth.getClaims();
+  const claims = claimsData?.data?.claims;
+  const role = claims?.user_role || "user";
+  const status = claims?.user_status || "pending";
+
+  if (status === "inactive") {
+    await supabase.auth.signOut();
+    return { error: "Your account is inactive. Please contact administrator." };
+  }
+
+  if (status === "rejected") {
+    await supabase.auth.signOut();
+    return { error: "Your account application has been rejected." };
+  }
 
   revalidatePath("/", "layout");
   return { success: true, role };

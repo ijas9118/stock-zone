@@ -67,6 +67,14 @@ export async function updateSession(request: NextRequest) {
     if (status === "rejected" && path !== "/auth/rejected") {
       return NextResponse.redirect(new URL("/auth/rejected", request.url));
     }
+    if (status === "inactive") {
+      return NextResponse.redirect(
+        new URL(
+          "/auth/login?error=Your account is inactive. Please contact administrator.",
+          request.url
+        )
+      );
+    }
 
     // 4. Role Protection
     if (path.startsWith("/admin") && role !== "admin") {

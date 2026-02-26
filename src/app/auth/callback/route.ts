@@ -20,6 +20,11 @@ export async function GET(request: Request) {
       if (status === "rejected") {
         return NextResponse.redirect(`${origin}/auth/rejected`);
       }
+      if (status === "inactive") {
+        return NextResponse.redirect(
+          `${origin}/auth/login?error=Your account is inactive. Please contact administrator.`
+        );
+      }
 
       const redirectPath =
         role === "admin" ? "/admin" : role === "manager" ? "/manager" : "/user";
