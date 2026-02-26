@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function SignupPage() {
   return (
     <div className="relative container flex min-h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-      <div className="bg-dark relative hidden h-full w-full flex-col text-white lg:flex">
+      <div className="relative hidden h-full w-full flex-col bg-zinc-950 text-white lg:flex">
         <div className="relative h-full w-full">
           <GradientBlinds
             gradientColors={["#a14bf7ff", "#818cf8", "#1423f6ff"]}
