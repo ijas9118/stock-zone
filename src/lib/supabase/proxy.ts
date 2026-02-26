@@ -25,15 +25,13 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // IMPORTANT: use getClaims() not getSession() in server middleware
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Use getClaims() for fast local verification instead of getUser() network request
+  const { data, error } = await supabase.auth.getClaims();
+  const claims = data?.claims;
 
-  if (user) {
-    const claims = await supabase.auth.getClaims();
-    const status = claims?.data?.claims?.user_status;
-    const role = claims?.data?.claims?.user_role;
+  if (claims && !error) {
+    const status = claims.user_status;
+    const role = claims.user_role;
 
     const isAppRoute = !request.nextUrl.pathname.startsWith("/auth");
 

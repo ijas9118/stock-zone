@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { createClient } from "@/lib/supabase/server";
+import { getAuthClaims, getAuthUser } from "@/lib/supabase/server";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
 import { DashboardNavbar } from "@/components/dashboard/dashboard-navbar";
@@ -10,18 +10,19 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Use cached helpers to avoid redundant network waterfalls
+  const [
+    {
+      data: { user },
+    },
+    { data: claimsResponse },
+  ] = await Promise.all([getAuthUser(), getAuthClaims()]);
 
   if (!user) {
     redirect("/auth/login");
   }
 
-  const claims = await supabase.auth.getClaims();
-  const role = claims?.data?.claims?.user_role || "user";
+  const role = claimsResponse?.claims?.user_role || "user";
 
   return (
     <SidebarProvider>

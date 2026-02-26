@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 
@@ -25,3 +26,14 @@ export async function createClient() {
     }
   );
 }
+
+// Cached helpers to avoid redundant network calls during a single request
+export const getAuthUser = cache(async () => {
+  const supabase = await createClient();
+  return supabase.auth.getUser();
+});
+
+export const getAuthClaims = cache(async () => {
+  const supabase = await createClient();
+  return supabase.auth.getClaims();
+});
