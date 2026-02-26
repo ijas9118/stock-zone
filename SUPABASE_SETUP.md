@@ -216,6 +216,10 @@ create type public.app_role as enum ('admin', 'manager', 'user');
 
 create type public.account_status as enum ('pending', 'active', 'inactive', 'rejected');
 
+create type public.transaction_status as enum ('pending', 'approved', 'rejected');
+
+create type public.access_level as enum ('read_only', 'write');
+
 create type public.app_permission as enum (
   'products.create',
   'products.edit',
@@ -265,7 +269,6 @@ create table public.profiles (
   avatar_url      text,
   role            public.app_role      not null default 'user',
   status          public.account_status not null default 'pending',
-  shop_type_id    uuid references public.shop_types(id) on delete set null,
   -- Granular permissions (overrides for 'user' role)
   perm_stock_read_all   boolean not null default false,
   perm_stock_own_shop   boolean not null default false,
@@ -307,6 +310,23 @@ create table public.shop_types (
 
 create trigger on_shop_types_updated
   before update on public.shop_types
+  for each row execute procedure public.handle_updated_at();
+
+-- ─────────────────────────────────────────────
+-- PROFILE SHOP TYPES (user <-> shop type mapping)
+-- ─────────────────────────────────────────────
+create table public.profile_shop_types (
+  id            uuid primary key default gen_random_uuid(),
+  profile_id    uuid not null references public.profiles(id) on delete cascade,
+  shop_type_id  uuid not null references public.shop_types(id) on delete cascade,
+  access_level  public.access_level not null default 'read_only',
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now(),
+  unique (profile_id, shop_type_id)
+);
+
+create trigger on_profile_shop_types_updated
+  before update on public.profile_shop_types
   for each row execute procedure public.handle_updated_at();
 ```
 
@@ -373,9 +393,10 @@ create table public.stock (
   id           uuid primary key default gen_random_uuid(),
   product_id   uuid not null references public.products(id)   on delete cascade,
   warehouse_id uuid not null references public.warehouses(id) on delete cascade,
+  shop_type_id uuid not null references public.shop_types(id) on delete restrict,
   quantity     numeric not null default 0 check (quantity >= 0),
   updated_at   timestamptz not null default now(),
-  unique (product_id, warehouse_id)
+  unique (product_id, warehouse_id, shop_type_id)
 );
 
 create trigger on_stock_updated
@@ -393,9 +414,11 @@ create table public.stock_adjustments (
   id           uuid primary key default gen_random_uuid(),
   product_id   uuid not null references public.products(id)   on delete cascade,
   warehouse_id uuid not null references public.warehouses(id) on delete cascade,
+  shop_type_id uuid not null references public.shop_types(id) on delete restrict,
   quantity_delta  numeric not null,  -- positive = increase, negative = decrease
   reason       text,
   notes        text,
+  status       public.transaction_status not null default 'pending',
   adjusted_by  uuid references public.profiles(id) on delete set null,
   adjusted_at  timestamptz not null default now()
 );
@@ -408,9 +431,11 @@ create table public.stock_transfers (
   product_id          uuid not null references public.products(id)          on delete cascade,
   source_warehouse_id uuid not null references public.warehouses(id)        on delete restrict,
   dest_warehouse_id   uuid not null references public.warehouses(id)        on delete restrict,
+  shop_type_id        uuid not null references public.shop_types(id)        on delete restrict,
   quantity            numeric not null check (quantity > 0),
   reason              text,
   notes               text,
+  status              public.transaction_status not null default 'pending',
   transferred_by      uuid references public.profiles(id) on delete set null,
   transferred_at      timestamptz not null default now(),
   check (source_warehouse_id <> dest_warehouse_id)
@@ -467,6 +492,29 @@ alter table public.stock              enable row level security;
 alter table public.stock_adjustments  enable row level security;
 alter table public.stock_transfers    enable row level security;
 alter table public.role_permissions   enable row level security;
+alter table public.profile_shop_types enable row level security;
+
+-- ─────────────────────────────────────────────
+-- PROFILE SHOP TYPES POLICIES
+-- ─────────────────────────────────────────────
+create policy "Users can read own shop types"
+  on public.profile_shop_types for select
+  to authenticated
+  using (profile_id = auth.uid());
+
+create policy "Users can insert read_only for themselves"
+  on public.profile_shop_types for insert
+  to authenticated
+  with check (
+    profile_id = auth.uid()
+    and access_level = 'read_only'
+  );
+
+create policy "Admins can manage profile shop types"
+  on public.profile_shop_types for all
+  to authenticated
+  using ((SELECT authorize('users.manage')))
+  with check ((SELECT authorize('users.manage')));
 
 -- ─────────────────────────────────────────────
 -- PROFILES POLICIES
@@ -570,17 +618,16 @@ create policy "Only admins can delete products"
 -- ─────────────────────────────────────────────
 -- STOCK POLICIES
 -- ─────────────────────────────────────────────
--- Users with 'stock.read_all' or individual perm
-create policy "Stock read — all shops"
+-- Users with 'stock.read_all' or assigned shop type in profile_shop_types
+create policy "Stock read — allowed shops"
   on public.stock for select
   to authenticated
   using (
     (SELECT authorize('stock.read_all'))
     or exists (
-      select 1 from public.profiles
-      where profiles.id = auth.uid()
-        and profiles.perm_stock_read_all = true
-        and profiles.status = 'active'
+      select 1 from public.profile_shop_types
+      where profile_shop_types.profile_id = auth.uid()
+        and profile_shop_types.shop_type_id = stock.shop_type_id
     )
   );
 
@@ -1052,6 +1099,7 @@ export async function transferStock({
   productId,
   sourceWarehouseId,
   destWarehouseId,
+  shopTypeId,
   quantity,
   reason,
   notes,
@@ -1059,6 +1107,7 @@ export async function transferStock({
   productId: string;
   sourceWarehouseId: string;
   destWarehouseId: string;
+  shopTypeId: string;
   quantity: number;
   reason?: string;
   notes?: string;
@@ -1073,6 +1122,7 @@ export async function transferStock({
     p_product_id: productId,
     p_source_warehouse_id: sourceWarehouseId,
     p_dest_warehouse_id: destWarehouseId,
+    p_shop_type_id: shopTypeId,
     p_quantity: quantity,
     p_reason: reason,
     p_notes: notes,
@@ -1088,6 +1138,7 @@ create or replace function public.transfer_stock(
   p_product_id           uuid,
   p_source_warehouse_id  uuid,
   p_dest_warehouse_id    uuid,
+  p_shop_type_id         uuid,
   p_quantity             numeric,
   p_reason               text default null,
   p_notes                text default null,
@@ -1097,31 +1148,57 @@ returns void
 language plpgsql
 security definer
 as $$
+declare
+  v_access_level text;
+  v_is_admin boolean;
 begin
-  -- Deduct from source
-  update public.stock
-     set quantity = quantity - p_quantity
-   where product_id = p_product_id
-     and warehouse_id = p_source_warehouse_id;
+  -- Check user permissions
+  select role = 'admin' into v_is_admin from public.profiles where id = p_transferred_by;
 
-  if not found then
-    raise exception 'Source stock record not found';
+  select access_level into v_access_level
+  from public.profile_shop_types
+  where profile_id = p_transferred_by and shop_type_id = p_shop_type_id;
+
+  if not v_is_admin and v_access_level is null then
+    raise exception 'Unauthorized to access this shop type';
   end if;
 
-  -- Add to destination (upsert)
-  insert into public.stock (product_id, warehouse_id, quantity)
-    values (p_product_id, p_dest_warehouse_id, p_quantity)
-    on conflict (product_id, warehouse_id)
-    do update set quantity = stock.quantity + excluded.quantity;
+  if v_is_admin or v_access_level = 'write' then
+    -- Deduct from source
+    update public.stock
+       set quantity = quantity - p_quantity
+     where product_id = p_product_id
+       and warehouse_id = p_source_warehouse_id
+       and shop_type_id = p_shop_type_id;
 
-  -- Log the transfer
-  insert into public.stock_transfers (
-    product_id, source_warehouse_id, dest_warehouse_id,
-    quantity, reason, notes, transferred_by
-  ) values (
-    p_product_id, p_source_warehouse_id, p_dest_warehouse_id,
-    p_quantity, p_reason, p_notes, p_transferred_by
-  );
+    if not found then
+      raise exception 'Source stock record not found';
+    end if;
+
+    -- Add to destination (upsert)
+    insert into public.stock (product_id, warehouse_id, shop_type_id, quantity)
+      values (p_product_id, p_dest_warehouse_id, p_shop_type_id, p_quantity)
+      on conflict (product_id, warehouse_id, shop_type_id)
+      do update set quantity = stock.quantity + excluded.quantity;
+
+    -- Log the transfer as approved
+    insert into public.stock_transfers (
+      product_id, source_warehouse_id, dest_warehouse_id, shop_type_id,
+      quantity, reason, notes, transferred_by, status
+    ) values (
+      p_product_id, p_source_warehouse_id, p_dest_warehouse_id, p_shop_type_id,
+      p_quantity, p_reason, p_notes, p_transferred_by, 'approved'
+    );
+  else
+    -- Read-only access: Log as pending
+    insert into public.stock_transfers (
+      product_id, source_warehouse_id, dest_warehouse_id, shop_type_id,
+      quantity, reason, notes, transferred_by, status
+    ) values (
+      p_product_id, p_source_warehouse_id, p_dest_warehouse_id, p_shop_type_id,
+      p_quantity, p_reason, p_notes, p_transferred_by, 'pending'
+    );
+  end if;
 end;
 $$;
 ```
@@ -1176,12 +1253,14 @@ import { createClient } from "@/lib/supabase/server";
 export async function adjustStock({
   productId,
   warehouseId,
+  shopTypeId,
   quantityDelta,
   reason,
   notes,
 }: {
   productId: string;
   warehouseId: string;
+  shopTypeId: string;
   quantityDelta: number;
   reason?: string;
   notes?: string;
@@ -1194,6 +1273,7 @@ export async function adjustStock({
   return supabase.rpc("adjust_stock", {
     p_product_id: productId,
     p_warehouse_id: warehouseId,
+    p_shop_type_id: shopTypeId,
     p_delta: quantityDelta,
     p_reason: reason,
     p_notes: notes,
@@ -1219,6 +1299,7 @@ export async function getAdjustmentLog(warehouseId?: string) {
 create or replace function public.adjust_stock(
   p_product_id   uuid,
   p_warehouse_id uuid,
+  p_shop_type_id uuid,
   p_delta        numeric,
   p_reason       text default null,
   p_notes        text default null,
@@ -1228,17 +1309,119 @@ returns void
 language plpgsql
 security definer
 as $$
+declare
+  v_access_level text;
+  v_is_admin boolean;
 begin
-  insert into public.stock (product_id, warehouse_id, quantity)
-    values (p_product_id, p_warehouse_id, greatest(0, p_delta))
-    on conflict (product_id, warehouse_id)
-    do update set quantity = greatest(0, stock.quantity + p_delta);
+  -- Check user permissions
+  select role = 'admin' into v_is_admin from public.profiles where id = p_adjusted_by;
 
-  insert into public.stock_adjustments (
-    product_id, warehouse_id, quantity_delta, reason, notes, adjusted_by
-  ) values (
-    p_product_id, p_warehouse_id, p_delta, p_reason, p_notes, p_adjusted_by
-  );
+  select access_level into v_access_level
+  from public.profile_shop_types
+  where profile_id = p_adjusted_by and shop_type_id = p_shop_type_id;
+
+  if not v_is_admin and v_access_level is null then
+    raise exception 'Unauthorized to access this shop type';
+  end if;
+
+  if v_is_admin or v_access_level = 'write' then
+    insert into public.stock (product_id, warehouse_id, shop_type_id, quantity)
+      values (p_product_id, p_warehouse_id, p_shop_type_id, greatest(0, p_delta))
+      on conflict (product_id, warehouse_id, shop_type_id)
+      do update set quantity = greatest(0, stock.quantity + p_delta);
+
+    insert into public.stock_adjustments (
+      product_id, warehouse_id, shop_type_id, quantity_delta, reason, notes, adjusted_by, status
+    ) values (
+      p_product_id, p_warehouse_id, p_shop_type_id, p_delta, p_reason, p_notes, p_adjusted_by, 'approved'
+    );
+  else
+    -- Read-only access: Log as pending
+    insert into public.stock_adjustments (
+      product_id, warehouse_id, shop_type_id, quantity_delta, reason, notes, adjusted_by, status
+    ) values (
+      p_product_id, p_warehouse_id, p_shop_type_id, p_delta, p_reason, p_notes, p_adjusted_by, 'pending'
+    );
+  end if;
+end;
+$$;
+
+-- ─────────────────────────────────────────────
+-- APPROVAL MECHANISMS (Admin only)
+-- ─────────────────────────────────────────────
+create or replace function public.approve_transaction(
+  p_table text,
+  p_id uuid,
+  p_admin_id uuid default (auth.uid())
+)
+returns void
+language plpgsql
+security definer
+as $$
+declare
+  v_is_admin boolean;
+  v_rec record;
+begin
+  select role = 'admin' into v_is_admin from public.profiles where id = p_admin_id;
+  if not v_is_admin then
+    raise exception 'Unauthorized';
+  end if;
+
+  if p_table = 'stock_transfers' then
+    select * into v_rec from public.stock_transfers where id = p_id and status = 'pending';
+    if not found then raise exception 'Transaction not found or not pending'; end if;
+
+    -- Deduct source
+    update public.stock set quantity = quantity - v_rec.quantity
+    where product_id = v_rec.product_id and warehouse_id = v_rec.source_warehouse_id and shop_type_id = v_rec.shop_type_id;
+
+    -- Add destination
+    insert into public.stock (product_id, warehouse_id, shop_type_id, quantity)
+      values (v_rec.product_id, v_rec.dest_warehouse_id, v_rec.shop_type_id, v_rec.quantity)
+      on conflict (product_id, warehouse_id, shop_type_id)
+      do update set quantity = stock.quantity + excluded.quantity;
+
+    update public.stock_transfers set status = 'approved' where id = p_id;
+  elsif p_table = 'stock_adjustments' then
+    select * into v_rec from public.stock_adjustments where id = p_id and status = 'pending';
+    if not found then raise exception 'Transaction not found or not pending'; end if;
+
+    insert into public.stock (product_id, warehouse_id, shop_type_id, quantity)
+      values (v_rec.product_id, v_rec.warehouse_id, v_rec.shop_type_id, greatest(0, v_rec.quantity_delta))
+      on conflict (product_id, warehouse_id, shop_type_id)
+      do update set quantity = greatest(0, stock.quantity + v_rec.quantity_delta);
+
+    update public.stock_adjustments set status = 'approved' where id = p_id;
+  else
+    raise exception 'Invalid table type';
+  end if;
+end;
+$$;
+
+create or replace function public.reject_transaction(
+  p_table text,
+  p_id uuid,
+  p_admin_id uuid default (auth.uid())
+)
+returns void
+language plpgsql
+security definer
+as $$
+declare
+  v_is_admin boolean;
+begin
+  select role = 'admin' into v_is_admin from public.profiles where id = p_admin_id;
+  if not v_is_admin then
+    raise exception 'Unauthorized';
+  end if;
+
+  if p_table = 'stock_transfers' then
+    update public.stock_transfers set status = 'rejected' where id = p_id and status = 'pending';
+  elsif p_table = 'stock_adjustments' then
+    update public.stock_adjustments set status = 'rejected' where id = p_id and status = 'pending';
+  else
+    raise exception 'Invalid table type';
+  end if;
 end;
 $$;
 ```

@@ -3,6 +3,7 @@
 import { ProfileWithShopType } from "@/actions/admin/users";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
+import { Store } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -100,15 +101,54 @@ export const columns: ColumnDef<ProfileWithShopType>[] = [
     },
   },
   {
-    id: "shop_type",
-    accessorKey: "shop_types.name",
-    header: "Shop Type",
+    id: "shop_types",
+    header: "Shop Types",
     cell: ({ row }) => {
-      return <span>{row.original.shop_types?.name || "N/A"}</span>;
+      const shopTypes = row.original.profile_shop_types;
+      if (!shopTypes || shopTypes.length === 0) {
+        return (
+          <span className="text-muted-foreground text-xs italic">No shops</span>
+        );
+      }
+
+      return (
+        <div className="flex max-w-[220px] flex-wrap gap-1.5">
+          {shopTypes.map((st) => {
+            const isWrite = st.access_level === "write";
+            return (
+              <Badge
+                key={st.shop_types?.id}
+                variant="secondary"
+                className={`flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-medium ${
+                  isWrite
+                    ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-400"
+                    : "border-blue-500/20 bg-blue-500/10 text-blue-700 dark:bg-blue-400/10 dark:text-blue-400"
+                } border transition-all hover:scale-105`}
+              >
+                <Store className="h-2.5 w-2.5 opacity-70" />
+                <span className="max-w-[80px] truncate">
+                  {st.shop_types?.name}
+                </span>
+                <span
+                  className={`ml-0.5 flex h-3.5 items-center rounded-sm px-1 text-[9px] font-bold uppercase ${
+                    isWrite
+                      ? "bg-emerald-500/20 text-emerald-800 dark:text-emerald-200"
+                      : "bg-blue-500/20 text-blue-800 dark:text-blue-200"
+                  } `}
+                >
+                  {isWrite ? "Write" : "Read"}
+                </span>
+              </Badge>
+            );
+          })}
+        </div>
+      );
     },
     filterFn: (row, id, value) => {
       if (!value || (Array.isArray(value) && value.length === 0)) return true;
-      return value.includes(row.original.shop_type_id);
+      return row.original.profile_shop_types.some((st) =>
+        value.includes(st.shop_types?.id)
+      );
     },
   },
   {
