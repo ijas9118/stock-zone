@@ -4,6 +4,8 @@ import {
   CheckCircle2,
   ChevronRight,
   ChevronsUpDown,
+  Eye,
+  EyeOff,
   LayoutDashboard,
   Loader2,
   Lock,
@@ -54,4 +56,6 @@ export const Icons = {
   error: XCircle,
   chevronsUpDown: ChevronsUpDown,
   logo: Package,
+  eye: Eye,
+  eyeOff: EyeOff,
 };
