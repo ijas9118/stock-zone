@@ -48,6 +48,9 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
     },
   ];
 
+  const baseHref =
+    role === "admin" ? "/admin" : role === "manager" ? "/manager" : "/user";
+
   if (role === "admin") {
     navItems.push(
       { title: "Users", href: "/admin/users", icon: Icons.users },
@@ -57,8 +60,12 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
 
   if (role === "admin" || role === "manager") {
     navItems.push(
-      { title: "Warehouses", href: "/warehouses", icon: Icons.warehouses },
-      { title: "Products", href: "/products", icon: Icons.products }
+      {
+        title: "Warehouses",
+        href: `${baseHref}/warehouses`,
+        icon: Icons.warehouses,
+      },
+      { title: "Products", href: `${baseHref}/products`, icon: Icons.products }
     );
   }
 
