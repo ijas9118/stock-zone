@@ -1,6 +1,13 @@
 import { Suspense } from "react";
 import { getWarehouses } from "@/actions/admin/warehouses";
 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { columns } from "@/components/admin/warehouses/columns";
 import { DataTable } from "@/components/admin/warehouses/data-table";
@@ -31,16 +38,26 @@ export default async function WarehousesPage({
   const pageCount = Math.ceil(totalCount / currentPageSize);
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
+    <div className="flex-1 space-y-6">
       <WarehouseHeader />
-      <Suspense fallback={<WarehouseTableSkeleton />}>
-        <DataTable
-          columns={columns}
-          data={warehouses}
-          totalCount={totalCount}
-          pageCount={pageCount}
-        />
-      </Suspense>
+      <Card>
+        <CardHeader>
+          <CardTitle>Warehouses</CardTitle>
+          <CardDescription>
+            A list of all storage locations where products are housed.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Suspense fallback={<WarehouseTableSkeleton />}>
+            <DataTable
+              columns={columns}
+              data={warehouses}
+              totalCount={totalCount}
+              pageCount={pageCount}
+            />
+          </Suspense>
+        </CardContent>
+      </Card>
     </div>
   );
 }
