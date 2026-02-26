@@ -27,13 +27,26 @@ export async function createClient() {
   );
 }
 
-// Cached helpers to avoid redundant network calls during a single request
-export const getAuthUser = cache(async () => {
-  const supabase = await createClient();
-  return supabase.auth.getUser();
-});
+type Claims = Record<string, unknown>;
 
-export const getAuthClaims = cache(async () => {
+function getStringClaim(claims: Claims, key: string) {
+  const value = claims[key];
+  return typeof value === "string" ? value : null;
+}
+
+// Cached helper to avoid redundant auth calls during a single request
+export const getAuthContext = cache(async () => {
   const supabase = await createClient();
-  return supabase.auth.getClaims();
+  const { data, error } = await supabase.auth.getClaims();
+  const claims = (data?.claims ?? {}) as Claims;
+
+  return {
+    isAuthenticated: !error && Boolean(getStringClaim(claims, "sub")),
+    userId: getStringClaim(claims, "sub"),
+    email: getStringClaim(claims, "email"),
+    fullName: getStringClaim(claims, "full_name"),
+    avatarUrl: getStringClaim(claims, "avatar_url"),
+    role: getStringClaim(claims, "user_role") ?? "user",
+    status: getStringClaim(claims, "user_status") ?? "pending",
+  };
 });

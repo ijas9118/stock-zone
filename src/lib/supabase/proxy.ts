@@ -2,7 +2,21 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
 export async function updateSession(request: NextRequest) {
+  const cookies = request.cookies.getAll();
+  const hasAuthCookie = cookies.some(
+    (cookie) =>
+      cookie.name.includes("auth-token") &&
+      (cookie.name.startsWith("sb-") || cookie.name.startsWith("supabase-auth"))
+  );
+
+  const isAuthRoute = request.nextUrl.pathname.startsWith("/auth");
   let supabaseResponse = NextResponse.next({ request });
+
+  // 1. Fast Path for Unauthenticated Users
+  if (!hasAuthCookie) {
+    if (isAuthRoute) return supabaseResponse;
+    return NextResponse.redirect(new URL("/auth/login", request.url));
+  }
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -25,52 +39,59 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // Use getClaims() for fast local verification instead of getUser() network request
+  // Use getClaims() for fast local verification
   const { data, error } = await supabase.auth.getClaims();
   const claims = data?.claims;
 
+  // 2. Auth Page Protection (Logged-in users visiting /auth/login)
   if (claims && !error) {
-    const status = claims.user_status;
     const role = claims.user_role;
+    const dashboardPath =
+      role === "admin" ? "/admin" : role === "manager" ? "/manager" : "/user";
 
-    const isAppRoute = !request.nextUrl.pathname.startsWith("/auth");
+    if (
+      isAuthRoute &&
+      request.nextUrl.pathname !== "/auth/pending" &&
+      request.nextUrl.pathname !== "/auth/rejected"
+    ) {
+      return NextResponse.redirect(new URL(dashboardPath, request.url));
+    }
 
-    // 1. Status Protection
-    if (isAppRoute && status === "pending") {
+    const status = claims.user_status;
+    const path = request.nextUrl.pathname;
+
+    // 3. Status Protection
+    if (status === "pending" && path !== "/auth/pending") {
       return NextResponse.redirect(new URL("/auth/pending", request.url));
     }
-    if (isAppRoute && status === "rejected") {
+    if (status === "rejected" && path !== "/auth/rejected") {
       return NextResponse.redirect(new URL("/auth/rejected", request.url));
     }
 
-    // 2. Role Protection
-    if (isAppRoute) {
-      const path = request.nextUrl.pathname;
-      const dashboardPath =
-        role === "admin" ? "/admin" : role === "manager" ? "/manager" : "/user";
-
-      // Prevent users from accessing other roles' dashboards
-      if (path.startsWith("/admin") && role !== "admin") {
-        return NextResponse.redirect(new URL(dashboardPath, request.url));
-      }
-      if (path.startsWith("/manager") && role !== "manager") {
-        return NextResponse.redirect(new URL(dashboardPath, request.url));
-      }
-      if (path.startsWith("/user") && role !== "user") {
-        return NextResponse.redirect(new URL(dashboardPath, request.url));
-      }
-
-      // 3. Shared Route Protection
-      const isManagerOrAdmin = role === "admin" || role === "manager";
-      const restrictedRoutes = ["/warehouses", "/products", "/shops"];
-
-      if (
-        restrictedRoutes.some((route) => path.startsWith(route)) &&
-        !isManagerOrAdmin
-      ) {
-        return NextResponse.redirect(new URL(dashboardPath, request.url));
-      }
+    // 4. Role Protection
+    if (path.startsWith("/admin") && role !== "admin") {
+      return NextResponse.redirect(new URL(dashboardPath, request.url));
     }
+    if (path.startsWith("/manager") && role !== "manager") {
+      return NextResponse.redirect(new URL(dashboardPath, request.url));
+    }
+    if (path.startsWith("/user") && role !== "user") {
+      return NextResponse.redirect(new URL(dashboardPath, request.url));
+    }
+
+    // 5. Shared Route Protection
+    const isManagerOrAdmin = role === "admin" || role === "manager";
+    const restrictedRoutes = ["/warehouses", "/products", "/shops"];
+
+    if (
+      restrictedRoutes.some((route) => path.startsWith(route)) &&
+      !isManagerOrAdmin
+    ) {
+      return NextResponse.redirect(new URL(dashboardPath, request.url));
+    }
+  } else if (!isAuthRoute) {
+    // Session cookie exists but claims are invalid/expired - force login
+    return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
   return supabaseResponse;

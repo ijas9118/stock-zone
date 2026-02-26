@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { getAuthClaims, getAuthUser } from "@/lib/supabase/server";
+import { getAuthContext } from "@/lib/supabase/server";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
 import { DashboardNavbar } from "@/components/dashboard/dashboard-navbar";
@@ -10,23 +10,24 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Use cached helpers to avoid redundant network waterfalls
-  const [
-    {
-      data: { user },
-    },
-    { data: claimsResponse },
-  ] = await Promise.all([getAuthUser(), getAuthClaims()]);
+  const auth = await getAuthContext();
 
-  if (!user) {
+  if (!auth.isAuthenticated) {
     redirect("/auth/login");
   }
 
-  const role = claimsResponse?.claims?.user_role || "user";
+  const role = auth.role;
 
   return (
     <SidebarProvider>
-      <AppSidebar role={role} user={user} />
+      <AppSidebar
+        role={role}
+        user={{
+          email: auth.email,
+          fullName: auth.fullName,
+          avatarUrl: auth.avatarUrl,
+        }}
+      />
       <SidebarInset>
         <div className="flex min-h-screen flex-col">
           <DashboardNavbar role={role} />

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { type User } from "@supabase/supabase-js";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -30,11 +29,16 @@ import { logout } from "@/app/auth/actions";
 
 interface AppSidebarProps {
   role: string;
-  user: User;
+  user: {
+    email: string | null;
+    fullName: string | null;
+    avatarUrl: string | null;
+  };
 }
 
 export function AppSidebar({ role, user }: AppSidebarProps) {
   const pathname = usePathname();
+  const displayName = user.fullName || user.email || "User";
 
   const navItems = [
     {
@@ -112,18 +116,16 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
                 >
                   <Avatar className="h-8 w-8 rounded-lg">
                     <AvatarImage
-                      src={user.user_metadata?.avatar_url}
-                      alt={user.user_metadata?.full_name || user.email}
+                      src={user.avatarUrl ?? undefined}
+                      alt={displayName}
                     />
                     <AvatarFallback className="rounded-lg uppercase">
-                      {(user.user_metadata?.full_name || user.email || "U")
-                        .slice(0, 2)
-                        .toUpperCase()}
+                      {displayName.slice(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">
-                      {user.user_metadata?.full_name || user.email}
+                      {displayName}
                     </span>
                     <span className="truncate text-xs opacity-70">{role}</span>
                   </div>

@@ -4,7 +4,7 @@ import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Database } from "@/lib/supabase/database.types";
-import { getAuthClaims, getAuthUser } from "@/lib/supabase/server";
+import { getAuthContext } from "@/lib/supabase/server";
 
 export type ProfileWithShopType =
   Database["public"]["Tables"]["profiles"]["Row"] & {
@@ -15,22 +15,14 @@ export type ProfileWithShopType =
 
 // Helper to verify admin role
 async function verifyAdmin() {
-  const [
-    {
-      data: { user },
-    },
-    { data: claimsResponse },
-  ] = await Promise.all([getAuthUser(), getAuthClaims()]);
+  const auth = await getAuthContext();
 
-  if (!user) throw new Error("Unauthorized");
-
-  const role = claimsResponse?.claims?.user_role;
+  if (!auth.isAuthenticated) throw new Error("Unauthorized");
+  const role = auth.role;
 
   if (role !== "admin") {
     throw new Error("Forbidden: Admin access required");
   }
-
-  return user;
 }
 
 export async function getUsers(

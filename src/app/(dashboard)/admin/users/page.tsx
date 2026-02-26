@@ -24,7 +24,7 @@ export default async function UsersPage({
 }) {
   const params = await searchParams;
   const page = Number(params.page) || 1;
-  const pageSize = Number(params.pageSize) || 1;
+  const pageSize = Number(params.pageSize) || 10;
   const query = params.q;
   const shopTypeId = params.shop_type;
 
