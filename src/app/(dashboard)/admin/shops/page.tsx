@@ -7,8 +7,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { DataTable } from "@/components/admin/data-table";
 import { columns } from "@/components/admin/shops/columns";
-import { DataTable } from "@/components/admin/shops/data-table";
 import { ShopHeader } from "@/components/admin/shops/shop-header";
 
 export default async function ShopsPage({
@@ -44,6 +44,7 @@ export default async function ShopsPage({
             data={shops}
             totalCount={totalCount}
             pageCount={Math.ceil(totalCount / pageSize)}
+            searchPlaceholder="Search shops..."
           />
         </CardContent>
       </Card>

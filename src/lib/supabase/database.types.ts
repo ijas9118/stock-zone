@@ -14,6 +14,33 @@ export type Database = {
   };
   public: {
     Tables: {
+      categories: {
+        Row: {
+          cat_code: string;
+          category_name: string;
+          created_at: string;
+          description: string | null;
+          id: string;
+          updated_at: string;
+        };
+        Insert: {
+          cat_code: string;
+          category_name: string;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          updated_at?: string;
+        };
+        Update: {
+          cat_code?: string;
+          category_name?: string;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       products: {
         Row: {
           brand: string | null;
@@ -24,9 +51,9 @@ export type Database = {
           id: string;
           is_active: boolean;
           name: string;
-          product_type: string | null;
           sku: string | null;
-          uom: string | null;
+          sub_category: string | null;
+          uom: string;
           updated_at: string;
         };
         Insert: {
@@ -38,9 +65,9 @@ export type Database = {
           id?: string;
           is_active?: boolean;
           name: string;
-          product_type?: string | null;
           sku?: string | null;
-          uom?: string | null;
+          sub_category?: string | null;
+          uom: string;
           updated_at?: string;
         };
         Update: {
@@ -52,17 +79,38 @@ export type Database = {
           id?: string;
           is_active?: boolean;
           name?: string;
-          product_type?: string | null;
           sku?: string | null;
-          uom?: string | null;
+          sub_category?: string | null;
+          uom?: string;
           updated_at?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "products_category_fkey";
+            columns: ["category"];
+            isOneToOne: false;
+            referencedRelation: "categories";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "products_created_by_fkey";
             columns: ["created_by"];
             isOneToOne: false;
             referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "products_sub_category_fkey";
+            columns: ["sub_category"];
+            isOneToOne: false;
+            referencedRelation: "subcategories";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "products_uom_fkey";
+            columns: ["uom"];
+            isOneToOne: false;
+            referencedRelation: "units_of_measure";
             referencedColumns: ["id"];
           },
         ];
@@ -390,6 +438,65 @@ export type Database = {
             referencedColumns: ["id"];
           },
         ];
+      };
+      subcategories: {
+        Row: {
+          category_id: string;
+          created_at: string;
+          description: string | null;
+          id: string;
+          subcategory_name: string;
+          updated_at: string;
+        };
+        Insert: {
+          category_id: string;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          subcategory_name: string;
+          updated_at?: string;
+        };
+        Update: {
+          category_id?: string;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          subcategory_name?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "subcategories_category_id_fkey";
+            columns: ["category_id"];
+            isOneToOne: false;
+            referencedRelation: "categories";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      units_of_measure: {
+        Row: {
+          created_at: string;
+          example: string | null;
+          full_name: string;
+          id: string;
+          uom_code: string;
+        };
+        Insert: {
+          created_at?: string;
+          example?: string | null;
+          full_name: string;
+          id?: string;
+          uom_code: string;
+        };
+        Update: {
+          created_at?: string;
+          example?: string | null;
+          full_name?: string;
+          id?: string;
+          uom_code?: string;
+        };
+        Relationships: [];
       };
       warehouses: {
         Row: {

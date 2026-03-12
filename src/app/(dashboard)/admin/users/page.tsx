@@ -9,8 +9,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { DataTable } from "@/components/admin/data-table";
 import { columns } from "@/components/admin/users/columns";
-import { DataTable } from "@/components/admin/users/data-table";
+import { UserFilters } from "@/components/admin/users/user-filters";
 
 export default async function UsersPage({
   searchParams,
@@ -62,8 +63,10 @@ export default async function UsersPage({
             columns={columns}
             data={users}
             totalCount={totalCount}
-            shopTypes={shopTypes}
             pageCount={Math.ceil(totalCount / pageSize)}
+            searchPlaceholder="Search name or email..."
+            additionalFilters={<UserFilters shopTypes={shopTypes} />}
+            meta={{ shopTypes }}
           />
         </CardContent>
       </Card>

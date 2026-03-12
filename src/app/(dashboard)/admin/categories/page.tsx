@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { getWarehouses } from "@/actions/admin/warehouses";
+import { getCategories } from "@/actions/admin/categories";
 
 import {
   Card,
@@ -9,11 +9,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CategoryHeader } from "@/components/admin/categories/category-header";
+import { columns } from "@/components/admin/categories/columns";
 import { DataTable } from "@/components/admin/data-table";
-import { columns } from "@/components/admin/warehouses/columns";
-import { WarehouseHeader } from "@/components/admin/warehouses/warehouse-header";
 
-interface WarehousesPageProps {
+interface CategoriesPageProps {
   searchParams: Promise<{
     q?: string;
     page?: string;
@@ -21,15 +21,15 @@ interface WarehousesPageProps {
   }>;
 }
 
-export default async function WarehousesPage({
+export default async function CategoriesPage({
   searchParams,
-}: WarehousesPageProps) {
+}: CategoriesPageProps) {
   const { q, page, pageSize } = await searchParams;
 
   const currentPage = Number(page) || 1;
   const currentPageSize = Number(pageSize) || 10;
 
-  const { warehouses, totalCount } = await getWarehouses({
+  const { categories, totalCount } = await getCategories({
     query: q,
     page: currentPage,
     pageSize: currentPageSize,
@@ -39,22 +39,22 @@ export default async function WarehousesPage({
 
   return (
     <div className="flex-1 space-y-6">
-      <WarehouseHeader />
+      <CategoryHeader />
       <Card>
         <CardHeader>
-          <CardTitle>Warehouses</CardTitle>
+          <CardTitle>Category List</CardTitle>
           <CardDescription>
-            A list of all storage locations where products are housed.
+            A high-level view of product categories.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Suspense fallback={<WarehouseTableSkeleton />}>
+          <Suspense fallback={<TableSkeleton />}>
             <DataTable
               columns={columns}
-              data={warehouses}
+              data={categories}
               totalCount={totalCount}
               pageCount={pageCount}
-              searchPlaceholder="Search warehouses..."
+              searchPlaceholder="Search categories..."
             />
           </Suspense>
         </CardContent>
@@ -63,7 +63,7 @@ export default async function WarehousesPage({
   );
 }
 
-function WarehouseTableSkeleton() {
+function TableSkeleton() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4">

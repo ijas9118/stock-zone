@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { getWarehouses } from "@/actions/admin/warehouses";
+import { getCategories, getSubcategories } from "@/actions/admin/categories";
 
 import {
   Card,
@@ -10,51 +10,58 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DataTable } from "@/components/admin/data-table";
-import { columns } from "@/components/admin/warehouses/columns";
-import { WarehouseHeader } from "@/components/admin/warehouses/warehouse-header";
+import { columns } from "@/components/admin/subcategories/columns";
+import { SubcategoryFilters } from "@/components/admin/subcategories/subcategory-filters";
+import { SubcategoryHeader } from "@/components/admin/subcategories/subcategory-header";
 
-interface WarehousesPageProps {
+interface SubcategoriesPageProps {
   searchParams: Promise<{
     q?: string;
+    category_id?: string;
     page?: string;
     pageSize?: string;
   }>;
 }
 
-export default async function WarehousesPage({
+export default async function SubcategoriesPage({
   searchParams,
-}: WarehousesPageProps) {
-  const { q, page, pageSize } = await searchParams;
+}: SubcategoriesPageProps) {
+  const { q, category_id, page, pageSize } = await searchParams;
 
   const currentPage = Number(page) || 1;
   const currentPageSize = Number(pageSize) || 10;
 
-  const { warehouses, totalCount } = await getWarehouses({
-    query: q,
-    page: currentPage,
-    pageSize: currentPageSize,
-  });
+  const [{ subcategories, totalCount }, { categories }] = await Promise.all([
+    getSubcategories({
+      query: q,
+      categoryId: category_id,
+      page: currentPage,
+      pageSize: currentPageSize,
+    }),
+    getCategories({ pageSize: 100 }), // For the filter
+  ]);
 
   const pageCount = Math.ceil(totalCount / currentPageSize);
 
   return (
     <div className="flex-1 space-y-6">
-      <WarehouseHeader />
+      <SubcategoryHeader />
       <Card>
         <CardHeader>
-          <CardTitle>Warehouses</CardTitle>
+          <CardTitle>Subcategory List</CardTitle>
           <CardDescription>
-            A list of all storage locations where products are housed.
+            Drill down into specific product types.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Suspense fallback={<WarehouseTableSkeleton />}>
+          <Suspense fallback={<TableSkeleton />}>
             <DataTable
               columns={columns}
-              data={warehouses}
+              data={subcategories}
               totalCount={totalCount}
               pageCount={pageCount}
-              searchPlaceholder="Search warehouses..."
+              searchPlaceholder="Search subcategories..."
+              additionalFilters={<SubcategoryFilters categories={categories} />}
             />
           </Suspense>
         </CardContent>
@@ -63,7 +70,7 @@ export default async function WarehousesPage({
   );
 }
 
-function WarehouseTableSkeleton() {
+function TableSkeleton() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4">
