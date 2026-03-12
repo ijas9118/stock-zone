@@ -86,10 +86,24 @@ export type Database = {
         };
         Relationships: [
           {
+            foreignKeyName: "products_category_fkey";
+            columns: ["category"];
+            isOneToOne: false;
+            referencedRelation: "categories";
+            referencedColumns: ["id"];
+          },
+          {
             foreignKeyName: "products_created_by_fkey";
             columns: ["created_by"];
             isOneToOne: false;
             referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "products_sub_category_fkey";
+            columns: ["sub_category"];
+            isOneToOne: false;
+            referencedRelation: "subcategories";
             referencedColumns: ["id"];
           },
           {
