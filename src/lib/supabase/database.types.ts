@@ -14,6 +14,33 @@ export type Database = {
   };
   public: {
     Tables: {
+      categories: {
+        Row: {
+          cat_code: string;
+          category_name: string;
+          created_at: string;
+          description: string | null;
+          id: string;
+          updated_at: string;
+        };
+        Insert: {
+          cat_code: string;
+          category_name: string;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          updated_at?: string;
+        };
+        Update: {
+          cat_code?: string;
+          category_name?: string;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       products: {
         Row: {
           brand: string | null;
@@ -24,8 +51,8 @@ export type Database = {
           id: string;
           is_active: boolean;
           name: string;
-          product_type: string | null;
           sku: string | null;
+          sub_category: string | null;
           uom: string;
           updated_at: string;
         };
@@ -38,8 +65,8 @@ export type Database = {
           id?: string;
           is_active?: boolean;
           name: string;
-          product_type?: string | null;
           sku?: string | null;
+          sub_category?: string | null;
           uom: string;
           updated_at?: string;
         };
@@ -52,8 +79,8 @@ export type Database = {
           id?: string;
           is_active?: boolean;
           name?: string;
-          product_type?: string | null;
           sku?: string | null;
+          sub_category?: string | null;
           uom?: string;
           updated_at?: string;
         };
@@ -394,6 +421,41 @@ export type Database = {
             columns: ["transferred_by"];
             isOneToOne: false;
             referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      subcategories: {
+        Row: {
+          category_id: string;
+          created_at: string;
+          description: string | null;
+          id: string;
+          subcategory_name: string;
+          updated_at: string;
+        };
+        Insert: {
+          category_id: string;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          subcategory_name: string;
+          updated_at?: string;
+        };
+        Update: {
+          category_id?: string;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          subcategory_name?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "subcategories_category_id_fkey";
+            columns: ["category_id"];
+            isOneToOne: false;
+            referencedRelation: "categories";
             referencedColumns: ["id"];
           },
         ];

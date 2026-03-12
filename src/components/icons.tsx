@@ -6,7 +6,9 @@ import {
   ChevronsUpDown,
   Eye,
   EyeOff,
+  Layers,
   LayoutDashboard,
+  LayoutGrid,
   Loader2,
   Lock,
   LogOut,
@@ -60,4 +62,6 @@ export const Icons = {
   eye: Eye,
   eyeOff: EyeOff,
   uom: Ruler,
+  categories: LayoutGrid,
+  subcategories: Layers,
 };

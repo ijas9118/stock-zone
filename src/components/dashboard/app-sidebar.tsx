@@ -55,6 +55,16 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
     navItems.push(
       { title: "Users", href: "/admin/users", icon: Icons.users },
       { title: "Shops", href: "/admin/shops", icon: Icons.shops },
+      {
+        title: "Categories",
+        href: "/admin/categories",
+        icon: Icons.categories,
+      },
+      {
+        title: "Subcategories",
+        href: "/admin/subcategories",
+        icon: Icons.subcategories,
+      },
       { title: "Units of Measure", href: "/admin/uom", icon: Icons.uom }
     );
   }
