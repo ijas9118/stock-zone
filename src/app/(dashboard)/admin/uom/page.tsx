@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { getWarehouses } from "@/actions/admin/warehouses";
+import { getUnitsOfMeasure } from "@/actions/admin/uom";
 
 import {
   Card,
@@ -10,10 +10,10 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DataTable } from "@/components/admin/data-table";
-import { columns } from "@/components/admin/warehouses/columns";
-import { WarehouseHeader } from "@/components/admin/warehouses/warehouse-header";
+import { columns } from "@/components/admin/uom/columns";
+import { UOMHeader } from "@/components/admin/uom/uom-header";
 
-interface WarehousesPageProps {
+interface UOMPageProps {
   searchParams: Promise<{
     q?: string;
     page?: string;
@@ -21,15 +21,13 @@ interface WarehousesPageProps {
   }>;
 }
 
-export default async function WarehousesPage({
-  searchParams,
-}: WarehousesPageProps) {
+export default async function UOMPage({ searchParams }: UOMPageProps) {
   const { q, page, pageSize } = await searchParams;
 
   const currentPage = Number(page) || 1;
   const currentPageSize = Number(pageSize) || 10;
 
-  const { warehouses, totalCount } = await getWarehouses({
+  const { unitsOfMeasure, totalCount } = await getUnitsOfMeasure({
     query: q,
     page: currentPage,
     pageSize: currentPageSize,
@@ -39,22 +37,22 @@ export default async function WarehousesPage({
 
   return (
     <div className="flex-1 space-y-6">
-      <WarehouseHeader />
+      <UOMHeader />
       <Card>
         <CardHeader>
-          <CardTitle>Warehouses</CardTitle>
+          <CardTitle>Units of Measure</CardTitle>
           <CardDescription>
-            A list of all storage locations where products are housed.
+            A list of all measurement units available for product stock.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Suspense fallback={<WarehouseTableSkeleton />}>
+          <Suspense fallback={<UOMTableSkeleton />}>
             <DataTable
               columns={columns}
-              data={warehouses}
+              data={unitsOfMeasure}
               totalCount={totalCount}
               pageCount={pageCount}
-              searchPlaceholder="Search warehouses..."
+              searchPlaceholder="Search units..."
             />
           </Suspense>
         </CardContent>
@@ -63,7 +61,7 @@ export default async function WarehousesPage({
   );
 }
 
-function WarehouseTableSkeleton() {
+function UOMTableSkeleton() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4">

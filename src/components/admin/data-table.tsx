@@ -6,6 +6,7 @@ import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
+  TableMeta,
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
@@ -33,6 +34,10 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   totalCount: number;
   pageCount: number;
+  searchPlaceholder?: string;
+  searchKey?: string;
+  additionalFilters?: React.ReactNode;
+  meta?: TableMeta<TData>;
 }
 
 export function DataTable<TData, TValue>({
@@ -40,6 +45,10 @@ export function DataTable<TData, TValue>({
   data,
   totalCount,
   pageCount,
+  searchPlaceholder = "Search...",
+  searchKey = "q",
+  additionalFilters,
+  meta,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
   const pathname = usePathname();
@@ -51,7 +60,7 @@ export function DataTable<TData, TValue>({
 
   const page = Number(searchParams.get("page")) || 1;
   const pageSize = Number(searchParams.get("pageSize")) || 10;
-  const currentQuery = searchParams.get("q") ?? "";
+  const currentQuery = searchParams.get(searchKey) ?? "";
 
   const [searchValue, setSearchValue] = React.useState(currentQuery);
 
@@ -73,6 +82,7 @@ export function DataTable<TData, TValue>({
         pageSize,
       },
     },
+    meta,
   });
 
   const createQueryString = React.useCallback(
@@ -80,7 +90,7 @@ export function DataTable<TData, TValue>({
       const newSearchParams = new URLSearchParams(searchParams.toString());
 
       for (const [key, value] of Object.entries(params)) {
-        if (value === null) {
+        if (value === null || value === "all") {
           newSearchParams.delete(key);
         } else {
           newSearchParams.set(key, String(value));
@@ -97,12 +107,19 @@ export function DataTable<TData, TValue>({
 
     const timer = setTimeout(() => {
       router.push(
-        `${pathname}?${createQueryString({ q: searchValue || null, page: 1 })}`
+        `${pathname}?${createQueryString({ [searchKey]: searchValue || null, page: 1 })}`
       );
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [searchValue, currentQuery, pathname, router, createQueryString]);
+  }, [
+    searchValue,
+    currentQuery,
+    pathname,
+    router,
+    createQueryString,
+    searchKey,
+  ]);
 
   const handlePageChange = (newPage: number) => {
     router.push(`${pathname}?${createQueryString({ page: newPage })}`);
@@ -115,19 +132,19 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-4">
-        <div className="relative max-w-sm flex-1">
-          <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
-          <Input
-            placeholder="Search shops..."
-            value={searchValue}
-            onChange={(event) => setSearchValue(event.target.value)}
-            className="pl-9"
-          />
-        </div>
-
-        <div className="flex items-center gap-2">
-          {currentQuery && (
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-1 flex-wrap items-center gap-4">
+          <div className="relative max-w-sm min-w-[240px] flex-1">
+            <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
+            <Input
+              placeholder={searchPlaceholder}
+              value={searchValue}
+              onChange={(event) => setSearchValue(event.target.value)}
+              className="pl-9"
+            />
+          </div>
+          {additionalFilters}
+          {searchValue && (
             <Button
               variant="ghost"
               onClick={handleReset}
@@ -137,10 +154,12 @@ export function DataTable<TData, TValue>({
               <X className="ml-2 h-4 w-4" />
             </Button>
           )}
+        </div>
 
+        <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline">
+              <Button variant="outline" className="hidden lg:flex">
                 Columns <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -167,14 +186,17 @@ export function DataTable<TData, TValue>({
         </div>
       </div>
 
-      <div className="bg-card rounded-md border">
+      <div className="bg-card overflow-hidden rounded-md border">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-muted/50 border-b">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="hover:bg-transparent">
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead
+                      key={header.id}
+                      className="text-muted-foreground px-4 py-3 text-left text-xs font-semibold tracking-wider uppercase"
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -193,9 +215,10 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="group hover:bg-muted/50"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="px-4 py-3">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -218,9 +241,11 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
         <div className="text-muted-foreground text-sm">
-          Total: {totalCount} records
+          {table.getFilteredSelectedRowModel().rows.length > 0
+            ? `${table.getFilteredSelectedRowModel().rows.length} of ${totalCount} row(s) selected (Total: ${totalCount})`
+            : `Total: ${totalCount} record(s)`}
         </div>
         <div className="flex items-center space-x-6 lg:space-x-8">
           <div className="flex items-center justify-center text-sm font-medium">

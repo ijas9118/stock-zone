@@ -12,6 +12,7 @@ import {
   LogOut,
   Mail,
   Package,
+  Ruler,
   Settings,
   Store,
   User,
@@ -58,4 +59,5 @@ export const Icons = {
   logo: Package,
   eye: Eye,
   eyeOff: EyeOff,
+  uom: Ruler,
 };

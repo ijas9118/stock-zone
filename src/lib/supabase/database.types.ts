@@ -26,7 +26,7 @@ export type Database = {
           name: string;
           product_type: string | null;
           sku: string | null;
-          uom: string | null;
+          uom: string;
           updated_at: string;
         };
         Insert: {
@@ -40,7 +40,7 @@ export type Database = {
           name: string;
           product_type?: string | null;
           sku?: string | null;
-          uom?: string | null;
+          uom: string;
           updated_at?: string;
         };
         Update: {
@@ -54,7 +54,7 @@ export type Database = {
           name?: string;
           product_type?: string | null;
           sku?: string | null;
-          uom?: string | null;
+          uom?: string;
           updated_at?: string;
         };
         Relationships: [
@@ -63,6 +63,13 @@ export type Database = {
             columns: ["created_by"];
             isOneToOne: false;
             referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "products_uom_fkey";
+            columns: ["uom"];
+            isOneToOne: false;
+            referencedRelation: "units_of_measure";
             referencedColumns: ["id"];
           },
         ];
@@ -390,6 +397,30 @@ export type Database = {
             referencedColumns: ["id"];
           },
         ];
+      };
+      units_of_measure: {
+        Row: {
+          created_at: string;
+          example: string | null;
+          full_name: string;
+          id: string;
+          uom_code: string;
+        };
+        Insert: {
+          created_at?: string;
+          example?: string | null;
+          full_name: string;
+          id?: string;
+          uom_code: string;
+        };
+        Update: {
+          created_at?: string;
+          example?: string | null;
+          full_name?: string;
+          id?: string;
+          uom_code?: string;
+        };
+        Relationships: [];
       };
       warehouses: {
         Row: {
