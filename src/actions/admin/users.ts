@@ -29,6 +29,36 @@ async function verifyAdmin() {
   }
 }
 
+export async function getUserById(userId: string) {
+  await verifyAdmin();
+
+  const adminClient = createAdminClient();
+
+  const { data, error } = await adminClient
+    .from("profiles")
+    .select(
+      `
+      *,
+      profile_shop_types (
+        access_level,
+        shop_types (
+          id,
+          name
+        )
+      )
+    `
+    )
+    .eq("id", userId)
+    .single();
+
+  if (error) {
+    console.error("Error fetching user:", error);
+    throw new Error("Failed to fetch user");
+  }
+
+  return data as ProfileWithShopType;
+}
+
 export async function getUsers(
   params: {
     query?: string;
@@ -235,6 +265,43 @@ export async function updateUserShopTypes(
     }
 
     revalidateTag("admin:users", "default");
+    revalidatePath("/admin/users");
+    return { success: true };
+  } catch (err: unknown) {
+    return {
+      error: err instanceof Error ? err.message : "An unknown error occurred",
+    };
+  }
+}
+export async function updateUserPermissions(
+  userId: string,
+  permissions: {
+    perm_stock_read_all?: boolean;
+    perm_stock_own_shop?: boolean;
+    perm_add_products?: boolean;
+    perm_do_transfer?: boolean;
+    perm_do_adjustment?: boolean;
+    perm_do_purchase?: boolean;
+    perm_do_sale?: boolean;
+    perm_do_return?: boolean;
+  }
+) {
+  try {
+    await verifyAdmin();
+    const adminClient = createAdminClient();
+
+    const { error } = await adminClient
+      .from("profiles")
+      .update({ ...permissions, updated_at: new Date().toISOString() })
+      .eq("id", userId);
+
+    if (error) {
+      console.error("Error updating user permissions:", error);
+      return { error: error.message };
+    }
+
+    revalidateTag("admin:users", "default");
+    revalidatePath(`/admin/users/${userId}`);
     revalidatePath("/admin/users");
     return { success: true };
   } catch (err: unknown) {

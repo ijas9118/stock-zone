@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   ProfileWithShopType,
   updateUserRole,
@@ -9,6 +10,7 @@ import {
 import { Table } from "@tanstack/react-table";
 import {
   Clock,
+  Eye,
   MoreHorizontal,
   Shield,
   Store,
@@ -53,6 +55,7 @@ interface TableMeta {
 }
 
 export function UserActions({ user, table }: UserActionsProps) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [showShopsDialog, setShowShopsDialog] = useState(false);
 
@@ -98,6 +101,12 @@ export function UserActions({ user, table }: UserActionsProps) {
             }}
           >
             Copy Email
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => router.push(`/admin/users/${user.id}`)}
+          >
+            <Eye className="mr-2 h-4 w-4" />
+            View Profile
           </DropdownMenuItem>
           <DropdownMenuSeparator />
 

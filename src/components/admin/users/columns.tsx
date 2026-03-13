@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ProfileWithShopType } from "@/actions/admin/users";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
@@ -51,7 +52,12 @@ export const columns: ColumnDef<ProfileWithShopType>[] = [
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
-            <span className="font-medium">{user.full_name || "N/A"}</span>
+            <Link
+              href={`/admin/users/${user.id}`}
+              className="hover:text-primary font-medium transition-colors"
+            >
+              {user.full_name || "N/A"}
+            </Link>
             <span className="text-muted-foreground text-xs">{user.email}</span>
           </div>
         </div>

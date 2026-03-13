@@ -12,6 +12,7 @@ import {
 } from "@tanstack/react-table";
 import { ChevronDown, Search, X } from "lucide-react";
 
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -38,6 +39,7 @@ interface DataTableProps<TData, TValue> {
   searchKey?: string;
   additionalFilters?: React.ReactNode;
   meta?: TableMeta<TData>;
+  onRowClick?: (data: TData) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -49,6 +51,7 @@ export function DataTable<TData, TValue>({
   searchKey = "q",
   additionalFilters,
   meta,
+  onRowClick,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
   const pathname = usePathname();
@@ -215,7 +218,13 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="group hover:bg-muted/50"
+                  className={cn(
+                    "group transition-colors",
+                    onRowClick
+                      ? "hover:bg-muted/80 cursor-pointer"
+                      : "hover:bg-muted/50"
+                  )}
+                  onClick={() => onRowClick?.(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="px-4 py-3">

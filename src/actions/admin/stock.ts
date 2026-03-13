@@ -23,11 +23,69 @@ export type StockWithDetails = StockRow & {
   shop_types: { name: string } | null;
 };
 
-async function verifyAdmin() {
+async function verifyUserPermission(
+  actionType:
+    | "transfer"
+    | "adjustment"
+    | "purchase"
+    | "sale"
+    | "return"
+    | "initial_stock"
+) {
+  const auth = await getAuthContext();
+  if (!auth.isAuthenticated || !auth.userId) throw new Error("Unauthorized");
+
+  // Admins bypass granular checks
+  if (auth.role === "admin") return auth.userId;
+
+  const adminClient = createAdminClient();
+  const { data: profile, error } = await adminClient
+    .from("profiles")
+    .select(
+      "perm_do_transfer, perm_do_adjustment, perm_do_purchase, perm_do_sale, perm_do_return"
+    )
+    .eq("id", auth.userId)
+    .single();
+
+  if (error || !profile) {
+    throw new Error("Forbidden: Could not verify user permissions");
+  }
+
+  // Check specific permissions based on the action
+  let hasPermission = false;
+  switch (actionType) {
+    case "transfer":
+      hasPermission = profile.perm_do_transfer;
+      break;
+    case "adjustment":
+    case "initial_stock":
+      hasPermission = profile.perm_do_adjustment;
+      break;
+    case "purchase":
+      hasPermission = profile.perm_do_purchase;
+      break;
+    case "sale":
+      hasPermission = profile.perm_do_sale;
+      break;
+    case "return":
+      hasPermission = profile.perm_do_return;
+      break;
+  }
+
+  if (!hasPermission) {
+    throw new Error(
+      `Forbidden: You do not have permission to perform ${actionType}`
+    );
+  }
+
+  return auth.userId;
+}
+
+// Keep a generic verifyAdmin for reads (or use RLS) if needed, but we'll use auth context directly in getStocks
+async function verifyAdminRead() {
   const auth = await getAuthContext();
   if (!auth.isAuthenticated) throw new Error("Unauthorized");
-  if (auth.role !== "admin")
-    throw new Error("Forbidden: Admin access required");
+  // For getting stocks, if they are active they can hit the endpoint, RLS handles visibility
   return auth.userId;
 }
 
@@ -42,7 +100,7 @@ export async function getStocks(
     pageSize?: number;
   } = {}
 ) {
-  await verifyAdmin();
+  await verifyAdminRead();
   const {
     warehouseId,
     shopTypeId,
@@ -147,7 +205,11 @@ export async function processStockMovement(data: {
   referenceId?: string; // Optional, can be provided by caller (e.g. transferId)
 }) {
   try {
-    const userId = await verifyAdmin();
+    const userId = await verifyUserPermission(
+      data.type === "transfer_out" || data.type === "transfer_in"
+        ? "transfer"
+        : data.type
+    );
     const adminClient = createAdminClient();
 
     // 1. Get current stock
@@ -265,7 +327,7 @@ export async function transferStock(data: {
   notes?: string;
 }) {
   try {
-    const userId = await verifyAdmin();
+    const userId = await verifyUserPermission("transfer");
     const adminClient = createAdminClient();
 
     if (data.sourceWarehouseId === data.destWarehouseId) {
