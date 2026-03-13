@@ -1,37 +1,45 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Icons } from "@/components/icons";
+import { Suspense } from "react";
+import { getWarehouses } from "@/actions/admin/warehouses";
+import { getMyAssignedShops, getMyProfile } from "@/actions/user/stock";
 
-export default function UserDashboard() {
+import { UserInventoryView } from "@/components/user/inventory/user-inventory-view";
+
+export default async function UserDashboardPage() {
+  const [assignedShops, profile, warehousesData] = await Promise.all([
+    getMyAssignedShops(),
+    getMyProfile(),
+    getWarehouses({ pageSize: 100 }),
+  ]);
+
+  const permissions = {
+    perm_do_transfer: profile.perm_do_transfer,
+    perm_do_adjustment: profile.perm_do_adjustment,
+    perm_do_purchase: profile.perm_do_purchase,
+    perm_do_sale: profile.perm_do_sale,
+    perm_do_return: profile.perm_do_return,
+  };
+
+  return (
+    <div className="flex flex-col gap-8 pb-10">
+      <Suspense fallback={<InventorySkeleton />}>
+        <UserInventoryView
+          assignedShops={assignedShops}
+          warehouses={warehousesData.warehouses}
+          permissions={permissions}
+        />
+      </Suspense>
+    </div>
+  );
+}
+
+function InventorySkeleton() {
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">User Dashboard</h1>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">My Shop Stock</CardTitle>
-            <Icons.products className="text-muted-foreground h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">128</div>
-            <p className="text-muted-foreground text-xs">Items in your shop</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground text-sm">
-              Your recent stock updates and shop activities will appear here.
-            </p>
-          </CardContent>
-        </Card>
+      <div className="bg-muted h-11 w-full animate-pulse rounded-xl" />
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div key={i} className="bg-muted h-48 animate-pulse rounded-2xl" />
+        ))}
       </div>
     </div>
   );

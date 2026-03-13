@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
@@ -44,6 +45,14 @@ export function UserPermissionsForm({ user }: UserPermissionsFormProps) {
     setPermissions((prev) => ({
       ...prev,
       [key]: !prev[key],
+    }));
+  };
+
+  const setVisibility = (value: string) => {
+    setPermissions((prev) => ({
+      ...prev,
+      perm_stock_read_all: value === "all",
+      perm_stock_own_shop: value === "assigned",
     }));
   };
 
@@ -166,31 +175,68 @@ export function UserPermissionsForm({ user }: UserPermissionsFormProps) {
               </p>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
-              {group.items.map((item) => (
-                <div
-                  key={item.key}
-                  className="hover:bg-accent/50 flex flex-row items-start space-y-0 space-x-3 rounded-md border p-4 transition-colors"
+              {groupIdx === 0 ? (
+                <RadioGroup
+                  value={permissions.perm_stock_read_all ? "all" : "assigned"}
+                  onValueChange={setVisibility}
+                  className="grid gap-4 sm:col-span-2 sm:grid-cols-2"
                 >
-                  <Checkbox
-                    id={item.key}
-                    checked={permissions[item.key as keyof typeof permissions]}
-                    onCheckedChange={() =>
-                      togglePermission(item.key as keyof typeof permissions)
-                    }
-                  />
-                  <div className="grid gap-1.5 leading-none">
-                    <Label
-                      htmlFor={item.key}
-                      className="cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  {group.items.map((item) => (
+                    <div
+                      key={item.key}
+                      className="hover:bg-accent/50 flex flex-row items-start space-y-0 space-x-3 rounded-md border p-4 transition-colors"
                     >
-                      {item.label}
-                    </Label>
-                    <p className="text-muted-foreground text-xs">
-                      {item.description}
-                    </p>
+                      <RadioGroupItem
+                        value={
+                          item.key === "perm_stock_read_all"
+                            ? "all"
+                            : "assigned"
+                        }
+                        id={item.key}
+                      />
+                      <div className="grid gap-1.5 leading-none">
+                        <Label
+                          htmlFor={item.key}
+                          className="cursor-pointer text-sm leading-none font-medium"
+                        >
+                          {item.label}
+                        </Label>
+                        <p className="text-muted-foreground text-xs">
+                          {item.description}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </RadioGroup>
+              ) : (
+                group.items.map((item) => (
+                  <div
+                    key={item.key}
+                    className="hover:bg-accent/50 flex flex-row items-start space-y-0 space-x-3 rounded-md border p-4 transition-colors"
+                  >
+                    <Checkbox
+                      id={item.key}
+                      checked={
+                        permissions[item.key as keyof typeof permissions]
+                      }
+                      onCheckedChange={() =>
+                        togglePermission(item.key as keyof typeof permissions)
+                      }
+                    />
+                    <div className="grid gap-1.5 leading-none">
+                      <Label
+                        htmlFor={item.key}
+                        className="cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        {item.label}
+                      </Label>
+                      <p className="text-muted-foreground text-xs">
+                        {item.description}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
             {groupIdx < permissionGroups.length - 1 && (
               <Separator className="mt-8 opacity-50" />

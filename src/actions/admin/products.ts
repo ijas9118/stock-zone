@@ -31,7 +31,8 @@ export async function getProducts(
     pageSize?: number;
   } = {}
 ) {
-  await verifyAdmin();
+  const auth = await getAuthContext();
+  if (!auth.isAuthenticated) throw new Error("Unauthorized");
   const { query, categoryId, subCategoryId, page = 1, pageSize = 10 } = params;
 
   return unstable_cache(
