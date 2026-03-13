@@ -165,6 +165,11 @@ export type Database = {
           full_name: string | null;
           id: string;
           perm_add_products: boolean;
+          perm_do_adjustment: boolean;
+          perm_do_purchase: boolean;
+          perm_do_return: boolean;
+          perm_do_sale: boolean;
+          perm_do_transfer: boolean;
           perm_stock_own_shop: boolean;
           perm_stock_read_all: boolean;
           role: Database["public"]["Enums"]["app_role"];
@@ -178,6 +183,11 @@ export type Database = {
           full_name?: string | null;
           id: string;
           perm_add_products?: boolean;
+          perm_do_adjustment?: boolean;
+          perm_do_purchase?: boolean;
+          perm_do_return?: boolean;
+          perm_do_sale?: boolean;
+          perm_do_transfer?: boolean;
           perm_stock_own_shop?: boolean;
           perm_stock_read_all?: boolean;
           role?: Database["public"]["Enums"]["app_role"];
@@ -191,6 +201,11 @@ export type Database = {
           full_name?: string | null;
           id?: string;
           perm_add_products?: boolean;
+          perm_do_adjustment?: boolean;
+          perm_do_purchase?: boolean;
+          perm_do_return?: boolean;
+          perm_do_sale?: boolean;
+          perm_do_transfer?: boolean;
           perm_stock_own_shop?: boolean;
           perm_stock_read_all?: boolean;
           role?: Database["public"]["Enums"]["app_role"];
