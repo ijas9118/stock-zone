@@ -301,7 +301,6 @@ export type Database = {
           notes: string | null;
           product_id: string;
           quantity_delta: number;
-          reason: string | null;
           shop_type_id: string;
           status: Database["public"]["Enums"]["transaction_status"];
           warehouse_id: string;
@@ -313,7 +312,6 @@ export type Database = {
           notes?: string | null;
           product_id: string;
           quantity_delta: number;
-          reason?: string | null;
           shop_type_id: string;
           status?: Database["public"]["Enums"]["transaction_status"];
           warehouse_id: string;
@@ -325,7 +323,6 @@ export type Database = {
           notes?: string | null;
           product_id?: string;
           quantity_delta?: number;
-          reason?: string | null;
           shop_type_id?: string;
           status?: Database["public"]["Enums"]["transaction_status"];
           warehouse_id?: string;
@@ -361,6 +358,80 @@ export type Database = {
           },
         ];
       };
+      stock_movements: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          new_quantity: number | null;
+          notes: string | null;
+          previous_quantity: number | null;
+          product_id: string;
+          quantity_delta: number;
+          reference_id: string | null;
+          shop_type_id: string;
+          type: Database["public"]["Enums"]["movement_type"];
+          warehouse_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          new_quantity?: number | null;
+          notes?: string | null;
+          previous_quantity?: number | null;
+          product_id: string;
+          quantity_delta: number;
+          reference_id?: string | null;
+          shop_type_id: string;
+          type: Database["public"]["Enums"]["movement_type"];
+          warehouse_id: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          new_quantity?: number | null;
+          notes?: string | null;
+          previous_quantity?: number | null;
+          product_id?: string;
+          quantity_delta?: number;
+          reference_id?: string | null;
+          shop_type_id?: string;
+          type?: Database["public"]["Enums"]["movement_type"];
+          warehouse_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "stock_movements_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "stock_movements_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "stock_movements_shop_type_id_fkey";
+            columns: ["shop_type_id"];
+            isOneToOne: false;
+            referencedRelation: "shop_types";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "stock_movements_warehouse_id_fkey";
+            columns: ["warehouse_id"];
+            isOneToOne: false;
+            referencedRelation: "warehouses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       stock_transfers: {
         Row: {
           dest_warehouse_id: string;
@@ -368,7 +439,6 @@ export type Database = {
           notes: string | null;
           product_id: string;
           quantity: number;
-          reason: string | null;
           shop_type_id: string;
           source_warehouse_id: string;
           status: Database["public"]["Enums"]["transaction_status"];
@@ -381,7 +451,6 @@ export type Database = {
           notes?: string | null;
           product_id: string;
           quantity: number;
-          reason?: string | null;
           shop_type_id: string;
           source_warehouse_id: string;
           status?: Database["public"]["Enums"]["transaction_status"];
@@ -394,7 +463,6 @@ export type Database = {
           notes?: string | null;
           product_id?: string;
           quantity?: number;
-          reason?: string | null;
           shop_type_id?: string;
           source_warehouse_id?: string;
           status?: Database["public"]["Enums"]["transaction_status"];
@@ -569,6 +637,14 @@ export type Database = {
         | "stock.read_own_shop"
         | "users.manage";
       app_role: "admin" | "manager" | "user";
+      movement_type:
+        | "adjustment"
+        | "purchase"
+        | "transfer_in"
+        | "transfer_out"
+        | "sale"
+        | "return"
+        | "initial_stock";
       transaction_status: "pending" | "approved" | "rejected";
     };
     CompositeTypes: {
@@ -713,6 +789,15 @@ export const Constants = {
         "users.manage",
       ],
       app_role: ["admin", "manager", "user"],
+      movement_type: [
+        "adjustment",
+        "purchase",
+        "transfer_in",
+        "transfer_out",
+        "sale",
+        "return",
+        "initial_stock",
+      ],
       transaction_status: ["pending", "approved", "rejected"],
     },
   },

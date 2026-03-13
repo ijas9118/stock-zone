@@ -65,7 +65,8 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
         href: "/admin/subcategories",
         icon: Icons.subcategories,
       },
-      { title: "Units of Measure", href: "/admin/uom", icon: Icons.uom }
+      { title: "Units of Measure", href: "/admin/uom", icon: Icons.uom },
+      { title: "Inventory", href: "/admin/stock", icon: Icons.stock }
     );
   }
 

@@ -64,4 +64,5 @@ export const Icons = {
   uom: Ruler,
   categories: LayoutGrid,
   subcategories: Layers,
+  stock: Package, // Reusing Package for now or I can add Boxes
 };
