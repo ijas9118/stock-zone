@@ -1,23 +1,14 @@
 import { Suspense } from "react";
 import { getWarehouses } from "@/actions/admin/warehouses";
-import { getMyAssignedShops, getMyProfile } from "@/actions/user/stock";
+import { getMyAssignedShops } from "@/actions/user/stock";
 
 import { UserInventoryView } from "@/components/user/inventory/user-inventory-view";
 
 export default async function UserDashboardPage() {
-  const [assignedShops, profile, warehousesData] = await Promise.all([
+  const [assignedShops, warehousesData] = await Promise.all([
     getMyAssignedShops(),
-    getMyProfile(),
     getWarehouses({ pageSize: 100 }),
   ]);
-
-  const permissions = {
-    perm_do_transfer: profile.perm_do_transfer,
-    perm_do_adjustment: profile.perm_do_adjustment,
-    perm_do_purchase: profile.perm_do_purchase,
-    perm_do_sale: profile.perm_do_sale,
-    perm_do_return: profile.perm_do_return,
-  };
 
   return (
     <div className="flex flex-col gap-8 pb-10">
@@ -25,7 +16,6 @@ export default async function UserDashboardPage() {
         <UserInventoryView
           assignedShops={assignedShops}
           warehouses={warehousesData.warehouses}
-          permissions={permissions}
         />
       </Suspense>
     </div>

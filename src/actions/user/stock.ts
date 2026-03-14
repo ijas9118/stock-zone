@@ -91,8 +91,10 @@ export async function getUserStocks(
   }
 
   if (query) {
+    // Wrap the pattern in double quotes to handle special characters like commas in the query
+    const pattern = `"%${query}%"`;
     supabaseQuery = supabaseQuery.or(
-      `name.ilike.%${query}%,sku.ilike.%${query}%,brand.ilike.%${query}%`,
+      `name.ilike.${pattern},sku.ilike.${pattern},brand.ilike.${pattern}`,
       { referencedTable: "products" }
     );
   }
@@ -181,4 +183,40 @@ export async function getMyAssignedShops() {
       };
     })
     .filter((s) => s.id && s.name);
+}
+
+export async function getUserStockById(stockId: string) {
+  const auth = await getAuthContext();
+  if (!auth.isAuthenticated) throw new Error("Unauthorized");
+
+  const adminClient = createAdminClient();
+
+  const { data, error } = await adminClient
+    .from("stock")
+    .select(
+      `
+      *,
+      products(
+        id,
+        name,
+        sku,
+        category,
+        sub_category,
+        categories(category_name),
+        subcategories(subcategory_name),
+        units_of_measure(full_name, uom_code)
+      ),
+      warehouses(name, id),
+      shop_types(name, id)
+    `
+    )
+    .eq("id", stockId)
+    .single();
+
+  if (error) {
+    console.error("Error fetching user stock by id:", error);
+    return null;
+  }
+
+  return data as unknown as UserStockWithDetails;
 }
