@@ -4,7 +4,6 @@ import { useEffect, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { getUserStocks, UserStockWithDetails } from "@/actions/user/stock";
 
-import { InventoryDialogs } from "./inventory-dialogs";
 import { InventoryFilters } from "./inventory-filters";
 import { InventoryList } from "./inventory-list";
 import { InventoryStats } from "./inventory-stats";
@@ -12,19 +11,11 @@ import { InventoryStats } from "./inventory-stats";
 interface UserInventoryViewProps {
   assignedShops: { id: string; name: string; accessLevel: string }[];
   warehouses: { id: string; name: string }[];
-  permissions: {
-    perm_do_transfer: boolean;
-    perm_do_adjustment: boolean;
-    perm_do_purchase: boolean;
-    perm_do_sale: boolean;
-    perm_do_return: boolean;
-  };
 }
 
 export function UserInventoryView({
   assignedShops,
   warehouses,
-  permissions,
 }: UserInventoryViewProps) {
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
@@ -35,12 +26,6 @@ export function UserInventoryView({
     searchParams.get("shop") || "all"
   );
   const [warehouseFilter, setWarehouseFilter] = useState("");
-
-  // Dialog States
-  const [activeDialog, setActiveDialog] = useState<{
-    type: "transfer" | "adjustment" | "purchase" | "sale" | "return";
-    stock: UserStockWithDetails;
-  } | null>(null);
 
   const hasValidFilter =
     (warehouseFilter && warehouseFilter !== "all") ||
@@ -74,13 +59,6 @@ export function UserInventoryView({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm, shopFilter, warehouseFilter]);
 
-  const handleAction = (
-    type: "transfer" | "adjustment" | "purchase" | "sale" | "return",
-    stock: UserStockWithDetails
-  ) => {
-    setActiveDialog({ type, stock });
-  };
-
   const handleClearFilters = () => {
     setSearchTerm("");
     setWarehouseFilter("all");
@@ -113,15 +91,7 @@ export function UserInventoryView({
       <InventoryList
         hasValidFilter={hasValidFilter}
         stocks={stocks}
-        permissions={permissions}
-        onAction={handleAction}
         onClearFilters={handleClearFilters}
-      />
-
-      <InventoryDialogs
-        activeDialog={activeDialog}
-        onClose={() => setActiveDialog(null)}
-        onRefresh={handleRefresh}
       />
     </div>
   );

@@ -5,41 +5,30 @@ import { PackageX, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-import { StockCard } from "./stock-card";
+import { InventoryTable } from "./inventory-table";
 
 interface InventoryListProps {
   hasValidFilter: boolean;
   stocks: UserStockWithDetails[];
-  permissions: {
-    perm_do_transfer: boolean;
-    perm_do_adjustment: boolean;
-    perm_do_purchase: boolean;
-    perm_do_sale: boolean;
-    perm_do_return: boolean;
-  };
-  onAction: (
-    type: "transfer" | "adjustment" | "purchase" | "sale" | "return",
-    stock: UserStockWithDetails
-  ) => void;
   onClearFilters: () => void;
 }
 
 export function InventoryList({
   hasValidFilter,
   stocks,
-  permissions,
-  onAction,
   onClearFilters,
 }: InventoryListProps) {
   if (!hasValidFilter) {
     return (
-      <div className="flex flex-col items-center justify-center space-y-4 py-20 text-center">
-        <div className="bg-muted rounded-full p-6">
-          <Search className="text-muted-foreground h-12 w-12" />
+      <div className="flex flex-col items-center justify-center space-y-3 py-12 text-center sm:space-y-4 sm:py-20">
+        <div className="bg-muted rounded-full p-4 sm:p-6">
+          <Search className="text-muted-foreground h-8 w-8 sm:h-12 sm:w-12" />
         </div>
         <div className="space-y-1">
-          <h3 className="text-xl font-bold">Select a Warehouse or Search</h3>
-          <p className="text-muted-foreground">
+          <h3 className="text-lg font-semibold tracking-tight sm:text-xl sm:font-bold">
+            Select a Warehouse or Search
+          </h3>
+          <p className="text-muted-foreground mx-auto max-w-[250px] text-xs sm:max-w-none sm:text-sm">
             Please choose a warehouse or enter a search query (min 2 characters)
             to load inventory.
           </p>
@@ -50,33 +39,28 @@ export function InventoryList({
 
   if (stocks.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center space-y-4 py-20 text-center">
-        <div className="bg-muted rounded-full p-6">
-          <PackageX className="text-muted-foreground h-12 w-12" />
+      <div className="flex flex-col items-center justify-center space-y-3 py-12 text-center sm:space-y-4 sm:py-20">
+        <div className="bg-muted rounded-full p-4 sm:p-6">
+          <PackageX className="text-muted-foreground h-8 w-8 sm:h-12 sm:w-12" />
         </div>
         <div className="space-y-1">
-          <h3 className="text-xl font-bold">No items found</h3>
-          <p className="text-muted-foreground">
+          <h3 className="text-lg font-semibold tracking-tight sm:text-xl sm:font-bold">
+            No items found
+          </h3>
+          <p className="text-muted-foreground text-xs sm:text-sm">
             Try adjusting your filters or search term.
           </p>
         </div>
-        <Button variant="outline" onClick={onClearFilters}>
+        <Button
+          variant="outline"
+          onClick={onClearFilters}
+          className="h-9 px-4 text-xs sm:h-10 sm:px-6 sm:text-sm"
+        >
           Clear all filters
         </Button>
       </div>
     );
   }
 
-  return (
-    <div className="grid grid-cols-1 gap-4 pb-10 md:grid-cols-2 xl:grid-cols-3">
-      {stocks.map((stock) => (
-        <StockCard
-          key={stock.id}
-          stock={stock}
-          permissions={permissions}
-          onAction={onAction}
-        />
-      ))}
-    </div>
-  );
+  return <InventoryTable stocks={stocks} />;
 }

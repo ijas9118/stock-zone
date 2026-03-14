@@ -20,25 +20,25 @@ export function StatCard({
   iconColor,
 }: StatCardProps) {
   return (
-    <div className="bg-card group flex items-center gap-5 rounded-2xl border p-6 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] transition-all duration-300 hover:shadow-md">
+    <div className="bg-card group flex items-center gap-3 rounded-xl border p-4 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] transition-all duration-300 hover:shadow-md sm:gap-5 sm:rounded-2xl sm:p-6">
       <div
         className={cn(
-          "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-colors duration-300",
+          "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors duration-300 sm:h-12 sm:w-12 sm:rounded-xl",
           iconBg
         )}
       >
         <Icon
           className={cn(
-            "h-6 w-6 transition-transform duration-300 group-hover:scale-110",
+            "h-5 w-5 transition-transform duration-300 group-hover:scale-110 sm:h-6 sm:w-6",
             iconColor
           )}
         />
       </div>
       <div className="flex flex-col">
-        <span className="text-foreground text-3xl leading-none font-bold tracking-tight">
+        <span className="text-foreground text-xl leading-none font-semibold tracking-tight sm:text-3xl sm:font-bold">
           {value}
         </span>
-        <span className="text-muted-foreground mt-1.5 text-sm font-medium">
+        <span className="text-muted-foreground mt-1 text-[10px] font-medium sm:mt-1.5 sm:text-sm">
           {label}
         </span>
       </div>
