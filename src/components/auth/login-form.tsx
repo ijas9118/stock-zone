@@ -80,7 +80,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
 
       const role = result.role as string;
       const redirectPath =
-        role === "admin" ? "/admin" : role === "manager" ? "/manager" : "/user";
+        role === "admin" ? "/admin" : role === "manager" ? "/manager" : "/";
 
       router.push(redirectPath);
     }

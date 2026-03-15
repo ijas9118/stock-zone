@@ -43,7 +43,7 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
   const navItems = [
     {
       title: "Dashboard",
-      href: `/${role === "user" ? "user" : role === "manager" ? "manager" : "admin"}`,
+      href: role === "admin" ? "/admin" : "/manager",
       icon: Icons.dashboard,
     },
   ];

@@ -27,7 +27,7 @@ export async function GET(request: Request) {
       }
 
       const redirectPath =
-        role === "admin" ? "/admin" : role === "manager" ? "/manager" : "/user";
+        role === "admin" ? "/admin" : role === "manager" ? "/manager" : "/";
 
       return NextResponse.redirect(`${origin}${redirectPath}`);
     }
