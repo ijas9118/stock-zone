@@ -58,7 +58,7 @@ export default async function StockMovementsPage({
   const pageCount = Math.ceil(totalCount / currentPageSize);
 
   return (
-    <div className="flex flex-1 flex-col space-y-6">
+    <div className="flex flex-1 flex-col space-y-4 sm:space-y-6">
       <StockMovementsHeader totalCount={totalCount} />
 
       <div className="flex flex-col gap-4">

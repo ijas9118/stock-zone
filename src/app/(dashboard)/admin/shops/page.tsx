@@ -21,7 +21,7 @@ export default async function ShopsPage({
   const { shops, totalCount } = await getShops({ query, page, pageSize });
 
   return (
-    <div className="flex-1 space-y-6">
+    <div className="flex-1 space-y-4 sm:space-y-6">
       <ShopHeader />
 
       <DataTable

@@ -17,7 +17,7 @@ export const columns: ColumnDef<ProductWithDetails>[] = [
       return (
         <div className="flex flex-col">
           <span className="font-medium">{product.name}</span>
-          <span className="text-muted-foreground text-xs">
+          <span className="text-muted-foreground text-[10px] sm:text-xs">
             {product.brand || "No brand"}
           </span>
         </div>
@@ -27,21 +27,25 @@ export const columns: ColumnDef<ProductWithDetails>[] = [
   {
     accessorKey: "sku",
     header: "SKU",
+    meta: { className: "hidden sm:table-cell" },
     cell: ({ row }) => (
-      <span className="font-mono text-xs">{row.original.sku || "N/A"}</span>
+      <span className="font-mono text-[10px] sm:text-xs">
+        {row.original.sku || "N/A"}
+      </span>
     ),
   },
   {
     id: "category",
     header: "Category",
+    meta: { className: "hidden sm:table-cell" },
     cell: ({ row }) => {
       const product = row.original;
       return (
         <div className="flex flex-col">
-          <span className="text-xs font-medium">
+          <span className="text-[10px] font-medium sm:text-xs">
             {product.categories?.category_name || "N/A"}
           </span>
-          <span className="text-muted-foreground text-[10px]">
+          <span className="text-muted-foreground text-[10px] sm:text-xs">
             {product.subcategories?.subcategory_name || "No subcategory"}
           </span>
         </div>
@@ -51,12 +55,13 @@ export const columns: ColumnDef<ProductWithDetails>[] = [
   {
     id: "uom",
     header: "UOM",
+    meta: { className: "hidden lg:table-cell" },
     cell: ({ row }) => (
       <div className="flex flex-col">
-        <span className="text-xs">
+        <span className="text-[10px] sm:text-xs">
           {row.original.units_of_measure?.full_name || "N/A"}
         </span>
-        <span className="text-muted-foreground font-mono text-[10px] uppercase">
+        <span className="text-muted-foreground font-mono text-[10px] uppercase sm:text-xs">
           {row.original.units_of_measure?.uom_code || "N/A"}
         </span>
       </div>
@@ -77,13 +82,14 @@ export const columns: ColumnDef<ProductWithDetails>[] = [
   {
     accessorKey: "created_at",
     header: "Created",
+    meta: { className: "hidden lg:table-cell" },
     cell: ({ row }) => {
       return (
         <div className="flex flex-col">
-          <span className="text-muted-foreground text-xs">
+          <span className="text-muted-foreground text-[10px] sm:text-xs">
             {format(new Date(row.getValue("created_at")), "MMM dd, yyyy")}
           </span>
-          <span className="text-muted-foreground text-[10px]">
+          <span className="text-muted-foreground text-[10px] sm:text-xs">
             by{" "}
             {row.original.profiles?.full_name ||
               row.original.profiles?.email ||

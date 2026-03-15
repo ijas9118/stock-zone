@@ -25,6 +25,7 @@ export const columns: ColumnDef<ProfileWithShopType>[] = [
         aria-label="Select all"
       />
     ),
+    meta: { className: "hidden sm:table-cell" },
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
@@ -54,11 +55,13 @@ export const columns: ColumnDef<ProfileWithShopType>[] = [
           <div className="flex flex-col">
             <Link
               href={`/admin/users/${user.id}`}
-              className="hover:text-primary font-medium transition-colors"
+              className="hover:text-primary text-xs font-medium transition-colors sm:text-sm"
             >
               {user.full_name || "N/A"}
             </Link>
-            <span className="text-muted-foreground text-xs">{user.email}</span>
+            <span className="text-muted-foreground text-[10px] sm:text-xs">
+              {user.email}
+            </span>
           </div>
         </div>
       );
@@ -109,11 +112,14 @@ export const columns: ColumnDef<ProfileWithShopType>[] = [
   {
     id: "shop_types",
     header: "Shop Types",
+    meta: { className: "hidden sm:table-cell" },
     cell: ({ row }) => {
       const shopTypes = row.original.profile_shop_types;
       if (!shopTypes || shopTypes.length === 0) {
         return (
-          <span className="text-muted-foreground text-xs italic">No shops</span>
+          <span className="text-muted-foreground text-[10px] italic sm:text-xs">
+            No shops
+          </span>
         );
       }
 
@@ -125,7 +131,7 @@ export const columns: ColumnDef<ProfileWithShopType>[] = [
               <Badge
                 key={st.shop_types?.id}
                 variant="secondary"
-                className={`flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-medium ${
+                className={`flex items-center gap-1 px-1.5 py-0.5 text-[9px] font-medium ${
                   isWrite
                     ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-400"
                     : "border-blue-500/20 bg-blue-500/10 text-blue-700 dark:bg-blue-400/10 dark:text-blue-400"
@@ -160,9 +166,10 @@ export const columns: ColumnDef<ProfileWithShopType>[] = [
   {
     accessorKey: "created_at",
     header: "Joined At",
+    meta: { className: "hidden lg:table-cell" },
     cell: ({ row }) => {
       return (
-        <span className="text-muted-foreground">
+        <span className="text-muted-foreground text-xs">
           {format(new Date(row.getValue("created_at")), "MMM dd, yyyy")}
         </span>
       );

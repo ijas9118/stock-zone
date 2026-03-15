@@ -12,18 +12,23 @@ export function ShopHeader() {
 
   return (
     <>
-      <div className="flex items-center justify-between space-y-2">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Shop Management</h2>
-          <p className="text-muted-foreground">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-xl font-bold tracking-tight sm:text-2xl lg:text-3xl">
+            Shop Management
+          </h1>
+          <p className="text-muted-foreground mt-0.5 text-xs sm:text-sm">
             Manage your shop types and organize how your users are grouped.
           </p>
         </div>
-        <div>
-          <Button onClick={() => setOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" /> Add Shop Type
-          </Button>
-        </div>
+        <Button
+          size="sm"
+          className="sm:size-default w-fit"
+          onClick={() => setOpen(true)}
+        >
+          <Plus className="mr-1.5 h-3.5 w-3.5 sm:mr-2 sm:h-4 sm:w-4" />
+          <span>Add Shop Type</span>
+        </Button>
       </div>
       <ShopDialog open={open} onOpenChange={setOpen} />
     </>

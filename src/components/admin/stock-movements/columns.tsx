@@ -93,10 +93,10 @@ export const columns: ColumnDef<StockMovementWithDetails>[] = [
       const product = row.original.products;
       return (
         <div className="flex flex-col">
-          <span className="text-sm font-medium">
+          <span className="text-[11px] font-medium sm:text-xs md:text-sm">
             {product?.name || "Unknown"}
           </span>
-          <span className="text-muted-foreground font-mono text-[11px] whitespace-nowrap">
+          <span className="text-muted-foreground font-mono text-[10px] whitespace-nowrap sm:text-[11px]">
             {product?.sku || "No SKU"}
           </span>
         </div>
@@ -112,7 +112,7 @@ export const columns: ColumnDef<StockMovementWithDetails>[] = [
       return (
         <div
           className={cn(
-            "flex items-center gap-1 font-mono text-sm font-bold",
+            "flex items-center gap-1 font-mono text-[11px] font-bold sm:text-xs md:text-sm",
             isPositive
               ? "text-emerald-600 dark:text-emerald-400"
               : "text-red-600 dark:text-red-400"
@@ -135,10 +135,10 @@ export const columns: ColumnDef<StockMovementWithDetails>[] = [
     cell: ({ row }) => {
       return (
         <div className="flex flex-col">
-          <span className="text-sm font-medium">
+          <span className="text-[11px] font-medium sm:text-xs md:text-sm">
             {row.original.warehouses?.name || "N/A"}
           </span>
-          <span className="text-muted-foreground text-[11px] font-bold tracking-wider uppercase">
+          <span className="text-muted-foreground text-[10px] font-bold tracking-wider uppercase sm:text-[11px]">
             {row.original.shop_types?.name || "N/A"}
           </span>
         </div>
@@ -153,22 +153,29 @@ export const columns: ColumnDef<StockMovementWithDetails>[] = [
       const profile = row.original.profiles;
       if (!profile)
         return (
-          <span className="text-muted-foreground text-sm italic">System</span>
+          <span className="text-muted-foreground text-xs italic sm:text-sm">
+            System
+          </span>
         );
       return (
-        <div className="text-sm">{profile.full_name || profile.email}</div>
+        <div className="text-xs sm:text-sm">
+          {profile.full_name || profile.email}
+        </div>
       );
     },
   },
   {
     accessorKey: "created_at",
     header: "Date",
+    meta: { className: "hidden sm:table-cell" },
     cell: ({ row }) => {
       const date = new Date(row.original.created_at);
       return (
         <div className="flex flex-col">
-          <span className="text-sm">{format(date, "MMM d, yyyy")}</span>
-          <span className="text-muted-foreground text-[11px]">
+          <span className="text-[11px] sm:text-xs md:text-sm">
+            {format(date, "MMM d, yyyy")}
+          </span>
+          <span className="text-muted-foreground text-[10px] sm:text-[11px]">
             {format(date, "hh:mm a")}
           </span>
         </div>

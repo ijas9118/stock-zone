@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { getShopTypes, getUserById } from "@/actions/admin/users";
-import { Shield, Store, UserCircle } from "lucide-react";
+import { Shield, Store } from "lucide-react";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -49,14 +49,6 @@ export default async function UserDetailPage({ params }: UserPageProps) {
           >
             <Store className="h-4 w-4" />
             Shop Access
-          </TabsTrigger>
-          <TabsTrigger
-            value="activity"
-            className="data-[state=active]:bg-background h-10 gap-2 rounded-lg px-6 data-[state=active]:shadow-sm"
-            disabled
-          >
-            <UserCircle className="h-4 w-4" />
-            Activity
           </TabsTrigger>
         </TabsList>
 

@@ -29,7 +29,7 @@ export default async function UOMPage({ searchParams }: UOMPageProps) {
   const pageCount = Math.ceil(totalCount / currentPageSize);
 
   return (
-    <div className="flex-1 space-y-6">
+    <div className="flex-1 space-y-4 sm:space-y-6">
       <UOMHeader />
       <Suspense fallback={<UOMTableSkeleton />}>
         <DataTable

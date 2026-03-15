@@ -69,7 +69,7 @@ export function ProductFilters({
   return (
     <div className="flex items-center gap-2">
       <Select value={currentCategory} onValueChange={handleCategoryChange}>
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="">
           <SelectValue placeholder="All Categories" />
         </SelectTrigger>
         <SelectContent>
@@ -87,7 +87,7 @@ export function ProductFilters({
         onValueChange={handleSubCategoryChange}
         disabled={currentCategory === "all"}
       >
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="">
           <SelectValue placeholder="All Subcategories" />
         </SelectTrigger>
         <SelectContent>
