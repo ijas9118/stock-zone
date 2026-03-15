@@ -186,7 +186,7 @@ export async function getStocks(
     ],
     {
       tags: ["admin:stocks"],
-      revalidate: 3600,
+      revalidate: 300,
     }
   )();
 }

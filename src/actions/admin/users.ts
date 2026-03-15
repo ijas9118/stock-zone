@@ -183,7 +183,6 @@ export async function updateUserStatus(
     }
 
     revalidateTag("admin:users", "default");
-    revalidatePath("/admin/users");
     return { success: true };
   } catch (err: unknown) {
     return {
@@ -211,7 +210,6 @@ export async function updateUserRole(
     }
 
     revalidateTag("admin:users", "default");
-    revalidatePath("/admin/users");
     return { success: true };
   } catch (err: unknown) {
     return {
@@ -265,7 +263,6 @@ export async function updateUserShopTypes(
     }
 
     revalidateTag("admin:users", "default");
-    revalidatePath("/admin/users");
     return { success: true };
   } catch (err: unknown) {
     return {
@@ -302,7 +299,6 @@ export async function updateUserPermissions(
 
     revalidateTag("admin:users", "default");
     revalidatePath(`/admin/users/${userId}`);
-    revalidatePath("/admin/users");
     return { success: true };
   } catch (err: unknown) {
     return {

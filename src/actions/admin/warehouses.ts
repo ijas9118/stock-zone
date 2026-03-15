@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
+import { revalidateTag, unstable_cache } from "next/cache";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Database } from "@/lib/supabase/database.types";
@@ -82,7 +82,6 @@ export async function createWarehouse(data: {
     }
 
     revalidateTag("admin:warehouses", "default");
-    revalidatePath("/admin/warehouses");
     return { success: true };
   } catch (err: unknown) {
     return {
@@ -118,7 +117,6 @@ export async function updateWarehouse(
     }
 
     revalidateTag("admin:warehouses", "default");
-    revalidatePath("/admin/warehouses");
     return { success: true };
   } catch (err: unknown) {
     return {
@@ -143,7 +141,6 @@ export async function deleteWarehouse(id: string) {
     }
 
     revalidateTag("admin:warehouses", "default");
-    revalidatePath("/admin/warehouses");
     return { success: true };
   } catch (err: unknown) {
     return {

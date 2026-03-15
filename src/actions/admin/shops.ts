@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
+import { revalidateTag, unstable_cache } from "next/cache";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Database } from "@/lib/supabase/database.types";
@@ -76,8 +76,6 @@ export async function createShop(data: { name: string; description?: string }) {
 
     revalidateTag("admin:shops", "default");
     revalidateTag("admin:shop-types", "default");
-    revalidatePath("/admin/shops");
-    revalidatePath("/admin/users");
     return { success: true };
   } catch (err: unknown) {
     return {
@@ -109,8 +107,6 @@ export async function updateShop(
 
     revalidateTag("admin:shops", "default");
     revalidateTag("admin:shop-types", "default");
-    revalidatePath("/admin/shops");
-    revalidatePath("/admin/users");
     return { success: true };
   } catch (err: unknown) {
     return {
@@ -137,8 +133,6 @@ export async function deleteShop(id: string) {
 
     revalidateTag("admin:shops", "default");
     revalidateTag("admin:shop-types", "default");
-    revalidatePath("/admin/shops");
-    revalidatePath("/admin/users");
     return { success: true };
   } catch (err: unknown) {
     return {

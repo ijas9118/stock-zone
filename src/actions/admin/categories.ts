@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
+import { revalidateTag, unstable_cache } from "next/cache";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Database } from "@/lib/supabase/database.types";
@@ -86,7 +86,6 @@ export async function createCategory(data: {
     }
 
     revalidateTag("admin:categories", "default");
-    revalidatePath("/admin/categories");
     return { success: true };
   } catch (err: unknown) {
     return {
@@ -121,7 +120,6 @@ export async function updateCategory(
     }
 
     revalidateTag("admin:categories", "default");
-    revalidatePath("/admin/categories");
     return { success: true };
   } catch (err: unknown) {
     return {
@@ -146,7 +144,6 @@ export async function deleteCategory(id: string) {
     }
 
     revalidateTag("admin:categories", "default");
-    revalidatePath("/admin/categories");
     return { success: true };
   } catch (err: unknown) {
     return {
@@ -242,7 +239,6 @@ export async function createSubcategory(data: {
     }
 
     revalidateTag("admin:subcategories", "default");
-    revalidatePath("/admin/subcategories");
     return { success: true };
   } catch (err: unknown) {
     return {
@@ -277,7 +273,6 @@ export async function updateSubcategory(
     }
 
     revalidateTag("admin:subcategories", "default");
-    revalidatePath("/admin/subcategories");
     return { success: true };
   } catch (err: unknown) {
     return {
@@ -302,7 +297,6 @@ export async function deleteSubcategory(id: string) {
     }
 
     revalidateTag("admin:subcategories", "default");
-    revalidatePath("/admin/subcategories");
     return { success: true };
   } catch (err: unknown) {
     return {

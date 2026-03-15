@@ -21,7 +21,7 @@ export function UserInventoryView({
   warehouses,
 }: UserInventoryViewProps) {
   const searchParams = useSearchParams();
-  const [, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition();
   const [stocks, setStocks] = useState<UserStockWithDetails[]>([]);
   const [totalStocksCount, setTotalStocksCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState(searchParams.get("q") || "");
@@ -102,6 +102,7 @@ export function UserInventoryView({
       <InventoryList
         hasValidFilter={hasValidFilter}
         stocks={stocks}
+        isLoading={isPending}
         onClearFilters={handleClearFilters}
       />
     </div>

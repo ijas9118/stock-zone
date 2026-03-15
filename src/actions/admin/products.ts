@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
+import { revalidateTag, unstable_cache } from "next/cache";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Database } from "@/lib/supabase/database.types";
@@ -127,7 +127,6 @@ export async function createProduct(data: {
     }
 
     revalidateTag("admin:products", "default");
-    revalidatePath("/admin/products");
     return { success: true };
   } catch (err: unknown) {
     return {
@@ -167,7 +166,6 @@ export async function updateProduct(
     }
 
     revalidateTag("admin:products", "default");
-    revalidatePath("/admin/products");
     return { success: true };
   } catch (err: unknown) {
     return {
@@ -189,7 +187,6 @@ export async function deleteProduct(id: string) {
     }
 
     revalidateTag("admin:products", "default");
-    revalidatePath("/admin/products");
     return { success: true };
   } catch (err: unknown) {
     return {

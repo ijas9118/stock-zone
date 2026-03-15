@@ -23,7 +23,25 @@ interface StockPageProps {
   }>;
 }
 
+function preload(params: {
+  warehouseId?: string;
+  shopTypeId?: string;
+  categoryId?: string;
+}) {
+  void getWarehouses({ pageSize: 100 });
+  void getShops({ pageSize: 100 });
+  void getCategories({ pageSize: 100 });
+  void getStocks({ ...params, page: 1, pageSize: 8 });
+}
+
 export default async function StockPage({ searchParams }: StockPageProps) {
+  const params_res = await searchParams;
+  preload({
+    warehouseId: params_res.warehouse_id,
+    shopTypeId: params_res.shop_type_id,
+    categoryId: params_res.category_id,
+  });
+
   const {
     q,
     warehouse_id,
@@ -32,7 +50,7 @@ export default async function StockPage({ searchParams }: StockPageProps) {
     sub_category_id,
     page,
     pageSize,
-  } = await searchParams;
+  } = params_res;
 
   const currentPage = Number(page) || 1;
   const currentPageSize = Number(pageSize) || 8;
