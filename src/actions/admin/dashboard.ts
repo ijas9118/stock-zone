@@ -35,10 +35,9 @@ export async function getDashboardStats() {
         { count: totalShops },
         { count: totalCategories },
         { data: recentMovements },
-        { data: movementBreakdown },
+        { data: allMovements },
         { data: topStockedProducts },
         { data: recentUsers },
-        { data: movementsByDay },
       ] = await Promise.all([
         // 1. Total users
         adminClient
@@ -94,14 +93,15 @@ export async function getDashboardStats() {
           )
           .order("created_at", { ascending: false })
           .limit(8),
-        // 8. Movement type breakdown (last 30 days)
+        // 8 & 11. Combined movement data (last 30 days)
         (() => {
           const thirtyDaysAgo = new Date();
           thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
           return adminClient
             .from("stock_movements")
-            .select("type")
-            .gte("created_at", thirtyDaysAgo.toISOString());
+            .select("created_at, type, quantity_delta")
+            .gte("created_at", thirtyDaysAgo.toISOString())
+            .order("created_at", { ascending: true });
         })(),
         // 9. Aggregated stock data
         adminClient
@@ -109,7 +109,8 @@ export async function getDashboardStats() {
           .select(
             `
             quantity,
-            products(name, sku),
+            product_id,
+            products(id, name, sku),
             warehouses(name),
             shop_types(name)
           `
@@ -122,19 +123,8 @@ export async function getDashboardStats() {
           .select("id, full_name, email, avatar_url, role, status, created_at")
           .order("created_at", { ascending: false })
           .limit(5),
-        // 11. Movement volume by day — last 14 days
-        (() => {
-          const fourteenDaysAgo = new Date();
-          fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
-          return adminClient
-            .from("stock_movements")
-            .select("created_at, type, quantity_delta")
-            .gte("created_at", fourteenDaysAgo.toISOString())
-            .order("created_at", { ascending: true });
-        })(),
       ]);
 
-      // Process movement breakdown
       const movementCounts = {
         purchase: 0,
         sale: 0,
@@ -144,13 +134,13 @@ export async function getDashboardStats() {
         return: 0,
         initial_stock: 0,
       };
-      (movementBreakdown || []).forEach((m) => {
+
+      (allMovements || []).forEach((m) => {
         if (m.type in movementCounts) {
           movementCounts[m.type as keyof typeof movementCounts]++;
         }
       });
 
-      // Process movements by day (last 14 days)
       const dailySeries: {
         date: string;
         inbound: number;
@@ -158,7 +148,6 @@ export async function getDashboardStats() {
         count: number;
       }[] = [];
       const today = new Date();
-
       for (let i = 13; i >= 0; i--) {
         const d = new Date(today);
         d.setDate(d.getDate() - i);
@@ -166,23 +155,15 @@ export async function getDashboardStats() {
           month: "short",
           day: "numeric",
         });
-
-        const dayMovements = (movementsByDay || []).filter((m) => {
-          const mDate = new Date(m.created_at);
-          return mDate.toDateString() === d.toDateString();
-        });
-
-        let inbound = 0;
-        let outbound = 0;
-
+        const dayMovements = (allMovements || []).filter(
+          (m) => new Date(m.created_at).toDateString() === d.toDateString()
+        );
+        let inbound = 0,
+          outbound = 0;
         dayMovements.forEach((m) => {
-          if (m.quantity_delta > 0) {
-            inbound += 1;
-          } else if (m.quantity_delta < 0) {
-            outbound += 1;
-          }
+          if (m.quantity_delta > 0) inbound++;
+          else if (m.quantity_delta < 0) outbound++;
         });
-
         dailySeries.push({
           date: dateStr,
           inbound,
@@ -193,9 +174,10 @@ export async function getDashboardStats() {
 
       interface StockRawRow {
         quantity: number;
+        product_id: string;
         products:
-          | { name: string; sku: string | null }
-          | { name: string; sku: string | null }[]
+          | { id: string; name: string; sku: string | null }
+          | { id: string; name: string; sku: string | null }[]
           | null;
         warehouses: { name: string } | { name: string }[] | null;
         shop_types: { name: string } | { name: string }[] | null;
@@ -228,7 +210,7 @@ export async function getDashboardStats() {
 
         if (!product?.name) return;
 
-        const key = product.name; // group by name since we don't have product_id in select
+        const key = product.id ?? product.name;
 
         if (productAggregates.has(key)) {
           const existing = productAggregates.get(key)!;
