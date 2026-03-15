@@ -198,7 +198,14 @@ export function DataTable<TData, TValue>({
                   return (
                     <TableHead
                       key={header.id}
-                      className="text-muted-foreground px-4 py-3 text-left text-xs font-semibold tracking-wider uppercase"
+                      className={cn(
+                        "text-muted-foreground px-4 py-3 text-left text-xs font-semibold tracking-wider uppercase",
+                        (
+                          header.column.columnDef.meta as {
+                            className?: string;
+                          }
+                        )?.className
+                      )}
                     >
                       {header.isPlaceholder
                         ? null
@@ -227,7 +234,17 @@ export function DataTable<TData, TValue>({
                   onClick={() => onRowClick?.(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="px-4 py-3">
+                    <TableCell
+                      key={cell.id}
+                      className={cn(
+                        "px-4 py-3",
+                        (
+                          cell.column.columnDef.meta as {
+                            className?: string;
+                          }
+                        )?.className
+                      )}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

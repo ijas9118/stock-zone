@@ -1,13 +1,6 @@
 import { Suspense } from "react";
 import { getCategories } from "@/actions/admin/categories";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CategoryHeader } from "@/components/admin/categories/category-header";
 import { columns } from "@/components/admin/categories/columns";
@@ -40,25 +33,15 @@ export default async function CategoriesPage({
   return (
     <div className="flex-1 space-y-6">
       <CategoryHeader />
-      <Card>
-        <CardHeader>
-          <CardTitle>Category List</CardTitle>
-          <CardDescription>
-            A high-level view of product categories.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Suspense fallback={<TableSkeleton />}>
-            <DataTable
-              columns={columns}
-              data={categories}
-              totalCount={totalCount}
-              pageCount={pageCount}
-              searchPlaceholder="Search categories..."
-            />
-          </Suspense>
-        </CardContent>
-      </Card>
+      <Suspense fallback={<TableSkeleton />}>
+        <DataTable
+          columns={columns}
+          data={categories}
+          totalCount={totalCount}
+          pageCount={pageCount}
+          searchPlaceholder="Search categories..."
+        />
+      </Suspense>
     </div>
   );
 }

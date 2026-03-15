@@ -1,12 +1,5 @@
 import { getShops } from "@/actions/admin/shops";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { DataTable } from "@/components/admin/data-table";
 import { columns } from "@/components/admin/shops/columns";
 import { ShopHeader } from "@/components/admin/shops/shop-header";
@@ -31,23 +24,13 @@ export default async function ShopsPage({
     <div className="flex-1 space-y-6">
       <ShopHeader />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Shops</CardTitle>
-          <CardDescription>
-            A list of all shop types configured in the system.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <DataTable
-            columns={columns}
-            data={shops}
-            totalCount={totalCount}
-            pageCount={Math.ceil(totalCount / pageSize)}
-            searchPlaceholder="Search shops..."
-          />
-        </CardContent>
-      </Card>
+      <DataTable
+        columns={columns}
+        data={shops}
+        totalCount={totalCount}
+        pageCount={Math.ceil(totalCount / pageSize)}
+        searchPlaceholder="Search shops..."
+      />
     </div>
   );
 }

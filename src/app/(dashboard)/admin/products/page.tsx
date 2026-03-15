@@ -2,13 +2,6 @@ import { Suspense } from "react";
 import { getCategories } from "@/actions/admin/categories";
 import { getProducts } from "@/actions/admin/products";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DataTable } from "@/components/admin/data-table";
 import { columns } from "@/components/admin/products/columns";
@@ -50,28 +43,16 @@ export default async function ProductsPage({
   return (
     <div className="flex-1 space-y-6">
       <ProductHeader />
-      <Card>
-        <CardHeader>
-          <CardTitle>Catalog Management</CardTitle>
-          <CardDescription>
-            A view of all products in your inventory system.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Suspense fallback={<TableSkeleton />}>
-            <DataTable
-              columns={columns}
-              data={products}
-              totalCount={totalCount}
-              pageCount={pageCount}
-              searchPlaceholder="Search products, SKUs, or brands..."
-              additionalFilters={
-                <ProductFilters initialCategories={categories} />
-              }
-            />
-          </Suspense>
-        </CardContent>
-      </Card>
+      <Suspense fallback={<TableSkeleton />}>
+        <DataTable
+          columns={columns}
+          data={products}
+          totalCount={totalCount}
+          pageCount={pageCount}
+          searchPlaceholder="Search products, SKUs, or brands..."
+          additionalFilters={<ProductFilters initialCategories={categories} />}
+        />
+      </Suspense>
     </div>
   );
 }

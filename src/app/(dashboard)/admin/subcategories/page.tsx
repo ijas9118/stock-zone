@@ -1,13 +1,6 @@
 import { Suspense } from "react";
 import { getCategories, getSubcategories } from "@/actions/admin/categories";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DataTable } from "@/components/admin/data-table";
 import { columns } from "@/components/admin/subcategories/columns";
@@ -46,26 +39,16 @@ export default async function SubcategoriesPage({
   return (
     <div className="flex-1 space-y-6">
       <SubcategoryHeader />
-      <Card>
-        <CardHeader>
-          <CardTitle>Subcategory List</CardTitle>
-          <CardDescription>
-            Drill down into specific product types.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Suspense fallback={<TableSkeleton />}>
-            <DataTable
-              columns={columns}
-              data={subcategories}
-              totalCount={totalCount}
-              pageCount={pageCount}
-              searchPlaceholder="Search subcategories..."
-              additionalFilters={<SubcategoryFilters categories={categories} />}
-            />
-          </Suspense>
-        </CardContent>
-      </Card>
+      <Suspense fallback={<TableSkeleton />}>
+        <DataTable
+          columns={columns}
+          data={subcategories}
+          totalCount={totalCount}
+          pageCount={pageCount}
+          searchPlaceholder="Search subcategories..."
+          additionalFilters={<SubcategoryFilters categories={categories} />}
+        />
+      </Suspense>
     </div>
   );
 }

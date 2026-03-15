@@ -2,13 +2,6 @@ import { getShopTypes, getUsers } from "@/actions/admin/users";
 import { UserPlus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { UserTable } from "@/components/admin/users/user-table";
 
 export default async function UsersPage({
@@ -48,23 +41,12 @@ export default async function UsersPage({
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Users</CardTitle>
-          <CardDescription>
-            A list of all users in the system including their name, email, role
-            and status.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <UserTable
-            users={users}
-            totalCount={totalCount}
-            pageSize={pageSize}
-            shopTypes={shopTypes}
-          />
-        </CardContent>
-      </Card>
+      <UserTable
+        users={users}
+        totalCount={totalCount}
+        pageSize={pageSize}
+        shopTypes={shopTypes}
+      />
     </div>
   );
 }

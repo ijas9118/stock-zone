@@ -1,13 +1,6 @@
 import { Suspense } from "react";
 import { getUnitsOfMeasure } from "@/actions/admin/uom";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DataTable } from "@/components/admin/data-table";
 import { columns } from "@/components/admin/uom/columns";
@@ -38,25 +31,15 @@ export default async function UOMPage({ searchParams }: UOMPageProps) {
   return (
     <div className="flex-1 space-y-6">
       <UOMHeader />
-      <Card>
-        <CardHeader>
-          <CardTitle>Units of Measure</CardTitle>
-          <CardDescription>
-            A list of all measurement units available for product stock.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Suspense fallback={<UOMTableSkeleton />}>
-            <DataTable
-              columns={columns}
-              data={unitsOfMeasure}
-              totalCount={totalCount}
-              pageCount={pageCount}
-              searchPlaceholder="Search units..."
-            />
-          </Suspense>
-        </CardContent>
-      </Card>
+      <Suspense fallback={<UOMTableSkeleton />}>
+        <DataTable
+          columns={columns}
+          data={unitsOfMeasure}
+          totalCount={totalCount}
+          pageCount={pageCount}
+          searchPlaceholder="Search units..."
+        />
+      </Suspense>
     </div>
   );
 }
