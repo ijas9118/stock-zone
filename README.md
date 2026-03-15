@@ -9,7 +9,7 @@
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-green?style=flat-square&logo=supabase)](https://supabase.com)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38bdf8?style=flat-square&logo=tailwindcss)](https://tailwindcss.com)
 
-[Live Demo](https://stock-zone.vercel.app) · [Documentation](docs/getting-started.md) · [Report a Bug](https://github.com/ijas9118/stock-zone/issues) · [Request a Feature](https://github.com/ijas9118/stock-zone/issues)
+[Documentation](docs/getting-started.md) · [Report a Bug](https://github.com/ijas9118/stock-zone/issues) · [Request a Feature](https://github.com/ijas9118/stock-zone/issues)
 
 </div>
 
@@ -114,11 +114,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | [Architecture](docs/architecture.md)       | System design, folder structure, data flow, and caching strategy |
 | [Admin Guide](docs/guides/admin-guide.md)  | How to manage users, stock, warehouses, and the dashboard        |
 | [User Guide](docs/guides/user-guide.md)    | How to view inventory and process stock movements                |
-| [Permissions](docs/guides/permissions.md)  | Complete permissions reference for roles and flags               |
-| [Database](docs/development/database.md)   | Schema reference, indexes, and migration notes                   |
-| [Caching](docs/development/caching.md)     | Cache tags, TTL strategy, and invalidation reference             |
 | [API Reference](docs/api/overview.md)      | Server actions reference for all modules                         |
-| [Deployment](docs/deployment.md)           | Vercel deployment, env vars, and production checklist            |
 | [Contributing](CONTRIBUTING.md)            | Branch strategy, commit conventions, and PR guidelines           |
 
 ## Project Structure
