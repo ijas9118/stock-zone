@@ -43,18 +43,20 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
   const navItems = [
     {
       title: "Dashboard",
-      href: `/${role === "user" ? "user" : role === "manager" ? "manager" : "admin"}`,
+      href: role === "admin" ? "/admin" : "/manager",
       icon: Icons.dashboard,
     },
   ];
 
-  const baseHref =
-    role === "admin" ? "/admin" : role === "manager" ? "/manager" : "/user";
-
   if (role === "admin") {
     navItems.push(
-      { title: "Users", href: "/admin/users", icon: Icons.users },
-      { title: "Shops", href: "/admin/shops", icon: Icons.shops },
+      { title: "Inventory", href: "/admin/stock", icon: Icons.stock },
+      {
+        title: "Stock Movements",
+        href: "/admin/stock-movements",
+        icon: Icons.transfer,
+      },
+      { title: "Products", href: "/admin/products", icon: Icons.products },
       {
         title: "Categories",
         href: "/admin/categories",
@@ -65,19 +67,23 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
         href: "/admin/subcategories",
         icon: Icons.subcategories,
       },
+      {
+        title: "Warehouses",
+        href: "/admin/warehouses",
+        icon: Icons.warehouses,
+      },
+      { title: "Shops", href: "/admin/shops", icon: Icons.shops },
       { title: "Units of Measure", href: "/admin/uom", icon: Icons.uom },
-      { title: "Inventory", href: "/admin/stock", icon: Icons.stock }
+      { title: "Users", href: "/admin/users", icon: Icons.users }
     );
-  }
-
-  if (role === "admin" || role === "manager") {
+  } else if (role === "manager") {
     navItems.push(
       {
         title: "Warehouses",
-        href: `${baseHref}/warehouses`,
+        href: "/manager/warehouses",
         icon: Icons.warehouses,
       },
-      { title: "Products", href: `${baseHref}/products`, icon: Icons.products }
+      { title: "Products", href: "/manager/products", icon: Icons.products }
     );
   }
 

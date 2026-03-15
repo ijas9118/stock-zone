@@ -19,8 +19,9 @@ export const columns: ColumnDef<ShopType>[] = [
   {
     accessorKey: "description",
     header: "Description",
+    meta: { className: "hidden sm:table-cell" },
     cell: ({ row }) => (
-      <div className="text-muted-foreground max-w-[300px] truncate">
+      <div className="text-muted-foreground max-w-[300px] truncate text-[10px] sm:text-xs">
         {row.getValue("description") || "-"}
       </div>
     ),
@@ -40,9 +41,10 @@ export const columns: ColumnDef<ShopType>[] = [
   {
     accessorKey: "created_at",
     header: "Created",
+    meta: { className: "hidden md:table-cell" },
     cell: ({ row }) => {
       return (
-        <div className="text-muted-foreground">
+        <div className="text-muted-foreground text-xs">
           {format(new Date(row.getValue("created_at")), "MMM d, yyyy")}
         </div>
       );

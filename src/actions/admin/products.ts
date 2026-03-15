@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
+import { revalidateTag, unstable_cache } from "next/cache";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Database } from "@/lib/supabase/database.types";
@@ -33,7 +33,7 @@ export async function getProducts(
 ) {
   const auth = await getAuthContext();
   if (!auth.isAuthenticated) throw new Error("Unauthorized");
-  const { query, categoryId, subCategoryId, page = 1, pageSize = 10 } = params;
+  const { query, categoryId, subCategoryId, page = 1, pageSize = 8 } = params;
 
   return unstable_cache(
     async () => {
@@ -127,7 +127,6 @@ export async function createProduct(data: {
     }
 
     revalidateTag("admin:products", "default");
-    revalidatePath("/admin/products");
     return { success: true };
   } catch (err: unknown) {
     return {
@@ -167,7 +166,6 @@ export async function updateProduct(
     }
 
     revalidateTag("admin:products", "default");
-    revalidatePath("/admin/products");
     return { success: true };
   } catch (err: unknown) {
     return {
@@ -189,7 +187,6 @@ export async function deleteProduct(id: string) {
     }
 
     revalidateTag("admin:products", "default");
-    revalidatePath("/admin/products");
     return { success: true };
   } catch (err: unknown) {
     return {

@@ -60,7 +60,7 @@ export function InventoryTable({ stocks }: InventoryTableProps) {
               <TableRow
                 key={stock.id}
                 className="hover:bg-muted/50 border-muted/40 cursor-pointer transition-colors"
-                onClick={() => router.push(`/user/inventory/${stock.id}`)}
+                onClick={() => router.push(`/inventory/${stock.id}`)}
               >
                 {/* Mobile/Tablet Combined View */}
                 <TableCell className="py-2 pr-0 pl-4 lg:hidden">

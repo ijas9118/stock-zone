@@ -4,20 +4,33 @@ import { UserStockWithDetails } from "@/actions/user/stock";
 import { PackageX, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import { InventoryTable } from "./inventory-table";
 
 interface InventoryListProps {
   hasValidFilter: boolean;
   stocks: UserStockWithDetails[];
+  isLoading: boolean;
   onClearFilters: () => void;
 }
 
 export function InventoryList({
   hasValidFilter,
   stocks,
+  isLoading,
   onClearFilters,
 }: InventoryListProps) {
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-4">
+        {[1, 2, 3].map((i) => (
+          <Skeleton key={i} className="h-10 w-full rounded-md" />
+        ))}
+      </div>
+    );
+  }
+
   if (!hasValidFilter) {
     return (
       <div className="flex flex-col items-center justify-center space-y-3 py-12 text-center sm:space-y-4 sm:py-20">

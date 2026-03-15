@@ -1,0 +1,18 @@
+import { Suspense } from "react";
+import { getDashboardStats } from "@/actions/admin/dashboard";
+
+import { AdminDashboard } from "@/components/admin/dashboard/admin-dashboard";
+import { DashboardSkeleton } from "@/components/admin/dashboard/dashboard-skeleton";
+
+export default async function AdminDashboardPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <DashboardContent />
+    </Suspense>
+  );
+}
+
+async function DashboardContent() {
+  const stats = await getDashboardStats();
+  return <AdminDashboard stats={stats} />;
+}

@@ -108,7 +108,7 @@ export async function getStocks(
     subCategoryId,
     query,
     page = 1,
-    pageSize = 10,
+    pageSize = 8,
   } = params;
 
   return unstable_cache(
@@ -186,7 +186,7 @@ export async function getStocks(
     ],
     {
       tags: ["admin:stocks"],
-      revalidate: 3600,
+      revalidate: 300,
     }
   )();
 }
@@ -305,7 +305,10 @@ export async function processStockMovement(data: {
     if (movementError) throw movementError;
 
     revalidateTag("admin:stocks", "default");
+    revalidateTag("admin:stock-movements", "default");
+    revalidateTag("admin:dashboard", "default");
     revalidatePath("/admin/stock");
+    revalidatePath("/");
     return { success: true };
   } catch (err: unknown) {
     console.error("Error processing stock movement:", err);
@@ -406,6 +409,11 @@ export async function transferStock(data: {
       return inResult;
     }
 
+    revalidateTag("admin:stocks", "default");
+    revalidateTag("admin:stock-movements", "default");
+    revalidateTag("admin:dashboard", "default");
+    revalidatePath("/admin/stock");
+    revalidatePath("/");
     return { success: true };
   } catch (err: unknown) {
     console.error("Error transferring stock:", err);

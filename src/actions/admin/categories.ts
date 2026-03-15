@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
+import { revalidateTag, unstable_cache } from "next/cache";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Database } from "@/lib/supabase/database.types";
@@ -24,7 +24,7 @@ export async function getCategories(
   params: { query?: string; page?: number; pageSize?: number } = {}
 ) {
   await verifyAdmin();
-  const { query, page = 1, pageSize = 10 } = params;
+  const { query, page = 1, pageSize = 8 } = params;
 
   return unstable_cache(
     async () => {
@@ -86,7 +86,6 @@ export async function createCategory(data: {
     }
 
     revalidateTag("admin:categories", "default");
-    revalidatePath("/admin/categories");
     return { success: true };
   } catch (err: unknown) {
     return {
@@ -121,7 +120,6 @@ export async function updateCategory(
     }
 
     revalidateTag("admin:categories", "default");
-    revalidatePath("/admin/categories");
     return { success: true };
   } catch (err: unknown) {
     return {
@@ -146,7 +144,6 @@ export async function deleteCategory(id: string) {
     }
 
     revalidateTag("admin:categories", "default");
-    revalidatePath("/admin/categories");
     return { success: true };
   } catch (err: unknown) {
     return {
@@ -172,7 +169,7 @@ export async function getSubcategories(
   } = {}
 ) {
   await verifyAdmin();
-  const { query, categoryId, page = 1, pageSize = 10 } = params;
+  const { query, categoryId, page = 1, pageSize = 8 } = params;
 
   return unstable_cache(
     async () => {
@@ -242,7 +239,6 @@ export async function createSubcategory(data: {
     }
 
     revalidateTag("admin:subcategories", "default");
-    revalidatePath("/admin/subcategories");
     return { success: true };
   } catch (err: unknown) {
     return {
@@ -277,7 +273,6 @@ export async function updateSubcategory(
     }
 
     revalidateTag("admin:subcategories", "default");
-    revalidatePath("/admin/subcategories");
     return { success: true };
   } catch (err: unknown) {
     return {
@@ -302,7 +297,6 @@ export async function deleteSubcategory(id: string) {
     }
 
     revalidateTag("admin:subcategories", "default");
-    revalidatePath("/admin/subcategories");
     return { success: true };
   } catch (err: unknown) {
     return {

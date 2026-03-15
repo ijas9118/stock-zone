@@ -47,7 +47,7 @@ export async function updateSession(request: NextRequest) {
   if (claims && !error) {
     const role = claims.user_role;
     const dashboardPath =
-      role === "admin" ? "/admin" : role === "manager" ? "/manager" : "/user";
+      role === "admin" ? "/admin" : role === "manager" ? "/manager" : "/";
 
     if (
       isAuthRoute &&
@@ -83,17 +83,12 @@ export async function updateSession(request: NextRequest) {
     if (path.startsWith("/manager") && role !== "manager") {
       return NextResponse.redirect(new URL(dashboardPath, request.url));
     }
-    if (path.startsWith("/user") && role !== "user") {
-      return NextResponse.redirect(new URL(dashboardPath, request.url));
-    }
 
-    // 5. Shared Route Protection
-    const isManagerOrAdmin = role === "admin" || role === "manager";
-    const restrictedRoutes = ["/warehouses", "/products", "/shops"];
-
+    // User paths: /, /inventory/*, /profile/* — accessible only to users
+    const userPaths = ["/inventory", "/profile"];
     if (
-      restrictedRoutes.some((route) => path.startsWith(route)) &&
-      !isManagerOrAdmin
+      (path === "/" || userPaths.some((p) => path.startsWith(p))) &&
+      role !== "user"
     ) {
       return NextResponse.redirect(new URL(dashboardPath, request.url));
     }

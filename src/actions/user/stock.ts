@@ -54,19 +54,24 @@ export async function getUserStocks(
 
   let supabaseQuery = adminClient.from("stock").select(
     `
-      *,
-      products!inner(
-        id,
-        name,
-        sku,
-        category,
-        sub_category,
-        categories(category_name),
-        subcategories(subcategory_name),
-        units_of_measure(full_name, uom_code)
-      ),
-      warehouses(name),
-      shop_types(name)
+    id,
+    product_id,
+    quantity,
+    shop_type_id,
+    warehouse_id,
+    updated_at,
+    products!inner(
+      id,
+      name,
+      sku,
+      category,
+      sub_category,
+      categories(category_name),
+      subcategories(subcategory_name),
+      units_of_measure(full_name, uom_code)
+    ),
+    warehouses(name),
+    shop_types(name)
     `,
     { count: "exact" }
   );

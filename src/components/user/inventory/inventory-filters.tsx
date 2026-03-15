@@ -1,10 +1,10 @@
 "use client";
 
-import { RefreshCw, Search } from "lucide-react";
+import { useState } from "react";
+import { RotateCcw, SlidersHorizontal } from "lucide-react";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -12,6 +12,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 interface InventoryFiltersProps {
   searchTerm: string;
@@ -22,8 +29,6 @@ interface InventoryFiltersProps {
   setShopFilter: (value: string) => void;
   warehouses: { id: string; name: string }[];
   assignedShops: { id: string; name: string }[];
-  handleRefresh: () => void;
-  isPending: boolean;
 }
 
 export function InventoryFilters({
@@ -35,25 +40,45 @@ export function InventoryFilters({
   setShopFilter,
   warehouses,
   assignedShops,
-  handleRefresh,
-  isPending,
 }: InventoryFiltersProps) {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const activeFilterCount = [
+    warehouseFilter !== "all",
+    shopFilter !== "all",
+  ].filter(Boolean).length;
+  const hasActiveFilters = activeFilterCount > 0 || searchTerm !== "";
+
+  const handleReset = () => {
+    setSearchTerm("");
+    setWarehouseFilter("all");
+    setShopFilter("all");
+  };
+
   return (
-    <div className="bg-background/80 sticky top-0 z-10 flex flex-col gap-2 border-b py-2 backdrop-blur-md sm:gap-4 sm:py-4">
-      <div className="flex flex-col gap-2 md:flex-row md:gap-3">
-        <div className="relative flex-1">
-          <Search className="text-muted-foreground absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2" />
-          <Input
-            placeholder="Search products..."
-            className="bg-muted/50 focus-visible:ring-primary h-9 rounded-lg border-none pl-9 text-sm sm:h-11 sm:rounded-xl"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        <div className="flex gap-2">
+    <>
+      <div className="sm:border-muted-foreground/10 sm:bg-muted/30 flex flex-wrap items-center gap-2 rounded-xl sm:border sm:px-3 sm:py-2.5 sm:backdrop-blur-sm">
+        {/* Mobile Filter Button */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setDrawerOpen(true)}
+          className="border-muted-foreground/15 bg-background h-8 gap-1.5 text-xs shadow-none md:hidden"
+        >
+          <SlidersHorizontal className="h-3.5 w-3.5" />
+          Filters
+          {activeFilterCount > 0 && (
+            <span className="bg-primary text-primary-foreground flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold">
+              {activeFilterCount}
+            </span>
+          )}
+        </Button>
+
+        {/* Desktop Controls */}
+        <div className="hidden md:contents">
           <Select value={warehouseFilter} onValueChange={setWarehouseFilter}>
-            <SelectTrigger className="bg-muted/50 h-9 flex-1 rounded-lg border-none text-xs sm:h-11 sm:w-[200px] sm:rounded-xl sm:text-sm">
-              <SelectValue placeholder="Warehouse" />
+            <SelectTrigger className="bg-background border-muted-foreground/15 h-8 w-[140px] rounded-lg text-xs shadow-none">
+              <SelectValue placeholder="All Warehouses" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Warehouses</SelectItem>
@@ -64,12 +89,17 @@ export function InventoryFilters({
               ))}
             </SelectContent>
           </Select>
-          <Select value={shopFilter} onValueChange={setShopFilter}>
-            <SelectTrigger className="bg-muted/50 h-9 flex-1 rounded-lg border-none text-xs sm:h-11 sm:w-[200px] sm:rounded-xl sm:text-sm">
-              <SelectValue placeholder="Shop Type" />
+
+          <Select
+            value={shopFilter}
+            onValueChange={setShopFilter}
+            disabled={assignedShops.length === 0}
+          >
+            <SelectTrigger className="bg-background border-muted-foreground/15 h-8 w-[130px] rounded-lg text-xs shadow-none">
+              <SelectValue placeholder="All Shops" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Shop Types</SelectItem>
+              <SelectItem value="all">All Shops</SelectItem>
               {assignedShops.map((shop) => (
                 <SelectItem key={shop.id} value={shop.id}>
                   {shop.name}
@@ -77,19 +107,102 @@ export function InventoryFilters({
               ))}
             </SelectContent>
           </Select>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="bg-muted/30 h-9 w-9 shrink-0 rounded-lg sm:h-11 sm:w-11 sm:rounded-xl"
-            onClick={handleRefresh}
-            disabled={isPending}
-          >
-            <RefreshCw
-              className={cn("h-3.5 w-3.5", isPending && "animate-spin")}
-            />
-          </Button>
+        </div>
+
+        {/* Right Actions */}
+        <div className="ml-auto flex items-center gap-2">
+          {hasActiveFilters && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleReset}
+              className="text-muted-foreground hover:text-foreground hidden h-8 gap-1.5 text-xs font-medium md:flex"
+            >
+              <RotateCcw className="h-3 w-3" />
+              Reset
+            </Button>
+          )}
         </div>
       </div>
-    </div>
+
+      {/* Mobile Drawer */}
+      <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
+        <SheetContent
+          side="right"
+          className="flex w-[200px] flex-col gap-0 p-0 sm:w-[320px]"
+        >
+          <SheetHeader className="border-b px-4 py-4">
+            <SheetTitle className="text-left text-base font-semibold">
+              Filters
+            </SheetTitle>
+            <SheetDescription className="text-left text-xs">
+              Refine your inventory view
+            </SheetDescription>
+          </SheetHeader>
+          <div className="flex-1 space-y-5 overflow-y-auto px-4 py-5">
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-muted-foreground/70 text-left text-[10px] font-bold tracking-wider uppercase">
+                Warehouse
+              </Label>
+              <Select
+                value={warehouseFilter}
+                onValueChange={setWarehouseFilter}
+              >
+                <SelectTrigger className="bg-background border-muted-foreground/15 h-9 w-full rounded-lg text-sm shadow-none">
+                  <SelectValue placeholder="All Warehouses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Warehouses</SelectItem>
+                  {warehouses.map((w) => (
+                    <SelectItem key={w.id} value={w.id}>
+                      {w.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-muted-foreground/70 text-left text-[10px] font-bold tracking-wider uppercase">
+                Shop Type
+              </Label>
+              <Select
+                value={shopFilter}
+                onValueChange={setShopFilter}
+                disabled={assignedShops.length === 0}
+              >
+                <SelectTrigger className="bg-background border-muted-foreground/15 h-9 w-full rounded-lg text-sm shadow-none">
+                  <SelectValue placeholder="All Shops" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Shops</SelectItem>
+                  {assignedShops.map((shop) => (
+                    <SelectItem key={shop.id} value={shop.id}>
+                      {shop.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          {hasActiveFilters && (
+            <div className="border-t px-4 py-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  handleReset();
+                  setDrawerOpen(false);
+                }}
+                className="text-muted-foreground hover:text-foreground w-full gap-2 text-xs"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                Reset All Filters
+              </Button>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
+    </>
   );
 }

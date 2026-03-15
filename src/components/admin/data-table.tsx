@@ -137,13 +137,13 @@ export function DataTable<TData, TValue>({
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-1 flex-wrap items-center gap-4">
-          <div className="relative max-w-sm min-w-[240px] flex-1">
-            <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
+          <div className="relative max-w-sm min-w-[200px] flex-1 sm:min-w-[240px]">
+            <Search className="text-muted-foreground absolute top-2 left-2.5 h-3.5 w-3.5 sm:top-2.5 sm:h-4 sm:w-4" />
             <Input
               placeholder={searchPlaceholder}
               value={searchValue}
               onChange={(event) => setSearchValue(event.target.value)}
-              className="pl-9"
+              className="h-8 pl-8 text-xs sm:h-9 sm:pl-9 sm:text-sm"
             />
           </div>
           {additionalFilters}
@@ -151,10 +151,10 @@ export function DataTable<TData, TValue>({
             <Button
               variant="ghost"
               onClick={handleReset}
-              className="h-9 px-2 lg:px-3"
+              className="h-8 px-2 text-xs sm:h-9 lg:px-3"
             >
               Reset
-              <X className="ml-2 h-4 w-4" />
+              <X className="ml-1.5 h-3 w-3 sm:ml-2 sm:h-4 sm:w-4" />
             </Button>
           )}
         </div>
@@ -198,7 +198,14 @@ export function DataTable<TData, TValue>({
                   return (
                     <TableHead
                       key={header.id}
-                      className="text-muted-foreground px-4 py-3 text-left text-xs font-semibold tracking-wider uppercase"
+                      className={cn(
+                        "text-muted-foreground px-3 py-2 text-left text-[10px] font-semibold tracking-wider uppercase sm:px-4 sm:py-3",
+                        (
+                          header.column.columnDef.meta as {
+                            className?: string;
+                          }
+                        )?.className
+                      )}
                     >
                       {header.isPlaceholder
                         ? null
@@ -227,7 +234,17 @@ export function DataTable<TData, TValue>({
                   onClick={() => onRowClick?.(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="px-4 py-3">
+                    <TableCell
+                      key={cell.id}
+                      className={cn(
+                        "px-3 py-2 sm:px-4 sm:py-3",
+                        (
+                          cell.column.columnDef.meta as {
+                            className?: string;
+                          }
+                        )?.className
+                      )}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -250,20 +267,21 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
 
-      <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-        <div className="text-muted-foreground text-sm">
+      <div className="flex flex-col items-center justify-between gap-2 sm:gap-4 md:flex-row">
+        <div className="text-muted-foreground text-xs">
           {table.getFilteredSelectedRowModel().rows.length > 0
-            ? `${table.getFilteredSelectedRowModel().rows.length} of ${totalCount} row(s) selected (Total: ${totalCount})`
+            ? `${table.getFilteredSelectedRowModel().rows.length} of ${totalCount} row(s) selected`
             : `Total: ${totalCount} record(s)`}
         </div>
-        <div className="flex items-center space-x-6 lg:space-x-8">
-          <div className="flex items-center justify-center text-sm font-medium">
+        <div className="flex items-center space-x-4 lg:space-x-8">
+          <div className="flex items-center justify-center text-xs font-medium sm:text-sm">
             Page {page} of {pageCount || 1}
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1.5 sm:space-x-2">
             <Button
               variant="outline"
               size="sm"
+              className="h-7 px-2 text-xs sm:h-8 sm:px-3"
               onClick={() => handlePageChange(page - 1)}
               disabled={page <= 1}
             >
@@ -272,6 +290,7 @@ export function DataTable<TData, TValue>({
             <Button
               variant="outline"
               size="sm"
+              className="h-7 px-2 text-xs sm:h-8 sm:px-3"
               onClick={() => handlePageChange(page + 1)}
               disabled={page >= pageCount}
             >

@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
+import { revalidateTag, unstable_cache } from "next/cache";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Database } from "@/lib/supabase/database.types";
@@ -20,7 +20,7 @@ export async function getUnitsOfMeasure(
   params: { query?: string; page?: number; pageSize?: number } = {}
 ) {
   await verifyAdmin();
-  const { query, page = 1, pageSize = 10 } = params;
+  const { query, page = 1, pageSize = 8 } = params;
 
   return unstable_cache(
     async () => {
@@ -82,7 +82,6 @@ export async function createUnitOfMeasure(data: {
     }
 
     revalidateTag("admin:uom", "default");
-    revalidatePath("/admin/uom");
     return { success: true };
   } catch (err: unknown) {
     return {
@@ -116,7 +115,6 @@ export async function updateUnitOfMeasure(
     }
 
     revalidateTag("admin:uom", "default");
-    revalidatePath("/admin/uom");
     return { success: true };
   } catch (err: unknown) {
     return {
@@ -141,7 +139,6 @@ export async function deleteUnitOfMeasure(id: string) {
     }
 
     revalidateTag("admin:uom", "default");
-    revalidatePath("/admin/uom");
     return { success: true };
   } catch (err: unknown) {
     return {

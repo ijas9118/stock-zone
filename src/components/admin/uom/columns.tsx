@@ -11,7 +11,9 @@ export const columns: ColumnDef<UnitOfMeasure>[] = [
     accessorKey: "uom_code",
     header: "Code",
     cell: ({ row }) => (
-      <span className="font-mono font-medium">{row.original.uom_code}</span>
+      <span className="font-mono text-[10px] font-medium sm:text-xs">
+        {row.original.uom_code}
+      </span>
     ),
   },
   {
@@ -24,8 +26,9 @@ export const columns: ColumnDef<UnitOfMeasure>[] = [
   {
     accessorKey: "example",
     header: "Example",
+    meta: { className: "hidden sm:table-cell" },
     cell: ({ row }) => (
-      <span className="text-muted-foreground text-sm italic">
+      <span className="text-muted-foreground text-[10px] italic sm:text-xs">
         {row.original.example || "-"}
       </span>
     ),
@@ -33,9 +36,10 @@ export const columns: ColumnDef<UnitOfMeasure>[] = [
   {
     accessorKey: "created_at",
     header: "Created At",
+    meta: { className: "hidden md:table-cell" },
     cell: ({ row }) => {
       return (
-        <span className="text-muted-foreground">
+        <span className="text-muted-foreground text-xs">
           {format(new Date(row.getValue("created_at")), "MMM dd, yyyy")}
         </span>
       );

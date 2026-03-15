@@ -3,6 +3,9 @@
 import { useEffect, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { getUserStocks, UserStockWithDetails } from "@/actions/user/stock";
+import { Search } from "lucide-react";
+
+import { Input } from "@/components/ui/input";
 
 import { InventoryFilters } from "./inventory-filters";
 import { InventoryList } from "./inventory-list";
@@ -25,7 +28,7 @@ export function UserInventoryView({
   const [shopFilter, setShopFilter] = useState(
     searchParams.get("shop") || "all"
   );
-  const [warehouseFilter, setWarehouseFilter] = useState("");
+  const [warehouseFilter, setWarehouseFilter] = useState("all");
 
   const hasValidFilter =
     (warehouseFilter && warehouseFilter !== "all") ||
@@ -75,6 +78,16 @@ export function UserInventoryView({
         lowStockCount={lowStockCount}
       />
 
+      <div className="relative">
+        <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+        <Input
+          placeholder="Search inventory by name, SKU or brand..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="bg-background border-muted-foreground/15 focus:ring-primary/20 h-11 rounded-xl pl-10 text-xs shadow-sm transition-all focus:ring-2 sm:text-sm"
+        />
+      </div>
+
       <InventoryFilters
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
@@ -84,13 +97,12 @@ export function UserInventoryView({
         setShopFilter={setShopFilter}
         warehouses={warehouses}
         assignedShops={assignedShops}
-        handleRefresh={handleRefresh}
-        isPending={isPending}
       />
 
       <InventoryList
         hasValidFilter={hasValidFilter}
         stocks={stocks}
+        isLoading={isPending}
         onClearFilters={handleClearFilters}
       />
     </div>

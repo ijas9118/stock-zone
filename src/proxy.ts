@@ -11,10 +11,8 @@ export const config = {
     "/",
     "/admin/:path*",
     "/manager/:path*",
-    "/user/:path*",
-    "/warehouses/:path*",
-    "/products/:path*",
-    "/shops/:path*",
+    "/inventory/:path*",
+    "/profile/:path*",
     "/auth/:path*",
   ],
 };
