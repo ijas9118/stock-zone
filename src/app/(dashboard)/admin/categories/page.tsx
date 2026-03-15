@@ -20,7 +20,7 @@ export default async function CategoriesPage({
   const { q, page, pageSize } = await searchParams;
 
   const currentPage = Number(page) || 1;
-  const currentPageSize = Number(pageSize) || 10;
+  const currentPageSize = Number(pageSize) || 8;
 
   const { categories, totalCount } = await getCategories({
     query: q,

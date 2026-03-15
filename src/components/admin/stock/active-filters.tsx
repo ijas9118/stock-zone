@@ -69,11 +69,6 @@ export function ActiveFilters({
     });
   }
 
-  const q = searchParams.get("q");
-  if (q) {
-    activeFilters.push({ key: "q", label: "Search", value: q });
-  }
-
   if (activeFilters.length === 0) return null;
 
   function removeFilter(key: string) {

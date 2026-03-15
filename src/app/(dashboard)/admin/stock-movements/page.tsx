@@ -37,7 +37,7 @@ export default async function StockMovementsPage({
   } = await searchParams;
 
   const currentPage = Number(page) || 1;
-  const currentPageSize = Number(pageSize) || 10;
+  const currentPageSize = Number(pageSize) || 8;
 
   const [{ movements, totalCount }, { warehouses }, { shops: shopTypes }] =
     await Promise.all([

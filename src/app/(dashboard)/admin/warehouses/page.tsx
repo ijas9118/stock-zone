@@ -20,7 +20,7 @@ export default async function WarehousesPage({
   const { q, page, pageSize } = await searchParams;
 
   const currentPage = Number(page) || 1;
-  const currentPageSize = Number(pageSize) || 10;
+  const currentPageSize = Number(pageSize) || 8;
 
   const { warehouses, totalCount } = await getWarehouses({
     query: q,

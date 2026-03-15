@@ -25,7 +25,7 @@ export function UserInventoryView({
   const [shopFilter, setShopFilter] = useState(
     searchParams.get("shop") || "all"
   );
-  const [warehouseFilter, setWarehouseFilter] = useState("");
+  const [warehouseFilter, setWarehouseFilter] = useState("all");
 
   const hasValidFilter =
     (warehouseFilter && warehouseFilter !== "all") ||

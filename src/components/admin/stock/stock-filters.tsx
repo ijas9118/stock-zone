@@ -9,9 +9,10 @@ import {
 } from "@/actions/admin/categories";
 import { ShopType } from "@/actions/admin/shops";
 import { Warehouse } from "@/actions/admin/warehouses";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, Search, SlidersHorizontal } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -21,6 +22,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 interface StockFiltersProps {
   initialWarehouses: Warehouse[];
@@ -38,15 +46,21 @@ export function StockFilters({
   const searchParams = useSearchParams();
   const [, startTransition] = useTransition();
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const currentCategory = searchParams.get("category_id") || "all";
 
-  const hasFilters =
-    searchParams.get("warehouse_id") ||
-    searchParams.get("shop_type_id") ||
-    searchParams.get("category_id") ||
-    searchParams.get("sub_category_id") ||
-    searchParams.get("q");
+  const activeFiltersArr = {
+    warehouse_id: searchParams.get("warehouse_id"),
+    shop_type_id: searchParams.get("shop_type_id"),
+    category_id: searchParams.get("category_id"),
+    sub_category_id: searchParams.get("sub_category_id"),
+    q: searchParams.get("q"),
+  };
+
+  const activeFilterCount =
+    Object.values(activeFiltersArr).filter(Boolean).length;
+  const hasFilters = activeFilterCount > 0;
 
   useEffect(() => {
     if (currentCategory && currentCategory !== "all") {
@@ -67,12 +81,11 @@ export function StockFilters({
       params.delete(key);
     }
 
-    // If category changes, reset subcategory
     if (key === "category_id") {
       params.delete("sub_category_id");
     }
 
-    params.set("page", "1"); // Reset to first page
+    params.set("page", "1");
     startTransition(() => {
       router.push(`?${params.toString()}`);
     });
@@ -85,17 +98,32 @@ export function StockFilters({
   }
 
   return (
-    <div className="flex flex-col gap-5">
-      <div className="space-y-4">
-        <div className="flex flex-col gap-1.5">
-          <Label className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
-            Warehouse
-          </Label>
+    <>
+      <div className="border-muted-foreground/10 bg-muted/30 flex flex-wrap items-center gap-2 rounded-xl border px-3 py-2.5 backdrop-blur-sm">
+        {/* Mobile Trigger */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setDrawerOpen(true)}
+          className="bg-background border-muted-foreground/15 h-8 gap-1.5 text-xs md:hidden"
+        >
+          <SlidersHorizontal className="h-3.5 w-3.5" />
+          Filters
+          {hasFilters && (
+            <span className="bg-primary text-primary-foreground flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold">
+              {activeFilterCount}
+            </span>
+          )}
+        </Button>
+
+        {/* Desktop Controls */}
+        <div className="hidden md:contents">
+          {/* Warehouse */}
           <Select
             value={searchParams.get("warehouse_id") || "all"}
             onValueChange={(v) => updateFilter("warehouse_id", v)}
           >
-            <SelectTrigger className="bg-background border-muted-foreground/20 w-full">
+            <SelectTrigger className="bg-background border-muted-foreground/15 h-8 w-[140px] rounded-lg text-xs shadow-none">
               <SelectValue placeholder="All Warehouses" />
             </SelectTrigger>
             <SelectContent>
@@ -107,21 +135,17 @@ export function StockFilters({
               ))}
             </SelectContent>
           </Select>
-        </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
-            Shop Type
-          </Label>
+          {/* Shop Type */}
           <Select
             value={searchParams.get("shop_type_id") || "all"}
             onValueChange={(v) => updateFilter("shop_type_id", v)}
           >
-            <SelectTrigger className="bg-background border-muted-foreground/20 w-full">
-              <SelectValue placeholder="All Shop Types" />
+            <SelectTrigger className="bg-background border-muted-foreground/15 h-8 w-[130px] rounded-lg text-xs shadow-none">
+              <SelectValue placeholder="All Shops" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Shop Types</SelectItem>
+              <SelectItem value="all">All Shops</SelectItem>
               {initialShopTypes.map((s) => (
                 <SelectItem key={s.id} value={s.id}>
                   {s.name}
@@ -129,19 +153,13 @@ export function StockFilters({
               ))}
             </SelectContent>
           </Select>
-        </div>
 
-        <Separator className="my-2 opacity-50" />
-
-        <div className="flex flex-col gap-1.5">
-          <Label className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
-            Category
-          </Label>
+          {/* Category */}
           <Select
             value={searchParams.get("category_id") || "all"}
             onValueChange={(v) => updateFilter("category_id", v)}
           >
-            <SelectTrigger className="bg-background border-muted-foreground/20 w-full">
+            <SelectTrigger className="bg-background border-muted-foreground/15 h-8 w-[130px] rounded-lg text-xs shadow-none">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
             <SelectContent>
@@ -153,18 +171,14 @@ export function StockFilters({
               ))}
             </SelectContent>
           </Select>
-        </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
-            Subcategory
-          </Label>
+          {/* Subcategory */}
           <Select
             value={searchParams.get("sub_category_id") || "all"}
             onValueChange={(v) => updateFilter("sub_category_id", v)}
             disabled={currentCategory === "all"}
           >
-            <SelectTrigger className="bg-background border-muted-foreground/20 w-full">
+            <SelectTrigger className="bg-background border-muted-foreground/15 h-8 w-[140px] rounded-lg text-xs shadow-none">
               <SelectValue placeholder="All Subcategories" />
             </SelectTrigger>
             <SelectContent>
@@ -177,19 +191,167 @@ export function StockFilters({
             </SelectContent>
           </Select>
         </div>
+
+        {/* Reset (Desktop) */}
+        {hasFilters && (
+          <div className="ml-auto flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleReset}
+              className="text-muted-foreground hover:text-foreground hidden h-8 gap-1.5 text-xs font-medium md:flex"
+            >
+              <RotateCcw className="h-3 w-3" />
+              Reset
+            </Button>
+          </div>
+        )}
       </div>
 
-      {hasFilters && (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleReset}
-          className="text-muted-foreground hover:text-foreground w-full gap-2"
+      {/* Mobile Drawer */}
+      <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
+        <SheetContent
+          side="right"
+          className="flex w-[300px] flex-col gap-0 p-0 sm:w-[320px]"
         >
-          <RotateCcw className="h-4 w-4" />
-          Reset Filters
-        </Button>
-      )}
-    </div>
+          <SheetHeader className="border-b px-4 py-4">
+            <SheetTitle className="text-left text-base font-semibold">
+              Filters
+            </SheetTitle>
+            <SheetDescription className="text-left text-xs">
+              Refine your stock view
+            </SheetDescription>
+          </SheetHeader>
+          <div className="flex-1 space-y-5 overflow-y-auto px-4 py-5">
+            {/* Search */}
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-muted-foreground/70 text-[10px] font-bold tracking-wider uppercase">
+                Search
+              </Label>
+              <div className="relative">
+                <Search className="text-muted-foreground absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2" />
+                <Input
+                  placeholder="Search products..."
+                  value={searchParams.get("q") || ""}
+                  onChange={(e) => updateFilter("q", e.target.value)}
+                  className="bg-background border-muted-foreground/15 h-9 rounded-lg pl-9 text-sm shadow-none"
+                />
+              </div>
+            </div>
+
+            {/* Warehouse */}
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-muted-foreground/70 text-[10px] font-bold tracking-wider uppercase">
+                Warehouse
+              </Label>
+              <Select
+                value={searchParams.get("warehouse_id") || "all"}
+                onValueChange={(v) => updateFilter("warehouse_id", v)}
+              >
+                <SelectTrigger className="bg-background border-muted-foreground/15 h-9 w-full rounded-lg text-sm shadow-none">
+                  <SelectValue placeholder="All Warehouses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Warehouses</SelectItem>
+                  {initialWarehouses.map((w) => (
+                    <SelectItem key={w.id} value={w.id}>
+                      {w.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Shop Type */}
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-muted-foreground/70 text-[10px] font-bold tracking-wider uppercase">
+                Shop Type
+              </Label>
+              <Select
+                value={searchParams.get("shop_type_id") || "all"}
+                onValueChange={(v) => updateFilter("shop_type_id", v)}
+              >
+                <SelectTrigger className="bg-background border-muted-foreground/15 h-9 w-full rounded-lg text-sm shadow-none">
+                  <SelectValue placeholder="All Shops" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Shops</SelectItem>
+                  {initialShopTypes.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>
+                      {s.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Separator className="my-1 opacity-50" />
+
+            {/* Category */}
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-muted-foreground/70 text-[10px] font-bold tracking-wider uppercase">
+                Category
+              </Label>
+              <Select
+                value={searchParams.get("category_id") || "all"}
+                onValueChange={(v) => updateFilter("category_id", v)}
+              >
+                <SelectTrigger className="bg-background border-muted-foreground/15 h-9 w-full rounded-lg text-sm shadow-none">
+                  <SelectValue placeholder="All Categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {initialCategories.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.category_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Subcategory */}
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-muted-foreground/70 text-[10px] font-bold tracking-wider uppercase">
+                Subcategory
+              </Label>
+              <Select
+                value={searchParams.get("sub_category_id") || "all"}
+                onValueChange={(v) => updateFilter("sub_category_id", v)}
+                disabled={currentCategory === "all"}
+              >
+                <SelectTrigger className="bg-background border-muted-foreground/15 h-9 w-full rounded-lg text-sm shadow-none">
+                  <SelectValue placeholder="All Subcategories" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Subcategories</SelectItem>
+                  {subcategories.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>
+                      {s.subcategory_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          {hasFilters && (
+            <div className="border-t px-4 py-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  handleReset();
+                  setDrawerOpen(false);
+                }}
+                className="text-muted-foreground hover:text-foreground w-full gap-2 text-xs"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                Reset All Filters
+              </Button>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
+    </>
   );
 }

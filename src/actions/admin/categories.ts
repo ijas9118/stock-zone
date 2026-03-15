@@ -24,7 +24,7 @@ export async function getCategories(
   params: { query?: string; page?: number; pageSize?: number } = {}
 ) {
   await verifyAdmin();
-  const { query, page = 1, pageSize = 10 } = params;
+  const { query, page = 1, pageSize = 8 } = params;
 
   return unstable_cache(
     async () => {
@@ -172,7 +172,7 @@ export async function getSubcategories(
   } = {}
 ) {
   await verifyAdmin();
-  const { query, categoryId, page = 1, pageSize = 10 } = params;
+  const { query, categoryId, page = 1, pageSize = 8 } = params;
 
   return unstable_cache(
     async () => {

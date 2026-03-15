@@ -22,7 +22,7 @@ export default async function SubcategoriesPage({
   const { q, category_id, page, pageSize } = await searchParams;
 
   const currentPage = Number(page) || 1;
-  const currentPageSize = Number(pageSize) || 10;
+  const currentPageSize = Number(pageSize) || 8;
 
   const [{ subcategories, totalCount }, { categories }] = await Promise.all([
     getSubcategories({

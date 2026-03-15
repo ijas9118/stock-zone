@@ -108,7 +108,7 @@ export async function getStocks(
     subCategoryId,
     query,
     page = 1,
-    pageSize = 10,
+    pageSize = 8,
   } = params;
 
   return unstable_cache(

@@ -20,7 +20,7 @@ export async function getShops(
 ) {
   const auth = await getAuthContext();
   if (!auth.isAuthenticated) throw new Error("Unauthorized");
-  const { query, page = 1, pageSize = 10 } = params;
+  const { query, page = 1, pageSize = 8 } = params;
 
   return unstable_cache(
     async () => {

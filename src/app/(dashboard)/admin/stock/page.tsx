@@ -4,13 +4,6 @@ import { getShops } from "@/actions/admin/shops";
 import { getStocks } from "@/actions/admin/stock";
 import { getWarehouses } from "@/actions/admin/warehouses";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DataTable } from "@/components/admin/data-table";
 import { ActiveFilters } from "@/components/admin/stock/active-filters";
@@ -42,7 +35,7 @@ export default async function StockPage({ searchParams }: StockPageProps) {
   } = await searchParams;
 
   const currentPage = Number(page) || 1;
-  const currentPageSize = Number(pageSize) || 10;
+  const currentPageSize = Number(pageSize) || 8;
 
   const [
     { stocks, totalCount },
@@ -70,42 +63,28 @@ export default async function StockPage({ searchParams }: StockPageProps) {
     <div className="flex flex-1 flex-col space-y-6">
       <StockHeader />
 
-      <div className="flex flex-col gap-6 md:flex-row">
-        {/* Sidebar Filters */}
-        <aside className="w-full flex-shrink-0 md:w-64">
-          <Card className="bg-background/50 sticky top-20 border-none shadow-sm backdrop-blur-md">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg">Filters</CardTitle>
-              <CardDescription>Refine your stock view</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <StockFilters
-                initialWarehouses={warehouses}
-                initialShopTypes={shopTypes}
-                initialCategories={categories}
-              />
-            </CardContent>
-          </Card>
-        </aside>
+      <StockFilters
+        initialWarehouses={warehouses}
+        initialShopTypes={shopTypes}
+        initialCategories={categories}
+      />
 
-        {/* Main Content Area */}
-        <main className="flex min-w-0 flex-1 flex-col gap-4">
-          <ActiveFilters
-            warehouses={warehouses}
-            shopTypes={shopTypes}
-            categories={categories}
+      <main className="flex min-w-0 flex-1 flex-col gap-4">
+        <ActiveFilters
+          warehouses={warehouses}
+          shopTypes={shopTypes}
+          categories={categories}
+        />
+        <Suspense fallback={<TableSkeleton />}>
+          <DataTable
+            columns={columns}
+            data={stocks}
+            totalCount={totalCount}
+            pageCount={pageCount}
+            searchPlaceholder="Search products by name or SKU..."
           />
-          <Suspense fallback={<TableSkeleton />}>
-            <DataTable
-              columns={columns}
-              data={stocks}
-              totalCount={totalCount}
-              pageCount={pageCount}
-              searchPlaceholder="Search products by name or SKU..."
-            />
-          </Suspense>
-        </main>
-      </div>
+        </Suspense>
+      </main>
     </div>
   );
 }

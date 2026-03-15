@@ -15,7 +15,7 @@ export default async function ShopsPage({
 }) {
   const params = await searchParams;
   const page = Number(params.page) || 1;
-  const pageSize = Number(params.pageSize) || 10;
+  const pageSize = Number(params.pageSize) || 8;
   const query = params.q;
 
   const { shops, totalCount } = await getShops({ query, page, pageSize });

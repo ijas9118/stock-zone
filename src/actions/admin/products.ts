@@ -33,7 +33,7 @@ export async function getProducts(
 ) {
   const auth = await getAuthContext();
   if (!auth.isAuthenticated) throw new Error("Unauthorized");
-  const { query, categoryId, subCategoryId, page = 1, pageSize = 10 } = params;
+  const { query, categoryId, subCategoryId, page = 1, pageSize = 8 } = params;
 
   return unstable_cache(
     async () => {
