@@ -1,8 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Package } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -30,9 +30,24 @@ export function UserNavbar({ user }: UserNavbarProps) {
           href="/"
           className="flex items-center gap-2.5 transition-opacity hover:opacity-80"
         >
-          <div className="bg-primary text-primary-foreground flex h-7 w-7 items-center justify-center rounded-lg sm:h-8 sm:w-8">
-            <Package className="h-4 w-4 sm:h-[18px] sm:w-[18px]" />
-          </div>
+          {/* Light logo */}
+          <Image
+            src="/assets/main-logo-dark.svg"
+            alt="StockZone Logo"
+            width={128}
+            height={32}
+            priority
+            className="h-7 w-auto sm:h-8 dark:hidden"
+          />
+          {/* Dark logo */}
+          <Image
+            src="/assets/main-logo.svg"
+            alt="StockZone Logo"
+            width={128}
+            height={32}
+            priority
+            className="hidden h-7 w-auto sm:h-8 dark:block"
+          />
           <span className="text-base font-bold tracking-tight sm:text-lg">
             StockZone
           </span>

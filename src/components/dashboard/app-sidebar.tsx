@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -94,8 +95,25 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/">
-                <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <Icons.logo className="size-5" />
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg">
+                  {/* Light logo */}
+                  <Image
+                    src="/assets/main-logo-dark.svg"
+                    alt="StockZone Logo"
+                    width={32}
+                    height={32}
+                    priority
+                    className="size-6 object-contain dark:hidden"
+                  />
+                  {/* Dark logo */}
+                  <Image
+                    src="/assets/main-logo.svg"
+                    alt="StockZone Logo"
+                    width={32}
+                    height={32}
+                    priority
+                    className="hidden size-6 object-contain dark:block"
+                  />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate text-lg font-bold">StockZone</span>
