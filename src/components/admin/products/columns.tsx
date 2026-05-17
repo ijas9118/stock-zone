@@ -18,7 +18,7 @@ export const columns: ColumnDef<ProductWithDetails>[] = [
         <div className="flex flex-col">
           <span className="font-medium">{product.name}</span>
           <span className="text-muted-foreground text-[10px] sm:text-xs">
-            {product.brand || "No brand"}
+            {product.brands?.name || "No brand"}
           </span>
         </div>
       );

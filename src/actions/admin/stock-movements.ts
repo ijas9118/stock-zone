@@ -13,7 +13,7 @@ export type StockMovementWithDetails = StockMovementRow & {
   products: {
     name: string;
     sku: string | null;
-    brand?: string | null;
+    brands?: { name: string } | null;
     description?: string | null;
   } | null;
   warehouses: { name: string; location?: string | null } | null;
@@ -148,7 +148,7 @@ export async function getStockMovementById(id: string) {
     .select(
       `
       *,
-      products(name, sku, brand, description),
+      products(name, sku, description, brands(name)),
       warehouses(name, location),
       shop_types(name),
       profiles:created_by(full_name, email, avatar_url)

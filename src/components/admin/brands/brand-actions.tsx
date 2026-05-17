@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { deleteProduct, ProductWithDetails } from "@/actions/admin/products";
+import { Brand, deleteBrand } from "@/actions/admin/brands";
 import { Edit2, MoreHorizontal, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -25,22 +24,25 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-interface ProductActionsProps {
-  product: ProductWithDetails;
+import { BrandDialog } from "./brand-dialog";
+
+interface BrandActionsProps {
+  brand: Brand;
 }
 
-export function ProductActions({ product }: ProductActionsProps) {
+export function BrandActions({ brand }: BrandActionsProps) {
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   async function onDelete() {
     try {
       setIsLoading(true);
-      const result = await deleteProduct(product.id);
+      const result = await deleteBrand(brand.id);
       if (result.error) {
         toast.error(result.error);
       } else {
-        toast.success("Product deleted successfully");
+        toast.success("Brand deleted successfully");
         setIsDeleteDialogOpen(false);
       }
     } catch {
@@ -60,13 +62,8 @@ export function ProductActions({ product }: ProductActionsProps) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem asChild>
-            <Link
-              href={`/admin/products/${product.id}/edit`}
-              className="cursor-pointer"
-            >
-              <Edit2 className="mr-2 h-4 w-4" /> Edit
-            </Link>
+          <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
+            <Edit2 className="mr-2 h-4 w-4" /> Edit
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -78,6 +75,12 @@ export function ProductActions({ product }: ProductActionsProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
+      <BrandDialog
+        brand={brand}
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+      />
+
       <AlertDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
@@ -87,10 +90,7 @@ export function ProductActions({ product }: ProductActionsProps) {
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete the{" "}
-              <strong>
-                {product.name} ({product.sku || "no SKU"})
-              </strong>{" "}
-              product.
+              <strong>{brand.name}</strong> brand from your catalog.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -137,9 +137,9 @@ export function StockMovementDetailView({
                   {movement.products.sku}
                 </span>
               )}
-              {movement.products?.brand && (
+              {movement.products?.brands?.name && (
                 <span className="text-muted-foreground text-sm">
-                  {movement.products.brand}
+                  {movement.products.brands.name}
                 </span>
               )}
             </div>

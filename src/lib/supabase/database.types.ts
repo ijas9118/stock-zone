@@ -14,6 +14,30 @@ export type Database = {
   };
   public: {
     Tables: {
+      brands: {
+        Row: {
+          created_at: string;
+          id: string;
+          is_active: boolean;
+          name: string;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          name: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          name?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       categories: {
         Row: {
           cat_code: string;
@@ -43,7 +67,7 @@ export type Database = {
       };
       products: {
         Row: {
-          brand: string | null;
+          brand_id: string | null;
           category: string | null;
           created_at: string;
           created_by: string | null;
@@ -53,11 +77,11 @@ export type Database = {
           name: string;
           sku: string | null;
           sub_category: string | null;
-          uom: string;
+          uom: string | null;
           updated_at: string;
         };
         Insert: {
-          brand?: string | null;
+          brand_id?: string | null;
           category?: string | null;
           created_at?: string;
           created_by?: string | null;
@@ -67,11 +91,11 @@ export type Database = {
           name: string;
           sku?: string | null;
           sub_category?: string | null;
-          uom: string;
+          uom?: string | null;
           updated_at?: string;
         };
         Update: {
-          brand?: string | null;
+          brand_id?: string | null;
           category?: string | null;
           created_at?: string;
           created_by?: string | null;
@@ -81,10 +105,17 @@ export type Database = {
           name?: string;
           sku?: string | null;
           sub_category?: string | null;
-          uom?: string;
+          uom?: string | null;
           updated_at?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "products_brand_id_fkey";
+            columns: ["brand_id"];
+            isOneToOne: false;
+            referencedRelation: "brands";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "products_category_fkey";
             columns: ["category"];

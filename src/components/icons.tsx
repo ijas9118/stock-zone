@@ -17,6 +17,7 @@ import {
   Ruler,
   Settings,
   Store,
+  Tag,
   User,
   Users,
   Warehouse,
@@ -64,5 +65,6 @@ export const Icons = {
   uom: Ruler,
   categories: LayoutGrid,
   subcategories: Layers,
+  brands: Tag,
   stock: Package, // Reusing Package for now or I can add Boxes
 };

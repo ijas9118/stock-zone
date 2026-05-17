@@ -12,6 +12,7 @@ export type ProductWithDetails = Product & {
   subcategories: { subcategory_name: string } | null;
   units_of_measure: { full_name: string; uom_code: string } | null;
   profiles: { full_name: string | null; email: string } | null;
+  brands: { name: string } | null;
 };
 
 async function verifyAdmin() {
@@ -46,7 +47,8 @@ export async function getProducts(
           categories(category_name),
           subcategories(subcategory_name),
           units_of_measure(full_name, uom_code),
-          profiles(full_name, email)
+          profiles(full_name, email),
+          brands(name)
         `,
           { count: "exact" }
         )
@@ -54,7 +56,7 @@ export async function getProducts(
 
       if (query) {
         supabaseQuery = supabaseQuery.or(
-          `name.ilike.%${query}%,sku.ilike.%${query}%,brand.ilike.%${query}%`
+          `name.ilike.%${query}%,sku.ilike.%${query}%,brands.name.ilike.%${query}%`
         );
       }
 
@@ -100,7 +102,7 @@ export async function createProduct(data: {
   name: string;
   sku?: string;
   description?: string;
-  brand?: string;
+  brand_id?: string;
   category: string;
   sub_category?: string;
   uom: string;
@@ -117,7 +119,7 @@ export async function createProduct(data: {
         sub_category: data.sub_category || null,
         description: data.description || null,
         sku: data.sku || null,
-        brand: data.brand || null,
+        brand_id: data.brand_id || null,
       },
     ]);
 
@@ -141,7 +143,7 @@ export async function updateProduct(
     name?: string;
     sku?: string;
     description?: string;
-    brand?: string;
+    brand_id?: string;
     category?: string;
     sub_category?: string;
     uom?: string;
@@ -156,6 +158,10 @@ export async function updateProduct(
       .from("products")
       .update({
         ...data,
+        brand_id: data.brand_id || null,
+        sub_category: data.sub_category || null,
+        sku: data.sku || null,
+        description: data.description || null,
         updated_at: new Date().toISOString(),
       })
       .eq("id", id);
@@ -192,5 +198,38 @@ export async function deleteProduct(id: string) {
     return {
       error: err instanceof Error ? err.message : "An unknown error occurred",
     };
+  }
+}
+
+export async function getProductById(id: string) {
+  try {
+    const auth = await getAuthContext();
+    if (!auth.isAuthenticated) throw new Error("Unauthorized");
+
+    const adminClient = createAdminClient();
+    const { data, error } = await adminClient
+      .from("products")
+      .select(
+        `
+        *,
+        categories(category_name),
+        subcategories(subcategory_name),
+        units_of_measure(full_name, uom_code),
+        profiles(full_name, email),
+        brands(name)
+      `
+      )
+      .eq("id", id)
+      .single();
+
+    if (error) {
+      console.error("Error fetching product by ID:", error);
+      return null;
+    }
+
+    return data as ProductWithDetails;
+  } catch (err) {
+    console.error("Error in getProductById:", err);
+    return null;
   }
 }

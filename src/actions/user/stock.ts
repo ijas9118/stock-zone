@@ -15,6 +15,7 @@ export type UserStockWithDetails =
       categories: { category_name: string } | null;
       subcategories: { subcategory_name: string } | null;
       units_of_measure: { full_name: string; uom_code: string } | null;
+      brands: { name: string } | null;
     } | null;
     warehouses: { name: string } | null;
     shop_types: { name: string } | null;
@@ -68,7 +69,8 @@ export async function getUserStocks(
       sub_category,
       categories(category_name),
       subcategories(subcategory_name),
-      units_of_measure(full_name, uom_code)
+      units_of_measure(full_name, uom_code),
+      brands(name)
     ),
     warehouses(name),
     shop_types(name)
@@ -99,7 +101,7 @@ export async function getUserStocks(
     // Wrap the pattern in double quotes to handle special characters like commas in the query
     const pattern = `"%${query}%"`;
     supabaseQuery = supabaseQuery.or(
-      `name.ilike.${pattern},sku.ilike.${pattern},brand.ilike.${pattern}`,
+      `name.ilike.${pattern},sku.ilike.${pattern},brands.name.ilike.${pattern}`,
       { referencedTable: "products" }
     );
   }
@@ -209,7 +211,8 @@ export async function getUserStockById(stockId: string) {
         sub_category,
         categories(category_name),
         subcategories(subcategory_name),
-        units_of_measure(full_name, uom_code)
+        units_of_measure(full_name, uom_code),
+        brands(name)
       ),
       warehouses(name, id),
       shop_types(name, id)

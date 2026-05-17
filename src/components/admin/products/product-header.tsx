@@ -1,15 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
 import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-import { ProductDialog } from "./product-dialog";
-
 export function ProductHeader() {
-  const [isOpen, setIsOpen] = useState(false);
-
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0">
@@ -20,15 +16,12 @@ export function ProductHeader() {
           Manage your product catalog, categories, and inventory items.
         </p>
       </div>
-      <Button
-        size="sm"
-        className="sm:size-default w-fit"
-        onClick={() => setIsOpen(true)}
-      >
-        <Plus className="mr-1.5 h-3.5 w-3.5 sm:mr-2 sm:h-4 sm:w-4" />
-        <span>Add Product</span>
+      <Button size="sm" className="sm:size-default w-fit" asChild>
+        <Link href="/admin/products/new">
+          <Plus className="mr-1.5 h-3.5 w-3.5 sm:mr-2 sm:h-4 sm:w-4" />
+          <span>Add Product</span>
+        </Link>
       </Button>
-      <ProductDialog open={isOpen} onOpenChange={setIsOpen} />
     </div>
   );
 }

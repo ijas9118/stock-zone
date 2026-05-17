@@ -3,8 +3,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ChevronRight } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,6 +29,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { Icons } from "@/components/icons";
@@ -41,52 +50,89 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
   const pathname = usePathname();
   const displayName = user.fullName || user.email || "User";
 
-  const navItems = [
+  // Logical groups for administrator role
+  const adminGroups = [
     {
-      title: "Dashboard",
-      href: role === "admin" ? "/admin" : "/manager",
-      icon: Icons.dashboard,
+      title: "Overview",
+      items: [
+        {
+          title: "Dashboard",
+          href: "/admin",
+          icon: Icons.dashboard,
+        },
+      ],
+    },
+    {
+      title: "Catalog Management",
+      icon: Icons.products,
+      items: [
+        { title: "Products", href: "/admin/products", icon: Icons.products },
+        { title: "Brands", href: "/admin/brands", icon: Icons.brands },
+        {
+          title: "Categories",
+          href: "/admin/categories",
+          icon: Icons.categories,
+        },
+        {
+          title: "Subcategories",
+          href: "/admin/subcategories",
+          icon: Icons.subcategories,
+        },
+      ],
+    },
+    {
+      title: "Inventory & Operations",
+      icon: Icons.stock,
+      items: [
+        { title: "Current Stock", href: "/admin/stock", icon: Icons.stock },
+        {
+          title: "Stock Movements",
+          href: "/admin/stock-movements",
+          icon: Icons.transfer,
+        },
+        {
+          title: "Warehouses",
+          href: "/admin/warehouses",
+          icon: Icons.warehouses,
+        },
+        { title: "Shops", href: "/admin/shops", icon: Icons.shops },
+        { title: "Units of Measure", href: "/admin/uom", icon: Icons.uom },
+      ],
+    },
+    {
+      title: "Settings & System",
+      icon: Icons.settings,
+      items: [{ title: "Users", href: "/admin/users", icon: Icons.users }],
     },
   ];
 
-  if (role === "admin") {
-    navItems.push(
-      { title: "Inventory", href: "/admin/stock", icon: Icons.stock },
-      {
-        title: "Stock Movements",
-        href: "/admin/stock-movements",
-        icon: Icons.transfer,
-      },
-      { title: "Products", href: "/admin/products", icon: Icons.products },
-      {
-        title: "Categories",
-        href: "/admin/categories",
-        icon: Icons.categories,
-      },
-      {
-        title: "Subcategories",
-        href: "/admin/subcategories",
-        icon: Icons.subcategories,
-      },
-      {
-        title: "Warehouses",
-        href: "/admin/warehouses",
-        icon: Icons.warehouses,
-      },
-      { title: "Shops", href: "/admin/shops", icon: Icons.shops },
-      { title: "Units of Measure", href: "/admin/uom", icon: Icons.uom },
-      { title: "Users", href: "/admin/users", icon: Icons.users }
-    );
-  } else if (role === "manager") {
-    navItems.push(
-      {
-        title: "Warehouses",
-        href: "/manager/warehouses",
-        icon: Icons.warehouses,
-      },
-      { title: "Products", href: "/manager/products", icon: Icons.products }
-    );
-  }
+  // Logical groups for manager role
+  const managerGroups = [
+    {
+      title: "Overview",
+      items: [
+        {
+          title: "Dashboard",
+          href: "/manager",
+          icon: Icons.dashboard,
+        },
+      ],
+    },
+    {
+      title: "Operations",
+      icon: Icons.stock,
+      items: [
+        {
+          title: "Warehouses",
+          href: "/manager/warehouses",
+          icon: Icons.warehouses,
+        },
+        { title: "Products", href: "/manager/products", icon: Icons.products },
+      ],
+    },
+  ];
+
+  const groups = role === "admin" ? adminGroups : managerGroups;
 
   return (
     <Sidebar collapsible="icon" variant="floating">
@@ -130,20 +176,74 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
+              {groups.map((group) => {
+                // If a group doesn't have an icon (like "Overview"), render its items flat in the menu
+                if (!group.icon) {
+                  return group.items.map((item) => (
+                    <SidebarMenuItem key={item.href}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={pathname === item.href}
+                        tooltip={item.title}
+                      >
+                        <Link href={item.href}>
+                          <item.icon className="h-4 w-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ));
+                }
+
+                // If the group has an icon and multiple items, render it as a collapsible group dropdown!
+                const isChildActive = group.items.some(
+                  (item) =>
+                    pathname === item.href ||
+                    pathname.startsWith(item.href + "/")
+                );
+
+                return (
+                  <Collapsible
+                    key={group.title}
                     asChild
-                    isActive={pathname === item.href}
-                    tooltip={item.title}
+                    defaultOpen={isChildActive}
+                    className="group/collapsible"
                   >
-                    <Link href={item.href}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+                    <SidebarMenuItem>
+                      <CollapsibleTrigger asChild>
+                        <SidebarMenuButton
+                          tooltip={group.title}
+                          isActive={isChildActive}
+                        >
+                          {group.icon && <group.icon className="h-4 w-4" />}
+                          <span>{group.title}</span>
+                          <ChevronRight className="ml-auto h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                        </SidebarMenuButton>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <SidebarMenuSub className="mr-0 pr-0">
+                          {group.items.map((item) => (
+                            <SidebarMenuSubItem key={item.href}>
+                              <SidebarMenuSubButton
+                                asChild
+                                isActive={
+                                  pathname === item.href ||
+                                  pathname.startsWith(item.href + "/")
+                                }
+                              >
+                                <Link href={item.href}>
+                                  <item.icon className="mr-2 h-3.5 w-3.5 opacity-85" />
+                                  <span>{item.title}</span>
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    </SidebarMenuItem>
+                  </Collapsible>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
