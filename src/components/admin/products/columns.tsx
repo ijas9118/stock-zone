@@ -68,6 +68,16 @@ export const columns: ColumnDef<ProductWithDetails>[] = [
     ),
   },
   {
+    accessorKey: "minimum_stock_quantity",
+    header: "Min Stock Alert",
+    meta: { className: "hidden md:table-cell" },
+    cell: ({ row }) => (
+      <span className="text-[11px] font-medium sm:text-xs">
+        {row.original.minimum_stock_quantity ?? 10}
+      </span>
+    ),
+  },
+  {
     accessorKey: "is_active",
     header: "Status",
     cell: ({ row }) => {

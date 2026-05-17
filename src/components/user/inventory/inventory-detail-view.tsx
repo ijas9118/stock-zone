@@ -45,7 +45,8 @@ export function InventoryDetailView({
     stock: UserStockWithDetails;
   } | null>(null);
 
-  const isLowStock = stock.quantity <= 10;
+  const isLowStock =
+    stock.quantity <= (stock.products?.minimum_stock_quantity ?? 10);
 
   const handleAction = (
     type: "transfer" | "adjustment" | "purchase" | "sale" | "return"

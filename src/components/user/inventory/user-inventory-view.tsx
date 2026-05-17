@@ -68,7 +68,9 @@ export function UserInventoryView({
     setShopFilter("all");
   };
 
-  const lowStockCount = stocks.filter((s) => s.quantity <= 10).length;
+  const lowStockCount = stocks.filter(
+    (s) => s.quantity <= (s.products?.minimum_stock_quantity ?? 10)
+  ).length;
 
   return (
     <div className="space-y-6">

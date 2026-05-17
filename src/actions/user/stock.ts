@@ -12,6 +12,7 @@ export type UserStockWithDetails =
       sku: string | null;
       category: string | null;
       sub_category: string | null;
+      minimum_stock_quantity: number;
       categories: { category_name: string } | null;
       subcategories: { subcategory_name: string } | null;
       units_of_measure: { full_name: string; uom_code: string } | null;
@@ -67,6 +68,7 @@ export async function getUserStocks(
       sku,
       category,
       sub_category,
+      minimum_stock_quantity,
       categories(category_name),
       subcategories(subcategory_name),
       units_of_measure(full_name, uom_code),

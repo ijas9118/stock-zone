@@ -74,6 +74,7 @@ export type Database = {
           description: string | null;
           id: string;
           is_active: boolean;
+          minimum_stock_quantity: number;
           name: string;
           sku: string | null;
           sub_category: string | null;
@@ -88,6 +89,7 @@ export type Database = {
           description?: string | null;
           id?: string;
           is_active?: boolean;
+          minimum_stock_quantity?: number;
           name: string;
           sku?: string | null;
           sub_category?: string | null;
@@ -102,6 +104,7 @@ export type Database = {
           description?: string | null;
           id?: string;
           is_active?: boolean;
+          minimum_stock_quantity?: number;
           name?: string;
           sku?: string | null;
           sub_category?: string | null;

@@ -54,7 +54,8 @@ export function InventoryTable({ stocks }: InventoryTableProps) {
         </TableHeader>
         <TableBody>
           {stocks.map((stock) => {
-            const isLowStock = stock.quantity <= 10;
+            const isLowStock =
+              stock.quantity <= (stock.products?.minimum_stock_quantity ?? 10);
 
             return (
               <TableRow

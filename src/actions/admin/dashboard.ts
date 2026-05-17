@@ -31,7 +31,7 @@ export async function getDashboardStats() {
         { count: totalProducts },
         { count: totalWarehouses },
         { count: totalStockItems },
-        { count: lowStockItems },
+        { data: lowStockItemsData },
         { count: totalShops },
         { count: totalCategories },
         { data: recentMovements },
@@ -68,8 +68,7 @@ export async function getDashboardStats() {
         // 4b. Low stock items
         adminClient
           .from("stock")
-          .select("*", { count: "exact", head: true })
-          .lte("quantity", 10),
+          .select("quantity, products!inner(minimum_stock_quantity)"),
         // 5. Total shop types (active)
         adminClient
           .from("shop_types")
@@ -250,7 +249,12 @@ export async function getDashboardStats() {
         totalProducts: totalProducts || 0,
         totalWarehouses: totalWarehouses || 0,
         totalStockItems: totalStockItems || 0,
-        lowStockItems: lowStockItems || 0,
+        lowStockItems: (lowStockItemsData || []).filter((s) => {
+          const product = Array.isArray(s.products)
+            ? s.products[0]
+            : s.products;
+          return s.quantity <= (product?.minimum_stock_quantity ?? 10);
+        }).length,
         totalShops: totalShops || 0,
         totalCategories: totalCategories || 0,
         recentMovements: (recentMovements || []).map((m) => ({

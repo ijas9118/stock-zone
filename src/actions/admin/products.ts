@@ -107,6 +107,7 @@ export async function createProduct(data: {
   sub_category?: string;
   uom: string;
   is_active?: boolean;
+  minimum_stock_quantity?: number;
 }) {
   try {
     const userId = await verifyAdmin();
@@ -148,6 +149,7 @@ export async function updateProduct(
     sub_category?: string;
     uom?: string;
     is_active?: boolean;
+    minimum_stock_quantity?: number;
   }
 ) {
   try {

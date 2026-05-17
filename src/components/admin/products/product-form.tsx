@@ -68,6 +68,10 @@ const productSchema = z.object({
   sub_category: z.string().optional(),
   uom: z.string().min(1, "Unit of measure is required"),
   is_active: z.boolean().default(true),
+  minimum_stock_quantity: z.coerce
+    .number()
+    .min(0, "Minimum stock must be 0 or more")
+    .default(10),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -101,6 +105,7 @@ export function ProductForm({ product }: ProductFormProps) {
       sub_category: product?.sub_category || "",
       uom: product?.uom || "",
       is_active: product?.is_active ?? true,
+      minimum_stock_quantity: product?.minimum_stock_quantity ?? 10,
     },
   });
 
@@ -144,6 +149,7 @@ export function ProductForm({ product }: ProductFormProps) {
         sub_category: product.sub_category || "",
         uom: product.uom || "",
         is_active: product.is_active,
+        minimum_stock_quantity: product.minimum_stock_quantity ?? 10,
       });
     }
   }, [product, form]);
@@ -444,6 +450,29 @@ export function ProductForm({ product }: ProductFormProps) {
                     )}
                   />
 
+                  {/* Minimum Stock Alert input */}
+                  <FormField
+                    control={form.control}
+                    name="minimum_stock_quantity"
+                    render={({ field }) => (
+                      <FormItem className="space-y-2">
+                        <FormLabel>Min. Stock Alert Threshold</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min="0"
+                            placeholder="E.g. 10"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription className="text-[11px] leading-snug">
+                          Triggers alerts when stock quantities drop below this
+                          number.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   {/* Status Toggle Switch */}
                   <FormField
                     control={form.control}
