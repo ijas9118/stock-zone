@@ -70,3 +70,40 @@ export async function logout() {
   revalidatePath("/", "layout");
   redirect("/auth/login");
 }
+
+export async function requestPasswordReset(formData: FormData) {
+  const supabase = await createClient();
+  const email = formData.get("email") as string;
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const redirectTo = `${siteUrl}/auth/callback?next=/auth/reset-password`;
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo,
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { success: true };
+}
+
+export async function updateUserPassword(formData: FormData) {
+  const supabase = await createClient();
+  const password = formData.get("password") as string;
+
+  const { error } = await supabase.auth.updateUser({
+    password,
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  // Forcefully sign out the user to invalidate the recovery session
+  await supabase.auth.signOut();
+  revalidatePath("/", "layout");
+
+  return { success: true };
+}

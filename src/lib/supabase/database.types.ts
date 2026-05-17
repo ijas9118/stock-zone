@@ -627,6 +627,22 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      adjust_stock: {
+        Args: {
+          p_adjusted_by?: string;
+          p_delta: number;
+          p_notes?: string;
+          p_product_id: string;
+          p_reason?: string;
+          p_shop_type_id: string;
+          p_warehouse_id: string;
+        };
+        Returns: undefined;
+      };
+      approve_transaction: {
+        Args: { p_admin_id?: string; p_id: string; p_table: string };
+        Returns: undefined;
+      };
       authorize: {
         Args: {
           requested_permission: Database["public"]["Enums"]["app_permission"];
@@ -637,6 +653,21 @@ export type Database = {
       get_my_role: {
         Args: never;
         Returns: Database["public"]["Enums"]["app_role"];
+      };
+      show_limit: { Args: never; Returns: number };
+      show_trgm: { Args: { "": string }; Returns: string[] };
+      transfer_stock: {
+        Args: {
+          p_dest_warehouse_id: string;
+          p_notes?: string;
+          p_product_id: string;
+          p_quantity: number;
+          p_reason?: string;
+          p_shop_type_id: string;
+          p_source_warehouse_id: string;
+          p_transferred_by?: string;
+        };
+        Returns: undefined;
       };
     };
     Enums: {

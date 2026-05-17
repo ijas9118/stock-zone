@@ -52,7 +52,8 @@ export async function updateSession(request: NextRequest) {
     if (
       isAuthRoute &&
       request.nextUrl.pathname !== "/auth/pending" &&
-      request.nextUrl.pathname !== "/auth/rejected"
+      request.nextUrl.pathname !== "/auth/rejected" &&
+      request.nextUrl.pathname !== "/auth/reset-password"
     ) {
       return NextResponse.redirect(new URL(dashboardPath, request.url));
     }
