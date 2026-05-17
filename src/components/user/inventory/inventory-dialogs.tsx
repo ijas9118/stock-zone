@@ -14,7 +14,7 @@ import { StockTransferDialog } from "@/components/admin/stock/transfer-dialog";
 
 interface InventoryDialogsProps {
   activeDialog: {
-    type: "transfer" | "adjustment" | "purchase" | "sale" | "return";
+    type: "transfer" | "adjustment" | "in" | "out" | "return";
     stock: UserStockWithDetails;
   } | null;
   onClose: () => void;
@@ -34,10 +34,21 @@ export function InventoryDialogs({
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="capitalize">
-            {activeDialog?.type}: {activeDialog?.stock.products?.name}
+            {activeDialog?.type === "in"
+              ? "Stock In"
+              : activeDialog?.type === "out"
+                ? "Stock Out"
+                : activeDialog?.type}
+            : {activeDialog?.stock.products?.name}
           </DialogTitle>
           <DialogDescription>
-            Process {activeDialog?.type} for this inventory item.
+            Process a{" "}
+            {activeDialog?.type === "in"
+              ? "Stock In"
+              : activeDialog?.type === "out"
+                ? "Stock Out"
+                : activeDialog?.type}{" "}
+            transaction for this inventory item.
           </DialogDescription>
         </DialogHeader>
 

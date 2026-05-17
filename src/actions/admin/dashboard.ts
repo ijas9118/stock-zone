@@ -125,8 +125,8 @@ export async function getDashboardStats() {
       ]);
 
       const movementCounts = {
-        purchase: 0,
-        sale: 0,
+        in: 0,
+        out: 0,
         adjustment: 0,
         transfer_in: 0,
         transfer_out: 0,
@@ -277,7 +277,7 @@ export async function getDashboardStats() {
     ["admin:dashboard"],
     {
       tags: ["admin:dashboard"],
-      revalidate: 300,
+      revalidate: 5,
     }
   )();
 }

@@ -41,7 +41,7 @@ export function InventoryDetailView({
 }: InventoryDetailViewProps) {
   const router = useRouter();
   const [activeDialog, setActiveDialog] = useState<{
-    type: "transfer" | "adjustment" | "purchase" | "sale" | "return";
+    type: "transfer" | "adjustment" | "in" | "out" | "return";
     stock: UserStockWithDetails;
   } | null>(null);
 
@@ -49,7 +49,7 @@ export function InventoryDetailView({
     stock.quantity <= (stock.products?.minimum_stock_quantity ?? 10);
 
   const handleAction = (
-    type: "transfer" | "adjustment" | "purchase" | "sale" | "return"
+    type: "transfer" | "adjustment" | "in" | "out" | "return"
   ) => {
     setActiveDialog({ type, stock });
   };
@@ -178,20 +178,20 @@ export function InventoryDetailView({
             <h3 className="px-1 text-sm font-medium">Actions</h3>
             <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
               <Button
-                onClick={() => handleAction("sale")}
+                onClick={() => handleAction("out")}
                 disabled={!permissions.perm_do_sale}
                 variant="secondary"
                 className="h-10 justify-start gap-2.5 rounded-md border-none bg-red-50 text-sm text-red-700 hover:bg-red-100 dark:bg-red-900/10 dark:text-red-400"
               >
-                <Minus className="h-4 w-4" /> Sale
+                <Minus className="h-4 w-4" /> Stock Out
               </Button>
               <Button
-                onClick={() => handleAction("purchase")}
+                onClick={() => handleAction("in")}
                 disabled={!permissions.perm_do_purchase}
                 variant="secondary"
                 className="h-10 justify-start gap-2.5 rounded-md border-none bg-green-50 text-sm text-green-700 hover:bg-green-100 dark:bg-green-900/10 dark:text-green-400"
               >
-                <Plus className="h-4 w-4" /> Purchase
+                <Plus className="h-4 w-4" /> Stock In
               </Button>
               <Button
                 onClick={() => handleAction("transfer")}

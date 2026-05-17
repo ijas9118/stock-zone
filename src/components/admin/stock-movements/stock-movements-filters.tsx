@@ -41,12 +41,17 @@ interface StockMovementsFiltersProps {
 
 const movementTypes = [
   {
-    value: "purchase",
-    label: "Purchase",
+    value: "in",
+    label: "Stock In",
     icon: TrendingUp,
     color: "text-emerald-500",
   },
-  { value: "sale", label: "Sale", icon: TrendingDown, color: "text-red-500" },
+  {
+    value: "out",
+    label: "Stock Out",
+    icon: TrendingDown,
+    color: "text-red-500",
+  },
   {
     value: "transfer_in",
     label: "Transfer In",

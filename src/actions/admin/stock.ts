@@ -27,8 +27,8 @@ async function verifyUserPermission(
   actionType:
     | "transfer"
     | "adjustment"
-    | "purchase"
-    | "sale"
+    | "in"
+    | "out"
     | "return"
     | "initial_stock"
 ) {
@@ -61,10 +61,10 @@ async function verifyUserPermission(
     case "initial_stock":
       hasPermission = profile.perm_do_adjustment;
       break;
-    case "purchase":
+    case "in":
       hasPermission = profile.perm_do_purchase;
       break;
-    case "sale":
+    case "out":
       hasPermission = profile.perm_do_sale;
       break;
     case "return":
@@ -307,6 +307,7 @@ export async function processStockMovement(data: {
     revalidateTag("admin:stocks", "default");
     revalidateTag("admin:stock-movements", "default");
     revalidateTag("admin:dashboard", "default");
+    revalidatePath("/admin");
     revalidatePath("/admin/stock");
     revalidatePath("/");
     return { success: true };
@@ -412,6 +413,7 @@ export async function transferStock(data: {
     revalidateTag("admin:stocks", "default");
     revalidateTag("admin:stock-movements", "default");
     revalidateTag("admin:dashboard", "default");
+    revalidatePath("/admin");
     revalidatePath("/admin/stock");
     revalidatePath("/");
     return { success: true };

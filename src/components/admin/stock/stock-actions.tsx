@@ -37,7 +37,7 @@ interface StockActionsProps {
 
 export function StockActions({ stock }: StockActionsProps) {
   const [movementMode, setMovementMode] = useState<
-    "adjustment" | "purchase" | "sale" | "return" | null
+    "adjustment" | "in" | "out" | "return" | null
   >(null);
   const [isTransferOpen, setIsTransferOpen] = useState(false);
 
@@ -61,17 +61,17 @@ export function StockActions({ stock }: StockActionsProps) {
             Transfer
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setMovementMode("sale")}>
+          <DropdownMenuItem onClick={() => setMovementMode("out")}>
             <TrendingDown className="text-destructive mr-2 h-4 w-4" />
-            Sale
+            Stock Out
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setMovementMode("return")}>
             <RotateCcw className="text-primary mr-2 h-4 w-4" />
             Return
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setMovementMode("purchase")}>
+          <DropdownMenuItem onClick={() => setMovementMode("in")}>
             <TrendingUp className="mr-2 h-4 w-4 text-green-500" />
-            Purchase
+            Stock In
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

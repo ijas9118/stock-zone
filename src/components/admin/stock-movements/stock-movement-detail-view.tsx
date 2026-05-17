@@ -34,14 +34,14 @@ interface StockMovementDetailViewProps {
 }
 
 const typeConfig = {
-  purchase: {
-    label: "Purchase",
+  in: {
+    label: "Stock In",
     icon: TrendingUp,
     className:
       "bg-emerald-500/10 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-400",
   },
-  sale: {
-    label: "Sale",
+  out: {
+    label: "Stock Out",
     icon: TrendingDown,
     className:
       "bg-red-500/10 text-red-700 dark:bg-red-400/10 dark:text-red-400",

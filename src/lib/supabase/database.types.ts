@@ -719,10 +719,10 @@ export type Database = {
       app_role: "admin" | "manager" | "user";
       movement_type:
         | "adjustment"
-        | "purchase"
+        | "in"
         | "transfer_in"
         | "transfer_out"
-        | "sale"
+        | "out"
         | "return"
         | "initial_stock";
       transaction_status: "pending" | "approved" | "rejected";
@@ -871,10 +871,10 @@ export const Constants = {
       app_role: ["admin", "manager", "user"],
       movement_type: [
         "adjustment",
-        "purchase",
+        "in",
         "transfer_in",
         "transfer_out",
-        "sale",
+        "out",
         "return",
         "initial_stock",
       ],

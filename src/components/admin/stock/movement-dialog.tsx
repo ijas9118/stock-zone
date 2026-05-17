@@ -49,7 +49,7 @@ const movementSchema = z.object({
 type MovementFormValues = z.infer<typeof movementSchema>;
 
 interface StockMovementDialogProps {
-  mode: "initial" | "adjustment" | "purchase" | "sale" | "return";
+  mode: "initial" | "adjustment" | "in" | "out" | "return";
   initialData?: StockWithDetails;
   onSuccess: () => void;
 }
@@ -77,7 +77,7 @@ export function StockMovementDialog({
       productId: initialData?.product_id || "",
       warehouseId: initialData?.warehouse_id || "",
       shopTypeId: initialData?.shop_type_id || "",
-      quantityDelta: mode === "sale" ? -1 : 1,
+      quantityDelta: mode === "out" ? -1 : 1,
       notes: "",
     },
   });
@@ -111,9 +111,9 @@ export function StockMovementDialog({
       // For sale, we ensure delta is negative if user entered positive.
       // But let's just trust our UI logic or enforce it here.
       let delta = values.quantityDelta;
-      if (mode === "sale" && delta > 0) delta = -delta;
+      if (mode === "out" && delta > 0) delta = -delta;
       if (mode === "return" && delta < 0) delta = Math.abs(delta);
-      if (mode === "purchase" && delta < 0) delta = Math.abs(delta);
+      if (mode === "in" && delta < 0) delta = Math.abs(delta);
 
       const result = await processStockMovement({
         productId: values.productId,
@@ -262,9 +262,9 @@ export function StockMovementDialog({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  {mode === "sale"
+                  {mode === "out"
                     ? "Quantity to Deduct"
-                    : mode === "purchase"
+                    : mode === "in"
                       ? "Quantity to Add"
                       : mode === "return"
                         ? "Quantity to Return"

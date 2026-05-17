@@ -27,8 +27,8 @@ interface MovementTypeChartProps {
 
 export function MovementTypeChart({ data }: MovementTypeChartProps) {
   const chartData = [
-    { label: "Purchase", count: data.purchase, color: "#10b981" },
-    { label: "Sale", count: data.sale, color: "#ef4444" },
+    { label: "Stock In", count: data.in, color: "#10b981" },
+    { label: "Stock Out", count: data.out, color: "#ef4444" },
     {
       label: "Transfer",
       count: data.transfer_in + data.transfer_out,
