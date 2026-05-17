@@ -46,7 +46,12 @@ export default async function SubcategoriesPage({
           totalCount={totalCount}
           pageCount={pageCount}
           searchPlaceholder="Search subcategories..."
-          additionalFilters={<SubcategoryFilters categories={categories} />}
+          additionalFilters={
+            <SubcategoryFilters
+              key="subcategory-filters"
+              categories={categories}
+            />
+          }
         />
       </Suspense>
     </div>

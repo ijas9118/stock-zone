@@ -36,18 +36,21 @@ export async function getUserStocks(
 
   const { shopTypeId, warehouseId, query, page = 1, pageSize = 10 } = params;
 
+  const userId = auth.userId;
+  if (!userId) throw new Error("Unauthorized");
+
   const adminClient = createAdminClient();
 
   const [{ data: profile }, { data: assignedShops }] = await Promise.all([
     adminClient
       .from("profiles")
       .select("perm_stock_read_all")
-      .eq("id", auth.userId)
+      .eq("id", userId)
       .single(),
     adminClient
       .from("profile_shop_types")
       .select("shop_type_id")
-      .eq("profile_id", auth.userId),
+      .eq("profile_id", userId),
   ]);
 
   const assignedShopIds = (assignedShops || [])

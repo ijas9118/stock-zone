@@ -50,7 +50,12 @@ export default async function ProductsPage({
           totalCount={totalCount}
           pageCount={pageCount}
           searchPlaceholder="Search products, SKUs, or brands..."
-          additionalFilters={<ProductFilters initialCategories={categories} />}
+          additionalFilters={
+            <ProductFilters
+              key="product-filters"
+              initialCategories={categories}
+            />
+          }
         />
       </Suspense>
     </div>

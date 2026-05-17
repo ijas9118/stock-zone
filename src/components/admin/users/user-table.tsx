@@ -34,7 +34,9 @@ export function UserTable({
       totalCount={totalCount}
       pageCount={Math.ceil(totalCount / pageSize)}
       searchPlaceholder="Search name or email..."
-      additionalFilters={<UserFilters shopTypes={shopTypes} />}
+      additionalFilters={
+        <UserFilters key="user-filters" shopTypes={shopTypes} />
+      }
       meta={{ shopTypes }}
       onRowClick={(user) => router.push(`/admin/users/${user.id}`)}
     />

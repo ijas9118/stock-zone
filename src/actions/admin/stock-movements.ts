@@ -87,7 +87,10 @@ export async function getStockMovements(
       }
 
       if (type && type !== "all") {
-        supabaseQuery = supabaseQuery.eq("type", type);
+        supabaseQuery = supabaseQuery.eq(
+          "type",
+          type as Database["public"]["Enums"]["movement_type"]
+        );
       }
 
       if (warehouseId && warehouseId !== "all") {
