@@ -103,10 +103,8 @@ export async function getUserStocks(
   }
 
   if (query) {
-    // Wrap the pattern in double quotes to handle special characters like commas in the query
-    const pattern = `"%${query}%"`;
     supabaseQuery = supabaseQuery.or(
-      `name.ilike.${pattern},sku.ilike.${pattern},brands.name.ilike.${pattern}`,
+      `name.ilike.%${query}%,sku.ilike.%${query}%`,
       { referencedTable: "products" }
     );
   }
