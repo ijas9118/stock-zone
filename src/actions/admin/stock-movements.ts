@@ -23,6 +23,7 @@ export type StockMovementWithDetails = StockMovementRow & {
     email: string;
     avatar_url?: string | null;
   } | null;
+  transact_uom: { uom_code: string; full_name: string } | null;
 };
 
 async function verifyAdmin() {
@@ -154,7 +155,8 @@ export async function getStockMovementById(id: string) {
       products(name, sku, description, brands(name)),
       warehouses(name, location),
       shop_types(name),
-      profiles:created_by(full_name, email, avatar_url)
+      profiles:created_by(full_name, email, avatar_url),
+      transact_uom:units_of_measure!stock_movements_transact_uom_id_fkey(uom_code, full_name)
     `
     )
     .eq("id", id)

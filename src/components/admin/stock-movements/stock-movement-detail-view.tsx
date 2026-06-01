@@ -267,6 +267,16 @@ export function StockMovementDetailView({
             subvalue={movement.reference_id ? "linked transaction" : null}
             mono={true}
           />
+          {movement.transact_uom &&
+            movement.transact_quantity !== null &&
+            movement.transact_quantity !== undefined && (
+              <DetailCard
+                label="Transacted As"
+                icon={ArrowRightLeft}
+                value={`${Math.abs(Number(movement.transact_quantity))} ${movement.transact_uom.uom_code}`}
+                subvalue={`→ ${movement.quantity_delta} base units`}
+              />
+            )}
         </div>
       </div>
 
