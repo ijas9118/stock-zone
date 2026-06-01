@@ -26,6 +26,7 @@ export interface CsvRow {
   initial_stock_quantity: string;
   shop_type_name: string;
   warehouse_name: string;
+  alternate_uoms: string;
 }
 
 export const CsvRowSchema = z.object({
@@ -50,12 +51,21 @@ export const CsvRowSchema = z.object({
   ),
   shop_type_name: z.string().nullable().optional(),
   warehouse_name: z.string().nullable().optional(),
+  alternate_uoms: z.string().nullable().optional(),
 });
 
 export type ValidatedRow = z.infer<typeof CsvRowSchema>;
 
+export interface ParsedAlternateUom {
+  uom_code: string;
+  conversion_factor: number;
+  is_purchase_default: boolean;
+  is_sales_default: boolean;
+}
+
 export interface NormalizedRow extends ValidatedRow {
   _originalRowIndex: number;
+  _parsedAlternateUoms: ParsedAlternateUom[];
 }
 
 export interface ImportResult {
