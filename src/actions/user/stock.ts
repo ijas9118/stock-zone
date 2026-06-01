@@ -17,6 +17,10 @@ export type UserStockWithDetails =
       subcategories: { subcategory_name: string } | null;
       units_of_measure: { full_name: string; uom_code: string } | null;
       brands: { name: string } | null;
+      product_uom_conversions: Array<{
+        conversion_factor: number;
+        units_of_measure: { uom_code: string; full_name: string } | null;
+      }>;
     } | null;
     warehouses: { name: string } | null;
     shop_types: { name: string } | null;
@@ -75,7 +79,8 @@ export async function getUserStocks(
       categories(category_name),
       subcategories(subcategory_name),
       units_of_measure(full_name, uom_code),
-      brands(name)
+      brands(name),
+      product_uom_conversions(conversion_factor, units_of_measure(uom_code, full_name))
     ),
     warehouses(name),
     shop_types(name)
@@ -215,7 +220,8 @@ export async function getUserStockById(stockId: string) {
         categories(category_name),
         subcategories(subcategory_name),
         units_of_measure(full_name, uom_code),
-        brands(name)
+        brands(name),
+        product_uom_conversions(conversion_factor, units_of_measure(uom_code, full_name))
       ),
       warehouses(name, id),
       shop_types(name, id)
