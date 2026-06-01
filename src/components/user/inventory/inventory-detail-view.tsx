@@ -16,6 +16,7 @@ import {
   Store,
 } from "lucide-react";
 
+import { getLargestFittingUom } from "@/lib/uom/convert";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -146,6 +147,23 @@ export function InventoryDetailView({
                           {stock.products?.units_of_measure?.uom_code ||
                             "units"}
                         </span>
+                        {(() => {
+                          const alt = getLargestFittingUom(
+                            stock.quantity,
+                            (stock.products?.product_uom_conversions ?? []).map(
+                              (c) => ({
+                                uom_code: c.units_of_measure?.uom_code ?? "",
+                                full_name: c.units_of_measure?.full_name ?? "",
+                                conversion_factor: Number(c.conversion_factor),
+                              })
+                            )
+                          );
+                          return alt ? (
+                            <span className="text-muted-foreground/60 text-xs">
+                              · {alt.display_qty} {alt.uom_code}
+                            </span>
+                          ) : null;
+                        })()}
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-2">

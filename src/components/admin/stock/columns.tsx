@@ -3,6 +3,7 @@
 import { StockWithDetails } from "@/actions/admin/stock";
 import { ColumnDef } from "@tanstack/react-table";
 
+import { getLargestFittingUom } from "@/lib/uom/convert";
 import { Badge } from "@/components/ui/badge";
 
 import { StockActions } from "./stock-actions";
@@ -63,12 +64,27 @@ export const columns: ColumnDef<StockWithDetails>[] = [
     header: "Quantity",
     cell: ({ row }) => {
       const quantity = row.original.quantity;
+      const alt = getLargestFittingUom(
+        quantity,
+        (row.original.products?.product_uom_conversions ?? []).map((c) => ({
+          uom_code: c.units_of_measure?.uom_code ?? "",
+          full_name: c.units_of_measure?.full_name ?? "",
+          conversion_factor: Number(c.conversion_factor),
+        }))
+      );
       return (
-        <span
-          className={`font-mono text-[10px] font-bold sm:text-xs ${quantity <= 5 ? "text-destructive" : ""}`}
-        >
-          {quantity}
-        </span>
+        <div className="flex flex-col">
+          <span
+            className={`font-mono text-[10px] font-bold sm:text-xs ${quantity <= 5 ? "text-destructive" : ""}`}
+          >
+            {quantity}
+          </span>
+          {alt && (
+            <span className="text-muted-foreground/60 text-[9px]">
+              {alt.display_qty} {alt.uom_code}
+            </span>
+          )}
+        </div>
       );
     },
   },

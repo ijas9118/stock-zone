@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { UserStockWithDetails } from "@/actions/user/stock";
 import { format } from "date-fns";
 
+import { getLargestFittingUom } from "@/lib/uom/convert";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -125,6 +126,23 @@ export function InventoryTable({ stocks }: InventoryTableProps) {
                     <span className="text-muted-foreground mt-0.5 text-[9px] font-bold tracking-tight uppercase">
                       {stock.products?.units_of_measure?.uom_code || "units"}
                     </span>
+                    {(() => {
+                      const alt = getLargestFittingUom(
+                        stock.quantity,
+                        (stock.products?.product_uom_conversions ?? []).map(
+                          (c) => ({
+                            uom_code: c.units_of_measure?.uom_code ?? "",
+                            full_name: c.units_of_measure?.full_name ?? "",
+                            conversion_factor: Number(c.conversion_factor),
+                          })
+                        )
+                      );
+                      return alt ? (
+                        <span className="text-muted-foreground/60 mt-0.5 text-[9px] tracking-tight">
+                          {alt.display_qty} {alt.uom_code}
+                        </span>
+                      ) : null;
+                    })()}
                   </div>
                 </TableCell>
 
