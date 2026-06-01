@@ -203,6 +203,8 @@ export async function processStockMovement(data: {
   type: StockMovementType;
   notes?: string;
   referenceId?: string; // Optional, can be provided by caller (e.g. transferId)
+  transactUomId?: string;
+  transactQuantity?: number;
 }) {
   try {
     const userId = await verifyUserPermission(
@@ -211,6 +213,33 @@ export async function processStockMovement(data: {
         : data.type
     );
     const adminClient = createAdminClient();
+
+    // UOM conversion: if an alternate UOM was transacted, derive the base-unit delta
+    let effectiveQuantityDelta = data.quantityDelta;
+    let effectiveTransactUomId: string | null = null;
+    let effectiveTransactQuantity: number | null = null;
+
+    if (data.transactUomId && data.transactQuantity !== undefined) {
+      const { data: conversion, error: convError } = await adminClient
+        .from("product_uom_conversions")
+        .select("conversion_factor")
+        .eq("product_id", data.productId)
+        .eq("uom_id", data.transactUomId)
+        .maybeSingle();
+
+      if (convError) throw convError;
+
+      if (conversion) {
+        effectiveQuantityDelta =
+          Math.round(
+            data.transactQuantity *
+              Number(conversion.conversion_factor) *
+              1_000_000
+          ) / 1_000_000;
+        effectiveTransactUomId = data.transactUomId;
+        effectiveTransactQuantity = data.transactQuantity;
+      }
+    }
 
     // 1. Get current stock
     const { data: currentStock, error: fetchError } = await adminClient
@@ -231,7 +260,7 @@ export async function processStockMovement(data: {
     }
 
     const previousQuantity = currentStock?.quantity || 0;
-    const newQuantity = previousQuantity + data.quantityDelta;
+    const newQuantity = previousQuantity + effectiveQuantityDelta;
 
     if (newQuantity < 0) {
       return { error: "Insufficient stock for this operation" };
@@ -247,7 +276,7 @@ export async function processStockMovement(data: {
           product_id: data.productId,
           warehouse_id: data.warehouseId,
           shop_type_id: data.shopTypeId,
-          quantity_delta: data.quantityDelta,
+          quantity_delta: effectiveQuantityDelta,
           notes: data.notes || null,
           adjusted_by: userId,
           status: "approved",
@@ -293,13 +322,15 @@ export async function processStockMovement(data: {
         product_id: data.productId,
         warehouse_id: data.warehouseId,
         shop_type_id: data.shopTypeId,
-        quantity_delta: data.quantityDelta,
+        quantity_delta: effectiveQuantityDelta,
         previous_quantity: previousQuantity,
         new_quantity: newQuantity,
         type: data.type,
         notes: data.notes || null,
         reference_id: effectiveReferenceId || null,
         created_by: userId,
+        transact_uom_id: effectiveTransactUomId,
+        transact_quantity: effectiveTransactQuantity,
       });
 
     if (movementError) throw movementError;
@@ -329,10 +360,30 @@ export async function transferStock(data: {
   shopTypeId: string;
   quantity: number;
   notes?: string;
+  transactUomId?: string;
+  transactQty?: number;
 }) {
   try {
     const userId = await verifyUserPermission("transfer");
     const adminClient = createAdminClient();
+
+    // Resolve base quantity for availability check and transfer record
+    let baseQuantity = data.quantity;
+    if (data.transactUomId && data.transactQty) {
+      const { data: conversion } = await adminClient
+        .from("product_uom_conversions")
+        .select("conversion_factor")
+        .eq("product_id", data.productId)
+        .eq("uom_id", data.transactUomId)
+        .maybeSingle();
+
+      if (conversion) {
+        baseQuantity =
+          Math.round(
+            data.transactQty * Number(conversion.conversion_factor) * 1_000_000
+          ) / 1_000_000;
+      }
+    }
 
     if (data.sourceWarehouseId === data.destWarehouseId) {
       return { error: "Source and destination warehouses cannot be the same" };
@@ -348,7 +399,7 @@ export async function transferStock(data: {
       .maybeSingle();
 
     if (sourceError) throw sourceError;
-    if (!sourceStock || sourceStock.quantity < data.quantity) {
+    if (!sourceStock || sourceStock.quantity < baseQuantity) {
       return { error: "Insufficient stock in source warehouse" };
     }
 
@@ -360,7 +411,7 @@ export async function transferStock(data: {
         source_warehouse_id: data.sourceWarehouseId,
         dest_warehouse_id: data.destWarehouseId,
         shop_type_id: data.shopTypeId,
-        quantity: data.quantity,
+        quantity: baseQuantity,
         notes: data.notes || null,
         transferred_by: userId,
         status: "approved",
@@ -376,10 +427,12 @@ export async function transferStock(data: {
       productId: data.productId,
       warehouseId: data.sourceWarehouseId,
       shopTypeId: data.shopTypeId,
-      quantityDelta: -data.quantity,
+      quantityDelta: -baseQuantity,
       type: "transfer_out",
       referenceId: transferId,
       notes: data.notes || `Transfer to warehouse ${data.destWarehouseId}`,
+      transactUomId: data.transactUomId,
+      transactQuantity: data.transactQty ? -data.transactQty : undefined,
     });
 
     if (outResult.error) {
@@ -396,10 +449,12 @@ export async function transferStock(data: {
       productId: data.productId,
       warehouseId: data.destWarehouseId,
       shopTypeId: data.shopTypeId,
-      quantityDelta: data.quantity,
+      quantityDelta: baseQuantity,
       type: "transfer_in",
       referenceId: transferId,
       notes: data.notes || `Transfer from warehouse ${data.sourceWarehouseId}`,
+      transactUomId: data.transactUomId,
+      transactQuantity: data.transactQty,
     });
 
     if (inResult.error) {
