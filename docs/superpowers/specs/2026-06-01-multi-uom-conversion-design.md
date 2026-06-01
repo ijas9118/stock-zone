@@ -115,7 +115,7 @@ getLargestFittingUom(
 ): { uom_code: string; full_name: string; display_qty: number } | null
 ```
 
-`getLargestFittingUom` sorts conversions by `conversion_factor` descending. Returns the first entry where `Math.floor(baseQty / factor) >= 1`. Falls back to whole-number fits first; if none are exact, uses floor of largest qualifying factor.
+`getLargestFittingUom` sorts conversions by `conversion_factor` descending. Returns the first entry where `Math.floor(baseQty / factor) >= 1`, using `Math.floor(baseQty / factor)` as the display quantity. Example: 25 Pieces with Box=12 → displays "2 Box" (not nothing). Returns `null` only if no conversion has a factor ≤ baseQty.
 
 ---
 
