@@ -65,6 +65,51 @@ export type Database = {
         };
         Relationships: [];
       };
+      product_uom_conversions: {
+        Row: {
+          conversion_factor: number;
+          created_at: string;
+          id: string;
+          is_purchase_default: boolean;
+          is_sales_default: boolean;
+          product_id: string;
+          uom_id: string;
+        };
+        Insert: {
+          conversion_factor: number;
+          created_at?: string;
+          id?: string;
+          is_purchase_default?: boolean;
+          is_sales_default?: boolean;
+          product_id: string;
+          uom_id: string;
+        };
+        Update: {
+          conversion_factor?: number;
+          created_at?: string;
+          id?: string;
+          is_purchase_default?: boolean;
+          is_sales_default?: boolean;
+          product_id?: string;
+          uom_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "product_uom_conversions_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "product_uom_conversions_uom_id_fkey";
+            columns: ["uom_id"];
+            isOneToOne: false;
+            referencedRelation: "units_of_measure";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       products: {
         Row: {
           brand_id: string | null;
@@ -419,6 +464,8 @@ export type Database = {
           quantity_delta: number;
           reference_id: string | null;
           shop_type_id: string;
+          transact_quantity: number | null;
+          transact_uom_id: string | null;
           type: Database["public"]["Enums"]["movement_type"];
           warehouse_id: string;
         };
@@ -433,6 +480,8 @@ export type Database = {
           quantity_delta: number;
           reference_id?: string | null;
           shop_type_id: string;
+          transact_quantity?: number | null;
+          transact_uom_id?: string | null;
           type: Database["public"]["Enums"]["movement_type"];
           warehouse_id: string;
         };
@@ -447,6 +496,8 @@ export type Database = {
           quantity_delta?: number;
           reference_id?: string | null;
           shop_type_id?: string;
+          transact_quantity?: number | null;
+          transact_uom_id?: string | null;
           type?: Database["public"]["Enums"]["movement_type"];
           warehouse_id?: string;
         };
@@ -470,6 +521,13 @@ export type Database = {
             columns: ["shop_type_id"];
             isOneToOne: false;
             referencedRelation: "shop_types";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "stock_movements_transact_uom_id_fkey";
+            columns: ["transact_uom_id"];
+            isOneToOne: false;
+            referencedRelation: "units_of_measure";
             referencedColumns: ["id"];
           },
           {
