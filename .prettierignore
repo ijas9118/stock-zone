@@ -8,6 +8,9 @@ package-lock.json
 pnpm-lock.yaml
 yarn.lock
 
+# Docs
+*.md
+
 # PWA generated files
 public/sw.js
 public/sw.js.map
