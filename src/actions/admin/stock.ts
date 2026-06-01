@@ -18,6 +18,10 @@ export type StockWithDetails = StockRow & {
     sub_category: string | null;
     categories: { category_name: string } | null;
     subcategories: { subcategory_name: string } | null;
+    product_uom_conversions: Array<{
+      conversion_factor: number;
+      units_of_measure: { uom_code: string; full_name: string } | null;
+    }>;
   } | null;
   warehouses: { name: string } | null;
   shop_types: { name: string } | null;
@@ -125,7 +129,8 @@ export async function getStocks(
             category,
             sub_category,
             categories(category_name),
-            subcategories(subcategory_name)
+            subcategories(subcategory_name),
+            product_uom_conversions(conversion_factor, units_of_measure(uom_code, full_name))
           ),
           warehouses(name),
           shop_types(name)
