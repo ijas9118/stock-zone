@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import {
+  getProductUomOptions,
+  UomOption,
+} from "@/actions/admin/product-uom-conversions";
 import { StockWithDetails, transferStock } from "@/actions/admin/stock";
 import { getWarehouses } from "@/actions/admin/warehouses";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,11 +23,19 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
 const transferSchema = z.object({
   destWarehouseId: z.string().min(1, "Destination warehouse is required"),
-  quantity: z.number().min(1, "Quantity must be at least 1"),
+  transactUomId: z.string().min(1, "UOM is required"),
+  transactQty: z.coerce.number().positive("Quantity must be at least 0.000001"),
   notes: z.string().optional(),
 });
 
@@ -43,12 +55,14 @@ export function StockTransferDialog({
   );
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(false);
+  const [uomOptions, setUomOptions] = useState<UomOption[]>([]);
 
   const form = useForm<TransferFormValues>({
     resolver: zodResolver(transferSchema),
     defaultValues: {
       destWarehouseId: "",
-      quantity: 1,
+      transactUomId: "",
+      transactQty: 1,
       notes: "",
     },
   });
@@ -71,12 +85,19 @@ export function StockTransferDialog({
     fetchData();
   }, [initialData.warehouse_id]);
 
-  async function onSubmit(values: TransferFormValues) {
-    if (values.quantity > initialData.quantity) {
-      toast.error("Transfer quantity exceeds available stock");
-      return;
-    }
+  useEffect(() => {
+    getProductUomOptions(initialData.product_id)
+      .then((result) => {
+        setUomOptions(result.allOptions);
+        const defaultOption =
+          result.allOptions.find((u) => u.is_purchase_default) ??
+          result.baseUom;
+        form.setValue("transactUomId", defaultOption.id);
+      })
+      .catch(() => toast.error("Failed to fetch UOM options"));
+  }, [initialData.product_id, form]);
 
+  async function onSubmit(values: TransferFormValues) {
     setLoading(true);
     try {
       const result = await transferStock({
@@ -84,8 +105,10 @@ export function StockTransferDialog({
         sourceWarehouseId: initialData.warehouse_id,
         destWarehouseId: values.destWarehouseId,
         shopTypeId: initialData.shop_type_id,
-        quantity: values.quantity,
+        quantity: values.transactQty,
         notes: values.notes,
+        transactUomId: values.transactUomId,
+        transactQty: values.transactQty,
       });
 
       if ("error" in result && result.error) {
@@ -139,14 +162,49 @@ export function StockTransferDialog({
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <FormField
             control={form.control}
-            name="quantity"
+            name="transactUomId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Quantity to Transfer</FormLabel>
+                <FormLabel>Unit of Measure</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger disabled={uomOptions.length === 0}>
+                      <SelectValue placeholder="Loading..." />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {uomOptions.map((u) => (
+                      <SelectItem key={u.id} value={u.id}>
+                        {u.uom_code}
+                        {u.is_base
+                          ? " (base)"
+                          : ` (1 = ${u.conversion_factor} base)`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="transactQty"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Quantity to Transfer
+                  {uomOptions.find((u) => u.id === form.watch("transactUomId"))
+                    ?.uom_code
+                    ? ` (${uomOptions.find((u) => u.id === form.watch("transactUomId"))?.uom_code})`
+                    : ""}
+                </FormLabel>
                 <FormControl>
                   <Input
                     type="number"
-                    max={initialData.quantity}
+                    step="any"
+                    min="0.000001"
                     {...field}
                     onChange={(e) => field.onChange(Number(e.target.value))}
                   />
@@ -155,21 +213,21 @@ export function StockTransferDialog({
               </FormItem>
             )}
           />
-
-          <FormField
-            control={form.control}
-            name="notes"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Notes</FormLabel>
-                <FormControl>
-                  <Textarea placeholder="Reason for transfer..." {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
+
+        <FormField
+          control={form.control}
+          name="notes"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Notes</FormLabel>
+              <FormControl>
+                <Textarea placeholder="Reason for transfer..." {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <div className="flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={onSuccess}>
