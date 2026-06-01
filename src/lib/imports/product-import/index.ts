@@ -8,6 +8,7 @@ import { preloadLookups } from "./preload-lookups";
 import { ImportResult, NormalizedRow } from "./types";
 import { upsertProducts } from "./upsert-products";
 import { upsertStock } from "./upsert-stock";
+import { upsertUomConversions } from "./upsert-uom-conversions";
 import { validateRow } from "./validate-row";
 
 export async function processCsvImport(
@@ -19,6 +20,7 @@ export async function processCsvImport(
     insertedProducts: 0,
     updatedProducts: 0,
     insertedStockRows: 0,
+    upsertedUomConversions: 0,
     failedRows: 0,
     errors: [],
   };
@@ -65,6 +67,11 @@ export async function processCsvImport(
     result.updatedProducts = productResult.updatedProducts;
     result.failedRows += productResult.failedRows;
     result.errors.push(...productResult.errors);
+
+    // Step 5b: Upsert UOM conversions
+    const uomResult = await upsertUomConversions(supabase, validRows, lookups);
+    result.upsertedUomConversions = uomResult.upsertedUomConversions;
+    result.errors.push(...uomResult.errors);
 
     // Step 6: Upsert stock
     const stockResult = await upsertStock(supabase, validRows, lookups);

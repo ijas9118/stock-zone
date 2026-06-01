@@ -73,6 +73,7 @@ export interface ImportResult {
   insertedProducts: number;
   updatedProducts: number;
   insertedStockRows: number;
+  upsertedUomConversions: number;
   failedRows: number;
   errors: { row: number; error: string }[];
 }
