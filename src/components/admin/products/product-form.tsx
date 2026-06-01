@@ -58,6 +58,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { ProductUomConversionsCard } from "@/components/admin/products/product-uom-conversions-card";
 
 const productSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -287,7 +288,7 @@ export function ProductForm({ product }: ProductFormProps) {
                       name="uom"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Unit of Measure</FormLabel>
+                          <FormLabel>Base / Stock UOM</FormLabel>
                           <Select
                             onValueChange={field.onChange}
                             value={field.value || ""}
@@ -305,6 +306,9 @@ export function ProductForm({ product }: ProductFormProps) {
                               ))}
                             </SelectContent>
                           </Select>
+                          <FormDescription className="text-[11px]">
+                            All stock quantities are stored in this unit.
+                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -529,6 +533,13 @@ export function ProductForm({ product }: ProductFormProps) {
           </div>
         </form>
       </Form>
+
+      {product?.id && (
+        <ProductUomConversionsCard
+          productId={product.id}
+          baseUomId={product.uom}
+        />
+      )}
 
       {/* Inline Quick Brand Creation Modal */}
       <Dialog open={isQuickBrandOpen} onOpenChange={setIsQuickBrandOpen}>
