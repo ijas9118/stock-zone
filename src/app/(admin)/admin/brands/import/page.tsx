@@ -12,8 +12,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { importLocationsAction } from "@/actions/admin/import-locations";
-import { LocationImportResult } from "@/lib/imports/location-import/types";
+import { importBrandsAction } from "@/actions/admin/import-brands";
+import { BrandImportResult } from "@/lib/imports/brand-import/types";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,10 +33,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export default function ImportLocationsPage() {
+export default function ImportBrandsPage() {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [result, setResult] = useState<LocationImportResult | null>(null);
+  const [result, setResult] = useState<BrandImportResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validExts = [".csv", ".xlsx", ".xls"];
@@ -86,7 +86,7 @@ export default function ImportLocationsPage() {
       } else {
         input = await file.arrayBuffer();
       }
-      const response = await importLocationsAction(input);
+      const response = await importBrandsAction(input);
       if (!response.success) {
         toast.error(response.error || "Import failed");
       } else if (response.result) {
@@ -108,12 +108,10 @@ export default function ImportLocationsPage() {
   const downloadTemplate = () => {
     const csvContent =
       "data:text/csv;charset=utf-8," +
-      encodeURIComponent(
-        "warehouse_name,zone,aisle,rack,bin\nMain Warehouse,A,01,R1,B01\nMain Warehouse,A,01,R1,B02\n"
-      );
+      encodeURIComponent("name\nNike\nAdidas\nPuma\nReebok\n");
     const link = document.createElement("a");
     link.setAttribute("href", csvContent);
-    link.setAttribute("download", "locations_template.csv");
+    link.setAttribute("download", "brands_template.csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -129,10 +127,9 @@ export default function ImportLocationsPage() {
         .map((e) => `"${e.row}","${e.error.replace(/"/g, '""')}"`)
         .join("\n");
 
-    const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "location_import_errors.csv");
+    link.setAttribute("href", csvContent);
+    link.setAttribute("download", "brand_import_errors.csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -142,11 +139,11 @@ export default function ImportLocationsPage() {
     <div className="flex-1 space-y-4 p-8 pt-6">
       <div className="flex items-center gap-3">
         <Button asChild variant="ghost" size="icon">
-          <Link href="/admin/locations">
+          <Link href="/admin/brands">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <h2 className="text-3xl font-bold tracking-tight">Import Locations</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Import Brands</h2>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
@@ -156,8 +153,8 @@ export default function ImportLocationsPage() {
               <div>
                 <CardTitle>CSV / Excel Upload</CardTitle>
                 <CardDescription>
-                  Upload a CSV or Excel file to bulk import locations. Duplicate
-                  codes in the same warehouse are skipped.
+                  Upload a CSV or Excel file to bulk import brands. Brands with
+                  duplicate names are skipped.
                 </CardDescription>
               </div>
               <Button variant="outline" size="sm" onClick={downloadTemplate}>

@@ -1,19 +1,19 @@
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
 
-import { LocationCsvRow } from "./types";
+import { BrandCsvRow } from "./types";
 
-function normalizeHeaders(obj: Record<string, string>): LocationCsvRow {
+function normalizeHeaders(obj: Record<string, string>): BrandCsvRow {
   const normalized: Record<string, string> = {};
   for (const [k, v] of Object.entries(obj)) {
     normalized[k.toLowerCase().trim()] = v ?? "";
   }
-  return normalized as unknown as LocationCsvRow;
+  return normalized as unknown as BrandCsvRow;
 }
 
 export async function parseFile(
   input: string | ArrayBuffer
-): Promise<{ rows: LocationCsvRow[]; errors: string[] }> {
+): Promise<{ rows: BrandCsvRow[]; errors: string[] }> {
   if (typeof input === "string") {
     return new Promise((resolve) => {
       Papa.parse<Record<string, string>>(input, {

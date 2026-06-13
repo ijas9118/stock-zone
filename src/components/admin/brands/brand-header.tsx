@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import Link from "next/link";
+import { Plus, Upload } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -20,14 +21,27 @@ export function BrandHeader() {
           Manage product brands for inventory cataloging.
         </p>
       </div>
-      <Button
-        size="sm"
-        className="sm:size-default w-fit"
-        onClick={() => setIsOpen(true)}
-      >
-        <Plus className="mr-1.5 h-3.5 w-3.5 sm:mr-2 sm:h-4 sm:w-4" />
-        <span>Add Brand</span>
-      </Button>
+      <div className="flex gap-2">
+        <Button
+          asChild
+          variant="outline"
+          size="sm"
+          className="sm:size-default w-fit"
+        >
+          <Link href="/admin/brands/import">
+            <Upload className="mr-1.5 h-3.5 w-3.5 sm:mr-2 sm:h-4 sm:w-4" />
+            <span>Import</span>
+          </Link>
+        </Button>
+        <Button
+          size="sm"
+          className="sm:size-default w-fit"
+          onClick={() => setIsOpen(true)}
+        >
+          <Plus className="mr-1.5 h-3.5 w-3.5 sm:mr-2 sm:h-4 sm:w-4" />
+          <span>Add Brand</span>
+        </Button>
+      </div>
       <BrandDialog open={isOpen} onOpenChange={setIsOpen} />
     </div>
   );
