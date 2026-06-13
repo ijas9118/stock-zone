@@ -156,7 +156,145 @@ pnpm db:types        # Regenerate Supabase TypeScript types
 
 ## Contributing
 
-Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for branch conventions, commit format, and the PR process.
+New to open source? No problem — this guide walks you through everything step by step.
+
+---
+
+### 1. Install pnpm
+
+If you don't have pnpm installed yet:
+
+```bash
+npm install -g pnpm
+```
+
+Verify it worked:
+
+```bash
+pnpm --version
+```
+
+---
+
+### 2. Fork & clone the repo
+
+- Click **Fork** on GitHub (top-right of this page)
+- Then clone your fork locally:
+
+```bash
+git clone https://github.com/YOUR_USERNAME/stock-zone.git
+cd stock-zone
+pnpm install
+```
+
+---
+
+### 3. Create a feature branch
+
+Never work directly on `main`. Always create a new branch for your changes:
+
+```bash
+git checkout -b feat/your-feature-name
+```
+
+- Use `feat/` for new features — e.g. `feat/add-export-button`
+- Use `fix/` for bug fixes — e.g. `fix/pagination-broken`
+
+---
+
+### 4. Run the dev server
+
+```bash
+pnpm dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) and test your changes live. The server hot-reloads on every file save.
+
+---
+
+### 5. Make changes with Claude Code
+
+This project is designed to be worked on with [Claude Code](https://claude.ai/code). Just describe what you want to change in plain English and it will write the code for you.
+
+- Open Claude Code in your terminal: `claude`
+- Describe your change, e.g. _"Add an export button to the brands page"_
+- Review the changes Claude makes before committing
+
+---
+
+### 6. Commit your changes
+
+Stage and commit your work:
+
+```bash
+git add .
+git commit -m "feat: describe what you changed"
+```
+
+Keep commit messages short and clear. Start with a type:
+
+| Prefix | When to use |
+|--------|-------------|
+| `feat:` | Adding something new |
+| `fix:` | Fixing a bug |
+| `chore:` | Config, deps, cleanup |
+
+---
+
+### 7. Before pushing — run these two commands
+
+```bash
+pnpm lint:fix
+pnpm format
+```
+
+This fixes code style issues automatically. Always do this before opening a PR — CI will fail without it.
+
+> **Using Claude Code?** Just say _"fix any lint issues"_ and it will run these for you.
+
+---
+
+### 8. If you changed anything in Supabase
+
+If you ran any SQL in the Supabase dashboard (added a column, renamed a field, created a table), pull the updated TypeScript types:
+
+```bash
+pnpm db:types
+```
+
+This regenerates `src/lib/supabase/database.types.ts`. Commit that file along with your other changes.
+
+---
+
+### 9. Push and open a Pull Request
+
+```bash
+git push origin feat/your-feature-name
+```
+
+Then go to GitHub → your fork → click **"Compare & pull request"** → target the `main` branch → submit.
+
+---
+
+### Fixing lint errors
+
+If you see red underlines or lint errors:
+
+- **With Claude Code:** describe the error or paste it in and say _"fix this lint error"_
+- **Manually:** run `pnpm lint:fix` — it fixes most things automatically
+- **Still stuck?** Run `pnpm typecheck` to see TypeScript errors specifically
+
+---
+
+### Quick reference
+
+```bash
+pnpm dev          # Start local dev server
+pnpm lint:fix     # Auto-fix lint issues
+pnpm format       # Auto-format all files
+pnpm typecheck    # Check TypeScript types
+pnpm db:types     # Sync Supabase types after schema changes
+```
 
 ## License
 
