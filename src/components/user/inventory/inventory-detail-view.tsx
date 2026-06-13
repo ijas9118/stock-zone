@@ -9,6 +9,7 @@ import {
   ArrowRightLeft,
   Edit,
   Info,
+  MapPin,
   Minus,
   Package,
   Plus,
@@ -124,6 +125,26 @@ export function InventoryDetailView({
                       {stock.warehouses?.name}
                     </p>
                   </div>
+                  {stock.locations && (
+                    <div className="space-y-1">
+                      <label className="text-muted-foreground flex items-center gap-1.5 text-xs font-medium">
+                        <MapPin className="h-3.5 w-3.5 opacity-70" /> Bin Location
+                      </label>
+                      <p className="font-mono text-sm font-semibold">
+                        {stock.locations.location_code}
+                      </p>
+                      <p className="text-muted-foreground text-[10px]">
+                        {[
+                          stock.locations.zone && `Zone ${stock.locations.zone}`,
+                          stock.locations.aisle && `Aisle ${stock.locations.aisle}`,
+                          stock.locations.rack && `Rack ${stock.locations.rack}`,
+                          stock.locations.bin && `Bin ${stock.locations.bin}`,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 <Separator className="opacity-60" />

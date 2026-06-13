@@ -50,6 +50,20 @@ export const columns: ColumnDef<StockWithDetails>[] = [
     meta: { className: "hidden sm:table-cell" },
   },
   {
+    id: "location",
+    header: "Location",
+    meta: { className: "hidden lg:table-cell" },
+    cell: ({ row }) => {
+      const loc = row.original.locations;
+      if (!loc) {
+        return <span className="text-muted-foreground text-xs">—</span>;
+      }
+      return (
+        <span className="font-mono text-xs font-medium">{loc.location_code}</span>
+      );
+    },
+  },
+  {
     accessorKey: "shop_types.name",
     header: "Shop Type",
     meta: { className: "hidden md:table-cell" },
