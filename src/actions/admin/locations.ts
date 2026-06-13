@@ -88,38 +88,45 @@ export async function createLocation(data: {
   rack?: string;
   bin?: string;
 }) {
-  await verifyAdmin();
-  const adminClient = createAdminClient();
+  try {
+    await verifyAdmin();
+    const adminClient = createAdminClient();
 
-  const location_code = buildLocationCode(
-    data.zone,
-    data.aisle,
-    data.rack,
-    data.bin
-  );
+    const location_code = buildLocationCode(
+      data.zone,
+      data.aisle,
+      data.rack,
+      data.bin
+    );
 
-  const { error } = await adminClient.from("locations").insert({
-    warehouse_id: data.warehouse_id,
-    zone: data.zone || null,
-    aisle: data.aisle || null,
-    rack: data.rack || null,
-    bin: data.bin || null,
-    location_code,
-  });
+    const { error } = await adminClient.from("locations").insert({
+      warehouse_id: data.warehouse_id,
+      zone: data.zone || null,
+      aisle: data.aisle || null,
+      rack: data.rack || null,
+      bin: data.bin || null,
+      location_code,
+    });
 
-  if (error) {
-    if (error.code === "23505") {
-      return {
-        error:
-          "A location with these coordinates already exists in this warehouse.",
-      };
+    if (error) {
+      if (error.code === "23505") {
+        return {
+          error:
+            "A location with these coordinates already exists in this warehouse.",
+        };
+      }
+      console.error("Error creating location:", error);
+      return { error: error.message };
     }
-    return { error: error.message };
-  }
 
-  revalidateTag("admin:locations", "default");
-  revalidatePath("/admin/locations");
-  return { success: true };
+    revalidateTag("admin:locations", "default");
+    revalidatePath("/admin/locations");
+    return { success: true };
+  } catch (err: unknown) {
+    return {
+      error: err instanceof Error ? err.message : "An unknown error occurred",
+    };
+  }
 }
 
 export async function updateLocation(
@@ -133,62 +140,76 @@ export async function updateLocation(
     is_active?: boolean;
   }
 ) {
-  await verifyAdmin();
-  const adminClient = createAdminClient();
+  try {
+    await verifyAdmin();
+    const adminClient = createAdminClient();
 
-  const location_code = buildLocationCode(
-    data.zone,
-    data.aisle,
-    data.rack,
-    data.bin
-  );
+    const location_code = buildLocationCode(
+      data.zone,
+      data.aisle,
+      data.rack,
+      data.bin
+    );
 
-  const { error } = await adminClient
-    .from("locations")
-    .update({
-      warehouse_id: data.warehouse_id,
-      zone: data.zone || null,
-      aisle: data.aisle || null,
-      rack: data.rack || null,
-      bin: data.bin || null,
-      location_code,
-      is_active: data.is_active ?? true,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", id);
+    const { error } = await adminClient
+      .from("locations")
+      .update({
+        warehouse_id: data.warehouse_id,
+        zone: data.zone || null,
+        aisle: data.aisle || null,
+        rack: data.rack || null,
+        bin: data.bin || null,
+        location_code,
+        is_active: data.is_active ?? true,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id);
 
-  if (error) {
-    if (error.code === "23505") {
-      return {
-        error:
-          "A location with these coordinates already exists in this warehouse.",
-      };
+    if (error) {
+      if (error.code === "23505") {
+        return {
+          error:
+            "A location with these coordinates already exists in this warehouse.",
+        };
+      }
+      console.error("Error updating location:", error);
+      return { error: error.message };
     }
-    return { error: error.message };
-  }
 
-  revalidateTag("admin:locations", "default");
-  revalidatePath("/admin/locations");
-  return { success: true };
+    revalidateTag("admin:locations", "default");
+    revalidatePath("/admin/locations");
+    return { success: true };
+  } catch (err: unknown) {
+    return {
+      error: err instanceof Error ? err.message : "An unknown error occurred",
+    };
+  }
 }
 
 export async function deleteLocation(id: string) {
-  await verifyAdmin();
-  const adminClient = createAdminClient();
+  try {
+    await verifyAdmin();
+    const adminClient = createAdminClient();
 
-  const { error } = await adminClient.from("locations").delete().eq("id", id);
+    const { error } = await adminClient.from("locations").delete().eq("id", id);
 
-  if (error) {
-    if (error.code === "23503") {
-      return {
-        error:
-          "Cannot delete: this location is referenced by existing stock records.",
-      };
+    if (error) {
+      if (error.code === "23503") {
+        return {
+          error:
+            "Cannot delete: this location is referenced by existing stock records.",
+        };
+      }
+      console.error("Error deleting location:", error);
+      return { error: error.message };
     }
-    return { error: error.message };
-  }
 
-  revalidateTag("admin:locations", "default");
-  revalidatePath("/admin/locations");
-  return { success: true };
+    revalidateTag("admin:locations", "default");
+    revalidatePath("/admin/locations");
+    return { success: true };
+  } catch (err: unknown) {
+    return {
+      error: err instanceof Error ? err.message : "An unknown error occurred",
+    };
+  }
 }
