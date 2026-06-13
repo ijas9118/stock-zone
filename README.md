@@ -215,7 +215,20 @@ pnpm install
 
 ---
 
-### 4. Create a feature branch
+### 4. Sync your main branch
+
+Before starting any work, make sure your local `main` is up to date with the latest changes from GitHub:
+
+```bash
+git checkout main
+git pull origin main
+```
+
+Do this every time you sit down to work — keeps you from running into conflicts later.
+
+---
+
+### 5. Create a feature branch
 
 Never work directly on `main`. Always create a new branch for your changes:
 
@@ -228,7 +241,7 @@ git checkout -b feat/your-feature-name
 
 ---
 
-### 5. Run the dev server
+### 6. Run the dev server
 
 ```bash
 pnpm dev
@@ -238,7 +251,7 @@ Open [http://localhost:3000](http://localhost:3000) and test your changes live. 
 
 ---
 
-### 6. Make changes with Claude Code
+### 7. Make changes with Claude Code
 
 This project is designed to be worked on with [Claude Code](https://claude.ai/code). Just describe what you want to change in plain English and it will write the code for you.
 
@@ -248,7 +261,7 @@ This project is designed to be worked on with [Claude Code](https://claude.ai/co
 
 ---
 
-### 7. Commit your changes
+### 8. Commit your changes
 
 Stage and commit your work:
 
@@ -267,7 +280,7 @@ Keep commit messages short and clear. Start with a type:
 
 ---
 
-### 8. Before pushing — run these two commands
+### 9. Before merging — run these two commands
 
 ```bash
 pnpm lint:fix
@@ -280,7 +293,7 @@ This fixes code style issues automatically. Always do this before merging to mak
 
 ---
 
-### 9. If you changed anything in Supabase
+### 10. If you changed anything in Supabase
 
 If you ran any SQL in the Supabase dashboard (added a column, renamed a field, created a table), pull the updated TypeScript types:
 
@@ -292,7 +305,7 @@ This regenerates `src/lib/supabase/database.types.ts`. Commit that file along wi
 
 ---
 
-### 10. Merge into main and push
+### 11. Merge into main and push
 
 Once everything is working locally and lint/format are clean:
 
