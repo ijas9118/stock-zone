@@ -96,6 +96,11 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
           href: "/admin/warehouses",
           icon: Icons.warehouses,
         },
+        {
+          title: "Locations",
+          href: "/admin/locations",
+          icon: Icons.locations,
+        },
         { title: "Shops", href: "/admin/shops", icon: Icons.shops },
       ],
     },

@@ -13,6 +13,7 @@ import {
   Lock,
   LogOut,
   Mail,
+  MapPin,
   Package,
   Ruler,
   Settings,
@@ -67,4 +68,5 @@ export const Icons = {
   subcategories: Layers,
   brands: Tag,
   stock: Package, // Reusing Package for now or I can add Boxes
+  locations: MapPin,
 };
