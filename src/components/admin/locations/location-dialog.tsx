@@ -2,11 +2,11 @@
 
 import { useEffect, useState, useTransition } from "react";
 import {
-  buildLocationCode,
   createLocation,
   LocationWithWarehouse,
   updateLocation,
 } from "@/actions/admin/locations";
+import { buildLocationCode } from "@/lib/locations";
 import { getWarehouses } from "@/actions/admin/warehouses";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";

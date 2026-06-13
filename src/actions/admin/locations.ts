@@ -4,6 +4,7 @@ import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Database } from "@/lib/supabase/database.types";
+import { buildLocationCode } from "@/lib/locations";
 import { getAuthContext } from "@/lib/supabase/server";
 
 export type LocationRow = Database["public"]["Tables"]["locations"]["Row"];
@@ -16,16 +17,6 @@ async function verifyAdmin() {
   if (!auth.isAuthenticated || auth.role !== "admin")
     throw new Error("Unauthorized");
   return auth.userId!;
-}
-
-export function buildLocationCode(
-  zone?: string | null,
-  aisle?: string | null,
-  rack?: string | null,
-  bin?: string | null
-): string {
-  const parts = [zone, aisle, rack, bin].filter((p) => p && p.trim());
-  return parts.length > 0 ? parts.join("-") : "—";
 }
 
 export async function getLocations(
