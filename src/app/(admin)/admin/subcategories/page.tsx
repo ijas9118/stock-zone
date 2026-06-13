@@ -1,6 +1,6 @@
 import { Suspense } from "react";
-import { getCategories, getSubcategories } from "@/actions/admin/categories";
 
+import { getCategories, getSubcategories } from "@/actions/admin/categories";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DataTable } from "@/components/admin/data-table";
 import { columns } from "@/components/admin/subcategories/columns";

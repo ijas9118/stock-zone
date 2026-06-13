@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { StockMovementWithDetails } from "@/actions/admin/stock-movements";
 import { format } from "date-fns";
 import {
   ArrowDown,
@@ -23,6 +22,7 @@ import {
   Warehouse,
 } from "lucide-react";
 
+import { StockMovementWithDetails } from "@/actions/admin/stock-movements";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

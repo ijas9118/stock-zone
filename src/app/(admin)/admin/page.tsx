@@ -1,6 +1,6 @@
 import { Suspense } from "react";
-import { getDashboardStats } from "@/actions/admin/dashboard";
 
+import { getDashboardStats } from "@/actions/admin/dashboard";
 import { AdminDashboard } from "@/components/admin/dashboard/admin-dashboard";
 import { DashboardSkeleton } from "@/components/admin/dashboard/dashboard-skeleton";
 

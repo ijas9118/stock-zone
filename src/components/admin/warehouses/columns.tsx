@@ -1,9 +1,9 @@
 "use client";
 
-import { Warehouse } from "@/actions/admin/warehouses";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 
+import { Warehouse } from "@/actions/admin/warehouses";
 import { Badge } from "@/components/ui/badge";
 
 import { WarehouseActions } from "./warehouse-actions";

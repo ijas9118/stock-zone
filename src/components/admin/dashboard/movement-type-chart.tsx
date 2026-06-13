@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { DashboardStats } from "@/actions/admin/dashboard";
 import { ExternalLink } from "lucide-react";
 import {
   Bar,
@@ -13,6 +12,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { DashboardStats } from "@/actions/admin/dashboard";
 import {
   Card,
   CardContent,

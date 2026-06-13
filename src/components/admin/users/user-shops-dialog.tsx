@@ -2,13 +2,13 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+
 import {
   ProfileWithShopType,
   updateUserShopTypes,
 } from "@/actions/admin/users";
-import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
-
 import { Database } from "@/lib/supabase/database.types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

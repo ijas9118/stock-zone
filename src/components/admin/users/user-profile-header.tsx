@@ -2,7 +2,6 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { updateUserRole, updateUserStatus } from "@/actions/admin/users";
 import { format } from "date-fns";
 import {
   ArrowLeft,
@@ -16,6 +15,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { updateUserRole, updateUserStatus } from "@/actions/admin/users";
 import { Database } from "@/lib/supabase/database.types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";

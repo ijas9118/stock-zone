@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { deleteUnitOfMeasure, UnitOfMeasure } from "@/actions/admin/uom";
 import { Edit2, MoreHorizontal, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
+import { deleteUnitOfMeasure, UnitOfMeasure } from "@/actions/admin/uom";
 import {
   AlertDialog,
   AlertDialogAction,

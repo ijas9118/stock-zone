@@ -1,6 +1,6 @@
-import { getShopTypes, getUsers } from "@/actions/admin/users";
 import { UserPlus } from "lucide-react";
 
+import { getShopTypes, getUsers } from "@/actions/admin/users";
 import { Button } from "@/components/ui/button";
 import { UserTable } from "@/components/admin/users/user-table";
 

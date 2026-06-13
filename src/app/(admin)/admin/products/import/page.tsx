@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { importProductsAction } from "@/actions/admin/import";
 import {
   AlertCircle,
   CheckCircle2,
@@ -11,6 +10,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { importProductsAction } from "@/actions/admin/import";
 import { ImportResult } from "@/lib/imports/product-import/types";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";

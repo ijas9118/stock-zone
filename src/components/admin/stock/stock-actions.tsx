@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { StockWithDetails } from "@/actions/admin/stock";
 import {
   ArrowLeftRight,
   Edit2,
@@ -12,6 +11,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 
+import { StockWithDetails } from "@/actions/admin/stock";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

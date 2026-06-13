@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import { getMyProfile, getUserStockById } from "@/actions/user/stock";
 
+import { getMyProfile, getUserStockById } from "@/actions/user/stock";
 import { InventoryDetailView } from "@/components/user/inventory/inventory-detail-view";
 
 interface InventoryDetailPageProps {

@@ -1,8 +1,8 @@
 "use client";
 
-import { UserStockWithDetails } from "@/actions/user/stock";
 import { PackageX, Search } from "lucide-react";
 
+import { UserStockWithDetails } from "@/actions/user/stock";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 

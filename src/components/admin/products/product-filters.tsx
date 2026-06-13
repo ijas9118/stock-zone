@@ -2,12 +2,12 @@
 
 import React, { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
 import {
   Category,
   getSubcategories,
   Subcategory,
 } from "@/actions/admin/categories";
-
 import {
   Select,
   SelectContent,

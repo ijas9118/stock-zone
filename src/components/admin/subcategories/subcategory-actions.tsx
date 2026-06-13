@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { Edit2, MoreHorizontal, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+
 import {
   deleteSubcategory,
   SubcategoryWithCategory,
 } from "@/actions/admin/categories";
-import { Edit2, MoreHorizontal, Trash2 } from "lucide-react";
-import { toast } from "sonner";
-
 import {
   AlertDialog,
   AlertDialogAction,

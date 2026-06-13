@@ -1,9 +1,9 @@
 "use client";
 
-import { Brand } from "@/actions/admin/brands";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 
+import { Brand } from "@/actions/admin/brands";
 import { Badge } from "@/components/ui/badge";
 
 import { BrandActions } from "./brand-actions";

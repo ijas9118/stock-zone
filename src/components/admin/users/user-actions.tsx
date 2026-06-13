@@ -2,11 +2,6 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import {
-  ProfileWithShopType,
-  updateUserRole,
-  updateUserStatus,
-} from "@/actions/admin/users";
 import { Table } from "@tanstack/react-table";
 import {
   Clock,
@@ -20,6 +15,11 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import {
+  ProfileWithShopType,
+  updateUserRole,
+  updateUserStatus,
+} from "@/actions/admin/users";
 import { Database } from "@/lib/supabase/database.types";
 import { Button } from "@/components/ui/button";
 import {

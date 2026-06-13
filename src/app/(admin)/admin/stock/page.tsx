@@ -1,9 +1,9 @@
 import { Suspense } from "react";
+
 import { getCategories } from "@/actions/admin/categories";
 import { getShops } from "@/actions/admin/shops";
 import { getStocks } from "@/actions/admin/stock";
 import { getWarehouses } from "@/actions/admin/warehouses";
-
 import { Skeleton } from "@/components/ui/skeleton";
 import { DataTable } from "@/components/admin/data-table";
 import { ActiveFilters } from "@/components/admin/stock/active-filters";

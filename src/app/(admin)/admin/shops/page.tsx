@@ -1,5 +1,4 @@
 import { getShops } from "@/actions/admin/shops";
-
 import { DataTable } from "@/components/admin/data-table";
 import { columns } from "@/components/admin/shops/columns";
 import { ShopHeader } from "@/components/admin/shops/shop-header";

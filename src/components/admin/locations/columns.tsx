@@ -1,8 +1,8 @@
 "use client";
 
-import { LocationWithWarehouse } from "@/actions/admin/locations";
 import { ColumnDef } from "@tanstack/react-table";
 
+import { LocationWithWarehouse } from "@/actions/admin/locations";
 import { Badge } from "@/components/ui/badge";
 
 import { LocationActions } from "./location-actions";

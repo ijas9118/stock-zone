@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { DashboardStats } from "@/actions/admin/dashboard";
 import { format } from "date-fns";
 import { ChevronRight, ExternalLink } from "lucide-react";
 
+import { DashboardStats } from "@/actions/admin/dashboard";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader } from "@/components/ui/card";

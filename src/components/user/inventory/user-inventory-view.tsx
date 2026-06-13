@@ -2,9 +2,9 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
-import { getUserStocks, UserStockWithDetails } from "@/actions/user/stock";
 import { Search } from "lucide-react";
 
+import { getUserStocks, UserStockWithDetails } from "@/actions/user/stock";
 import { Input } from "@/components/ui/input";
 
 import { InventoryFilters } from "./inventory-filters";

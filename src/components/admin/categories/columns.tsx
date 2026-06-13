@@ -1,8 +1,9 @@
 "use client";
 
-import { Category } from "@/actions/admin/categories";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
+
+import { Category } from "@/actions/admin/categories";
 
 import { CategoryActions } from "./category-actions";
 

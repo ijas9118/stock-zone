@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { deleteProduct, ProductWithDetails } from "@/actions/admin/products";
 import { Edit2, MoreHorizontal, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
+import { deleteProduct, ProductWithDetails } from "@/actions/admin/products";
 import {
   AlertDialog,
   AlertDialogAction,

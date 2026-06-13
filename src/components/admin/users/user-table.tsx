@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ProfileWithShopType } from "@/actions/admin/users";
 
+import { ProfileWithShopType } from "@/actions/admin/users";
 import { DataTable } from "@/components/admin/data-table";
 
 import { columns } from "./columns";

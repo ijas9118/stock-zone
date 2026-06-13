@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { ProfileWithShopType } from "@/actions/admin/users";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { Store } from "lucide-react";
 
+import { ProfileWithShopType } from "@/actions/admin/users";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";

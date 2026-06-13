@@ -1,8 +1,9 @@
 "use client";
 
-import { SubcategoryWithCategory } from "@/actions/admin/categories";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
+
+import { SubcategoryWithCategory } from "@/actions/admin/categories";
 
 import { SubcategoryActions } from "./subcategory-actions";
 

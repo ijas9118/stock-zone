@@ -1,8 +1,8 @@
 "use client";
 
-import { StockWithDetails } from "@/actions/admin/stock";
 import { ColumnDef } from "@tanstack/react-table";
 
+import { StockWithDetails } from "@/actions/admin/stock";
 import { getLargestFittingUom } from "@/lib/uom/convert";
 import { Badge } from "@/components/ui/badge";
 

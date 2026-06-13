@@ -1,8 +1,8 @@
 import { Suspense } from "react";
+
 import { getShops } from "@/actions/admin/shops";
 import { getStockMovements } from "@/actions/admin/stock-movements";
 import { getWarehouses } from "@/actions/admin/warehouses";
-
 import { Skeleton } from "@/components/ui/skeleton";
 import { ActiveMovementFilters } from "@/components/admin/stock-movements/active-movement-filters";
 import { MovementsTable } from "@/components/admin/stock-movements/movements-table";

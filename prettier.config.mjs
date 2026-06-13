@@ -13,6 +13,7 @@ const config = {
     "^types$",
     "^@/types/(.*)$",
     "^@/config/(.*)$",
+    "^@/actions/(.*)$",
     "^@/lib/(.*)$",
     "^@/hooks/(.*)$",
     "^@/components/ui/(.*)$",

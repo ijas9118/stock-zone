@@ -1,11 +1,11 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { X } from "lucide-react";
+
 import { Category } from "@/actions/admin/categories";
 import { ShopType } from "@/actions/admin/shops";
 import { Warehouse } from "@/actions/admin/warehouses";
-import { X } from "lucide-react";
-
 import { Badge } from "@/components/ui/badge";
 
 interface ActiveFiltersProps {

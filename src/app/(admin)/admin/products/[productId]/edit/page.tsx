@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import { getProductById } from "@/actions/admin/products";
 
+import { getProductById } from "@/actions/admin/products";
 import { ProductForm } from "@/components/admin/products/product-form";
 
 interface EditProductPageProps {

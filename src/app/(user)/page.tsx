@@ -1,6 +1,5 @@
 import { getWarehouses } from "@/actions/admin/warehouses";
 import { getMyAssignedShops } from "@/actions/user/stock";
-
 import { UserInventoryView } from "@/components/user/inventory/user-inventory-view";
 
 export default async function UserDashboardPage() {

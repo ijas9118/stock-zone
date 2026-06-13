@@ -1,6 +1,6 @@
 import { Suspense } from "react";
-import { getBrandsPage } from "@/actions/admin/brands";
 
+import { getBrandsPage } from "@/actions/admin/brands";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BrandHeader } from "@/components/admin/brands/brand-header";
 import { columns } from "@/components/admin/brands/columns";

@@ -1,6 +1,6 @@
 import { Suspense } from "react";
-import { getCategories } from "@/actions/admin/categories";
 
+import { getCategories } from "@/actions/admin/categories";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CategoryHeader } from "@/components/admin/categories/category-header";
 import { columns } from "@/components/admin/categories/columns";

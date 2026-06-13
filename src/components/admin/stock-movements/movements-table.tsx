@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { StockMovementWithDetails } from "@/actions/admin/stock-movements";
 
+import { StockMovementWithDetails } from "@/actions/admin/stock-movements";
 import { DataTable } from "@/components/admin/data-table";
 
 import { columns } from "./columns";

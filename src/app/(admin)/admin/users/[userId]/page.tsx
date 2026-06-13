@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { getShopTypes, getUserById } from "@/actions/admin/users";
 import { Shield, Store } from "lucide-react";
 
+import { getShopTypes, getUserById } from "@/actions/admin/users";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserPermissionsForm } from "@/components/admin/users/user-permissions-form";

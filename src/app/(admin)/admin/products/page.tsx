@@ -1,7 +1,7 @@
 import { Suspense } from "react";
+
 import { getCategories } from "@/actions/admin/categories";
 import { getProducts } from "@/actions/admin/products";
-
 import { Skeleton } from "@/components/ui/skeleton";
 import { DataTable } from "@/components/admin/data-table";
 import { columns } from "@/components/admin/products/columns";

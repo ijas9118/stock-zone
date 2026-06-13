@@ -1,9 +1,9 @@
 "use client";
 
-import { ShopType } from "@/actions/admin/shops";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 
+import { ShopType } from "@/actions/admin/shops";
 import { Badge } from "@/components/ui/badge";
 
 import { ShopActions } from "./shop-actions";

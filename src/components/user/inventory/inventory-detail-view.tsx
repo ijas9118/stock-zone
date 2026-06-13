@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { UserStockWithDetails } from "@/actions/user/stock";
 import { format } from "date-fns";
 import {
   ArrowLeft,
@@ -17,6 +16,7 @@ import {
   Store,
 } from "lucide-react";
 
+import { UserStockWithDetails } from "@/actions/user/stock";
 import { getLargestFittingUom } from "@/lib/uom/convert";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";

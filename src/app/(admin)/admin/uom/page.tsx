@@ -1,6 +1,6 @@
 import { Suspense } from "react";
-import { getUnitsOfMeasure } from "@/actions/admin/uom";
 
+import { getUnitsOfMeasure } from "@/actions/admin/uom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DataTable } from "@/components/admin/data-table";
 import { columns } from "@/components/admin/uom/columns";

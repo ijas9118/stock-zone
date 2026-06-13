@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { Edit2, MoreHorizontal, Power, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+
 import {
   deleteWarehouse,
   updateWarehouse,
   Warehouse,
 } from "@/actions/admin/warehouses";
-import { Edit2, MoreHorizontal, Power, Trash2 } from "lucide-react";
-import { toast } from "sonner";
-
 import {
   AlertDialog,
   AlertDialogAction,

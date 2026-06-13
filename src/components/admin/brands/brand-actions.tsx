@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Brand, deleteBrand } from "@/actions/admin/brands";
 import { Edit2, MoreHorizontal, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
+import { Brand, deleteBrand } from "@/actions/admin/brands";
 import {
   AlertDialog,
   AlertDialogAction,

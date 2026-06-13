@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { DashboardStats } from "@/actions/admin/dashboard";
 import { format } from "date-fns";
 import {
   ArrowRightLeft,
@@ -14,6 +13,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 
+import { DashboardStats } from "@/actions/admin/dashboard";
 import { cn } from "@/lib/utils";
 import {
   Card,

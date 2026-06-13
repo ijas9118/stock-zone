@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getLocations, LocationWithWarehouse } from "@/actions/admin/locations";
-import { StockWithDetails, updateStockLocation } from "@/actions/admin/stock";
 import { toast } from "sonner";
 
+import { getLocations, LocationWithWarehouse } from "@/actions/admin/locations";
+import { StockWithDetails, updateStockLocation } from "@/actions/admin/stock";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

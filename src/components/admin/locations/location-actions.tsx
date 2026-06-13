@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { Edit2, MoreHorizontal, Power, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+
 import {
   deleteLocation,
   LocationWithWarehouse,
   toggleLocationStatus,
 } from "@/actions/admin/locations";
-import { Edit2, MoreHorizontal, Power, Trash2 } from "lucide-react";
-import { toast } from "sonner";
-
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

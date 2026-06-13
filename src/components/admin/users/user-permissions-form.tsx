@@ -2,10 +2,10 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { updateUserPermissions } from "@/actions/admin/users";
 import { Loader2, Save, Shield } from "lucide-react";
 import { toast } from "sonner";
 
+import { updateUserPermissions } from "@/actions/admin/users";
 import { Database } from "@/lib/supabase/database.types";
 import { Button } from "@/components/ui/button";
 import {

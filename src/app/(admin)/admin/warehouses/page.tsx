@@ -1,6 +1,6 @@
 import { Suspense } from "react";
-import { getWarehouses } from "@/actions/admin/warehouses";
 
+import { getWarehouses } from "@/actions/admin/warehouses";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DataTable } from "@/components/admin/data-table";
 import { columns } from "@/components/admin/warehouses/columns";

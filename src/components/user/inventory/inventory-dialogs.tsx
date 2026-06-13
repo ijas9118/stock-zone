@@ -1,7 +1,6 @@
 "use client";
 
 import { UserStockWithDetails } from "@/actions/user/stock";
-
 import {
   Dialog,
   DialogContent,

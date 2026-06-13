@@ -1,6 +1,5 @@
 "use client";
 
-import { StockMovementWithDetails } from "@/actions/admin/stock-movements";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import {
@@ -14,6 +13,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 
+import { StockMovementWithDetails } from "@/actions/admin/stock-movements";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { getMyAssignedShops, getMyProfile } from "@/actions/user/stock";
 
+import { getMyAssignedShops, getMyProfile } from "@/actions/user/stock";
 import { getAuthContext } from "@/lib/supabase/server";
 import { UserProfileView } from "@/components/user/profile/user-profile-view";
 

@@ -2,8 +2,8 @@
 
 import React from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Category } from "@/actions/admin/categories";
 
+import { Category } from "@/actions/admin/categories";
 import {
   Select,
   SelectContent,

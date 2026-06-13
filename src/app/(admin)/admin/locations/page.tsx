@@ -1,5 +1,4 @@
 import { getLocations } from "@/actions/admin/locations";
-
 import { DataTable } from "@/components/admin/data-table";
 import { columns } from "@/components/admin/locations/columns";
 import { LocationHeader } from "@/components/admin/locations/location-header";
