@@ -204,3 +204,28 @@ export async function deleteLocation(id: string) {
     };
   }
 }
+
+export async function toggleLocationStatus(id: string, is_active: boolean) {
+  try {
+    await verifyAdmin();
+    const adminClient = createAdminClient();
+
+    const { error } = await adminClient
+      .from("locations")
+      .update({ is_active, updated_at: new Date().toISOString() })
+      .eq("id", id);
+
+    if (error) {
+      console.error("Error toggling location status:", error);
+      return { error: error.message };
+    }
+
+    revalidateTag("admin:locations", "default");
+    revalidatePath("/admin/locations");
+    return { success: true };
+  } catch (err: unknown) {
+    return {
+      error: err instanceof Error ? err.message : "An unknown error occurred",
+    };
+  }
+}
