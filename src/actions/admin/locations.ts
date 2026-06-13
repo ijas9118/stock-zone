@@ -22,6 +22,7 @@ async function verifyAdmin() {
 export async function getLocations(
   params: {
     warehouseId?: string;
+    query?: string;
     page?: number;
     pageSize?: number;
     includeInactive?: boolean;
@@ -30,30 +31,37 @@ export async function getLocations(
   await verifyAdmin();
   const {
     warehouseId,
+    query,
     page = 1,
-    pageSize = 50,
+    pageSize = 8,
     includeInactive = false,
   } = params;
 
   return unstable_cache(
     async () => {
       const adminClient = createAdminClient();
-      let query = adminClient
+      let dbQuery = adminClient
         .from("locations")
         .select("*, warehouses(name)", { count: "exact" })
         .order("location_code", { ascending: true });
 
       if (!includeInactive) {
-        query = query.eq("is_active", true);
+        dbQuery = dbQuery.eq("is_active", true);
       }
 
       if (warehouseId) {
-        query = query.eq("warehouse_id", warehouseId);
+        dbQuery = dbQuery.eq("warehouse_id", warehouseId);
+      }
+
+      if (query) {
+        dbQuery = dbQuery.or(
+          `location_code.ilike.%${query}%,zone.ilike.%${query}%,aisle.ilike.%${query}%,rack.ilike.%${query}%,bin.ilike.%${query}%`
+        );
       }
 
       const from = (page - 1) * pageSize;
       const to = from + pageSize - 1;
-      const { data, error, count } = await query.range(from, to);
+      const { data, error, count } = await dbQuery.range(from, to);
 
       if (error) throw new Error("Failed to fetch locations");
       return {
@@ -64,6 +72,7 @@ export async function getLocations(
     [
       "admin-locations",
       warehouseId || "",
+      query || "",
       String(page),
       String(pageSize),
       String(includeInactive),

@@ -1,4 +1,5 @@
 import { getShops } from "@/actions/admin/shops";
+import { ADMIN_PAGE_SIZE } from "@/lib/config";
 import { DataTable } from "@/components/admin/data-table";
 import { columns } from "@/components/admin/shops/columns";
 import { ShopHeader } from "@/components/admin/shops/shop-header";
@@ -14,7 +15,7 @@ export default async function ShopsPage({
 }) {
   const params = await searchParams;
   const page = Number(params.page) || 1;
-  const pageSize = Number(params.pageSize) || 8;
+  const pageSize = Number(params.pageSize) || ADMIN_PAGE_SIZE;
   const query = params.q;
 
   const { shops, totalCount } = await getShops({ query, page, pageSize });

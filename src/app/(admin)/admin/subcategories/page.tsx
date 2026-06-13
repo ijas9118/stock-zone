@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 
 import { getCategories, getSubcategories } from "@/actions/admin/categories";
+import { ADMIN_PAGE_SIZE } from "@/lib/config";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DataTable } from "@/components/admin/data-table";
 import { columns } from "@/components/admin/subcategories/columns";
@@ -22,7 +23,7 @@ export default async function SubcategoriesPage({
   const { q, category_id, page, pageSize } = await searchParams;
 
   const currentPage = Number(page) || 1;
-  const currentPageSize = Number(pageSize) || 8;
+  const currentPageSize = Number(pageSize) || ADMIN_PAGE_SIZE;
 
   const [{ subcategories, totalCount }, { categories }] = await Promise.all([
     getSubcategories({
@@ -63,10 +64,10 @@ function TableSkeleton() {
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4">
         <Skeleton className="h-10 w-full max-w-sm" />
-        <Skeleton className="h-10 w-[100px]" />
+        <Skeleton className="h-10 w-25" />
       </div>
       <div className="rounded-md border">
-        <div className="bg-muted h-[400px] w-full animate-pulse" />
+        <div className="bg-muted h-100 w-full animate-pulse" />
       </div>
     </div>
   );

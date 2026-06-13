@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { getShops } from "@/actions/admin/shops";
 import { getStockMovements } from "@/actions/admin/stock-movements";
 import { getWarehouses } from "@/actions/admin/warehouses";
+import { ADMIN_PAGE_SIZE } from "@/lib/config";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ActiveMovementFilters } from "@/components/admin/stock-movements/active-movement-filters";
 import { MovementsTable } from "@/components/admin/stock-movements/movements-table";
@@ -37,7 +38,7 @@ export default async function StockMovementsPage({
   } = await searchParams;
 
   const currentPage = Number(page) || 1;
-  const currentPageSize = Number(pageSize) || 8;
+  const currentPageSize = Number(pageSize) || ADMIN_PAGE_SIZE;
 
   const [{ movements, totalCount }, { warehouses }, { shops: shopTypes }] =
     await Promise.all([

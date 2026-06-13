@@ -12,6 +12,7 @@ import {
 } from "@tanstack/react-table";
 import { ChevronDown, Search, X } from "lucide-react";
 
+import { ADMIN_PAGE_SIZE } from "@/lib/config";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -62,7 +63,7 @@ export function DataTable<TData, TValue>({
   const [rowSelection, setRowSelection] = React.useState({});
 
   const page = Number(searchParams.get("page")) || 1;
-  const pageSize = Number(searchParams.get("pageSize")) || 10;
+  const pageSize = Number(searchParams.get("pageSize")) || ADMIN_PAGE_SIZE;
   const currentQuery = searchParams.get(searchKey) ?? "";
 
   const [searchValue, setSearchValue] = React.useState(currentQuery);

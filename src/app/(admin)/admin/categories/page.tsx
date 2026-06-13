@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 
 import { getCategories } from "@/actions/admin/categories";
+import { ADMIN_PAGE_SIZE } from "@/lib/config";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CategoryHeader } from "@/components/admin/categories/category-header";
 import { columns } from "@/components/admin/categories/columns";
@@ -20,7 +21,7 @@ export default async function CategoriesPage({
   const { q, page, pageSize } = await searchParams;
 
   const currentPage = Number(page) || 1;
-  const currentPageSize = Number(pageSize) || 8;
+  const currentPageSize = Number(pageSize) || ADMIN_PAGE_SIZE;
 
   const { categories, totalCount } = await getCategories({
     query: q,
@@ -51,10 +52,10 @@ function TableSkeleton() {
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4">
         <Skeleton className="h-10 w-full max-w-sm" />
-        <Skeleton className="h-10 w-[100px]" />
+        <Skeleton className="h-10 w-25" />
       </div>
       <div className="rounded-md border">
-        <div className="bg-muted h-[400px] w-full animate-pulse" />
+        <div className="bg-muted h-100 w-full animate-pulse" />
       </div>
     </div>
   );

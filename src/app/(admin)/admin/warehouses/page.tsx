@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 
 import { getWarehouses } from "@/actions/admin/warehouses";
+import { ADMIN_PAGE_SIZE } from "@/lib/config";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DataTable } from "@/components/admin/data-table";
 import { columns } from "@/components/admin/warehouses/columns";
@@ -20,7 +21,7 @@ export default async function WarehousesPage({
   const { q, page, pageSize } = await searchParams;
 
   const currentPage = Number(page) || 1;
-  const currentPageSize = Number(pageSize) || 8;
+  const currentPageSize = Number(pageSize) || ADMIN_PAGE_SIZE;
 
   const { warehouses, totalCount } = await getWarehouses({
     query: q,

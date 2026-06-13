@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 
 import { getBrandsPage } from "@/actions/admin/brands";
+import { ADMIN_PAGE_SIZE } from "@/lib/config";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BrandHeader } from "@/components/admin/brands/brand-header";
 import { columns } from "@/components/admin/brands/columns";
@@ -18,7 +19,7 @@ export default async function BrandsPage({ searchParams }: BrandsPageProps) {
   const { q, page, pageSize } = await searchParams;
 
   const currentPage = Number(page) || 1;
-  const currentPageSize = Number(pageSize) || 8;
+  const currentPageSize = Number(pageSize) || ADMIN_PAGE_SIZE;
 
   const { brands, totalCount } = await getBrandsPage({
     query: q,

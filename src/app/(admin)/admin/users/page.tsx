@@ -1,6 +1,7 @@
 import { UserPlus } from "lucide-react";
 
 import { getShopTypes, getUsers } from "@/actions/admin/users";
+import { ADMIN_PAGE_SIZE } from "@/lib/config";
 import { Button } from "@/components/ui/button";
 import { UserTable } from "@/components/admin/users/user-table";
 
@@ -16,7 +17,7 @@ export default async function UsersPage({
 }) {
   const params = await searchParams;
   const page = Number(params.page) || 1;
-  const pageSize = Number(params.pageSize) || 8;
+  const pageSize = Number(params.pageSize) || ADMIN_PAGE_SIZE;
   const query = params.q;
   const shopTypeId = params.shop_type;
 

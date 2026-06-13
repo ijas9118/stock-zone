@@ -4,6 +4,7 @@ import { getCategories } from "@/actions/admin/categories";
 import { getShops } from "@/actions/admin/shops";
 import { getStocks } from "@/actions/admin/stock";
 import { getWarehouses } from "@/actions/admin/warehouses";
+import { ADMIN_PAGE_SIZE } from "@/lib/config";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DataTable } from "@/components/admin/data-table";
 import { ActiveFilters } from "@/components/admin/stock/active-filters";
@@ -31,7 +32,7 @@ function preload(params: {
   void getWarehouses({ pageSize: 100 });
   void getShops({ pageSize: 100 });
   void getCategories({ pageSize: 100 });
-  void getStocks({ ...params, page: 1, pageSize: 8 });
+  void getStocks({ ...params, page: 1, pageSize: ADMIN_PAGE_SIZE });
 }
 
 export default async function StockPage({ searchParams }: StockPageProps) {
@@ -53,7 +54,7 @@ export default async function StockPage({ searchParams }: StockPageProps) {
   } = params_res;
 
   const currentPage = Number(page) || 1;
-  const currentPageSize = Number(pageSize) || 8;
+  const currentPageSize = Number(pageSize) || ADMIN_PAGE_SIZE;
 
   const [
     { stocks, totalCount },

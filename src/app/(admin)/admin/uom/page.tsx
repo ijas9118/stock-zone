@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 
 import { getUnitsOfMeasure } from "@/actions/admin/uom";
+import { ADMIN_PAGE_SIZE } from "@/lib/config";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DataTable } from "@/components/admin/data-table";
 import { columns } from "@/components/admin/uom/columns";
@@ -18,7 +19,7 @@ export default async function UOMPage({ searchParams }: UOMPageProps) {
   const { q, page, pageSize } = await searchParams;
 
   const currentPage = Number(page) || 1;
-  const currentPageSize = Number(pageSize) || 8;
+  const currentPageSize = Number(pageSize) || ADMIN_PAGE_SIZE;
 
   const { unitsOfMeasure, totalCount } = await getUnitsOfMeasure({
     query: q,
