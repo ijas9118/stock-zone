@@ -11,7 +11,7 @@ export function LocationHeader() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
           Locations

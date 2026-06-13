@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import {
   buildLocationCode,
   createLocation,
-  LocationRow,
+  LocationWithWarehouse,
   updateLocation,
 } from "@/actions/admin/locations";
 import { getWarehouses } from "@/actions/admin/warehouses";
@@ -56,7 +56,7 @@ const locationSchema = z
 type LocationFormValues = z.infer<typeof locationSchema>;
 
 interface LocationDialogProps {
-  location?: LocationRow;
+  location?: LocationWithWarehouse;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
