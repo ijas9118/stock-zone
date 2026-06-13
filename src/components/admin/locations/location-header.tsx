@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import Link from "next/link";
+import { Plus, Upload } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -20,10 +21,18 @@ export function LocationHeader() {
           Manage bin locations (Zone → Aisle → Rack → Bin) within warehouses.
         </p>
       </div>
-      <Button size="sm" onClick={() => setIsOpen(true)}>
-        <Plus className="mr-1.5 h-4 w-4" />
-        Add Location
-      </Button>
+      <div className="flex gap-2">
+        <Button size="sm" variant="outline" asChild>
+          <Link href="/admin/locations/import">
+            <Upload className="mr-1.5 h-4 w-4" />
+            Import
+          </Link>
+        </Button>
+        <Button size="sm" onClick={() => setIsOpen(true)}>
+          <Plus className="mr-1.5 h-4 w-4" />
+          Add Location
+        </Button>
+      </div>
 
       <LocationDialog open={isOpen} onOpenChange={setIsOpen} />
     </div>
