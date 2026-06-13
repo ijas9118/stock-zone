@@ -5,6 +5,7 @@ import { StockWithDetails } from "@/actions/admin/stock";
 import {
   ArrowLeftRight,
   Edit2,
+  MapPin,
   MoreHorizontal,
   RotateCcw,
   TrendingDown,
@@ -28,6 +29,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import { LocationEditDialog } from "./location-edit-dialog";
 import { StockMovementDialog } from "./movement-dialog";
 import { StockTransferDialog } from "./transfer-dialog";
 
@@ -40,6 +42,7 @@ export function StockActions({ stock }: StockActionsProps) {
     "adjustment" | "in" | "out" | "return" | null
   >(null);
   const [isTransferOpen, setIsTransferOpen] = useState(false);
+  const [isLocationEditOpen, setIsLocationEditOpen] = useState(false);
 
   return (
     <>
@@ -59,6 +62,10 @@ export function StockActions({ stock }: StockActionsProps) {
           <DropdownMenuItem onClick={() => setIsTransferOpen(true)}>
             <ArrowLeftRight className="mr-2 h-4 w-4" />
             Transfer
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setIsLocationEditOpen(true)}>
+            <MapPin className="mr-2 h-4 w-4" />
+            Edit Location
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setMovementMode("out")}>
@@ -112,6 +119,12 @@ export function StockActions({ stock }: StockActionsProps) {
           />
         </DialogContent>
       </Dialog>
+
+      <LocationEditDialog
+        stock={stock}
+        open={isLocationEditOpen}
+        onOpenChange={setIsLocationEditOpen}
+      />
     </>
   );
 }

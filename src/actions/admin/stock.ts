@@ -371,6 +371,37 @@ export async function processStockMovement(data: {
 }
 
 /**
+ * Update only the location_id on an existing stock record (no ledger entry).
+ */
+export async function updateStockLocation(
+  stockId: string,
+  locationId: string | null
+) {
+  try {
+    const auth = await getAuthContext();
+    if (!auth.isAuthenticated || auth.role !== "admin")
+      throw new Error("Unauthorized");
+
+    const adminClient = createAdminClient();
+    const { error } = await adminClient
+      .from("stock")
+      .update({ location_id: locationId, updated_at: new Date().toISOString() })
+      .eq("id", stockId);
+
+    if (error) throw error;
+
+    revalidateTag("admin:stocks", "default");
+    revalidatePath("/admin/stock");
+    revalidatePath("/");
+    return { success: true };
+  } catch (err: unknown) {
+    return {
+      error: err instanceof Error ? err.message : "An unknown error occurred",
+    };
+  }
+}
+
+/**
  * Transfer stock between warehouses
  */
 export async function transferStock(data: {

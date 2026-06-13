@@ -2,9 +2,9 @@
 
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 
+import { buildLocationCode } from "@/lib/locations";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Database } from "@/lib/supabase/database.types";
-import { buildLocationCode } from "@/lib/locations";
 import { getAuthContext } from "@/lib/supabase/server";
 
 export type LocationRow = Database["public"]["Tables"]["locations"]["Row"];

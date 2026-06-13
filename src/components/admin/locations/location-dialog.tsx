@@ -6,13 +6,13 @@ import {
   LocationWithWarehouse,
   updateLocation,
 } from "@/actions/admin/locations";
-import { buildLocationCode } from "@/lib/locations";
 import { getWarehouses } from "@/actions/admin/warehouses";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
+import { buildLocationCode } from "@/lib/locations";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
