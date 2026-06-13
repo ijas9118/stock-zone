@@ -17,9 +17,9 @@ export function validateRow(
   const cleaned = {
     warehouse_name: (row.warehouse_name || "").trim(),
     zone: cleanStr(row.zone),
-    aisle: cleanStr(row.aisle),
     rack: cleanStr(row.rack),
-    bin: cleanStr(row.bin),
+    level: cleanStr(row.level),
+    slot: cleanStr(row.slot),
   };
 
   const parsed = LocationRowSchema.safeParse(cleaned);

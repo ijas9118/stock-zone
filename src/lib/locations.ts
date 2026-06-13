@@ -1,9 +1,9 @@
 export function buildLocationCode(
   zone?: string | null,
-  aisle?: string | null,
   rack?: string | null,
-  bin?: string | null
+  level?: string | null,
+  slot?: string | null
 ): string {
-  const parts = [zone, aisle, rack, bin].filter((p) => p && p.trim());
+  const parts = [zone, rack, level, slot].filter((p) => p && p.trim());
   return parts.length > 0 ? parts.join("-") : "—";
 }

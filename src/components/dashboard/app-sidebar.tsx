@@ -97,7 +97,7 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
           icon: Icons.warehouses,
         },
         {
-          title: "Locations",
+          title: "Item Location",
           href: "/admin/locations",
           icon: Icons.locations,
         },

@@ -29,22 +29,22 @@ export const columns: ColumnDef<LocationWithWarehouse>[] = [
       row.original.zone ?? <span className="text-muted-foreground">—</span>,
   },
   {
-    accessorKey: "aisle",
-    header: "Aisle",
-    cell: ({ row }) =>
-      row.original.aisle ?? <span className="text-muted-foreground">—</span>,
-  },
-  {
     accessorKey: "rack",
     header: "Rack",
     cell: ({ row }) =>
       row.original.rack ?? <span className="text-muted-foreground">—</span>,
   },
   {
-    accessorKey: "bin",
-    header: "Bin",
+    accessorKey: "level",
+    header: "Level",
     cell: ({ row }) =>
-      row.original.bin ?? <span className="text-muted-foreground">—</span>,
+      row.original.level ?? <span className="text-muted-foreground">—</span>,
+  },
+  {
+    accessorKey: "slot",
+    header: "Slot",
+    cell: ({ row }) =>
+      row.original.slot ?? <span className="text-muted-foreground">—</span>,
   },
   {
     accessorKey: "is_active",

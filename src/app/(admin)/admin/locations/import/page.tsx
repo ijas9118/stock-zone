@@ -109,7 +109,7 @@ export default function ImportLocationsPage() {
     const csvContent =
       "data:text/csv;charset=utf-8," +
       encodeURIComponent(
-        "warehouse_name,zone,aisle,rack,bin\nMain Warehouse,A,01,R1,B01\nMain Warehouse,A,01,R1,B02\n"
+        "warehouse_name,zone,rack,level,slot\nMain Warehouse,A,R1,L2,S01\nMain Warehouse,A,R1,L2,S02\n"
       );
     const link = document.createElement("a");
     link.setAttribute("href", csvContent);

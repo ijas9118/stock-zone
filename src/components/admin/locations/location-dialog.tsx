@@ -44,12 +44,12 @@ const locationSchema = z
   .object({
     warehouse_id: z.string().min(1, "Warehouse is required"),
     zone: z.string().max(20).optional(),
-    aisle: z.string().max(20).optional(),
     rack: z.string().max(20).optional(),
-    bin: z.string().max(20).optional(),
+    level: z.string().max(20).optional(),
+    slot: z.string().max(20).optional(),
   })
-  .refine((d) => d.zone || d.aisle || d.rack || d.bin, {
-    message: "At least one of zone, aisle, rack, or bin is required",
+  .refine((d) => d.zone || d.rack || d.level || d.slot, {
+    message: "At least one of zone, rack, level, or slot is required",
     path: ["zone"],
   });
 
@@ -76,21 +76,21 @@ export function LocationDialog({
     defaultValues: {
       warehouse_id: location?.warehouse_id ?? "",
       zone: location?.zone ?? "",
-      aisle: location?.aisle ?? "",
       rack: location?.rack ?? "",
-      bin: location?.bin ?? "",
+      level: location?.level ?? "",
+      slot: location?.slot ?? "",
     },
   });
 
   const watchedZone = form.watch("zone");
-  const watchedAisle = form.watch("aisle");
   const watchedRack = form.watch("rack");
-  const watchedBin = form.watch("bin");
+  const watchedLevel = form.watch("level");
+  const watchedSlot = form.watch("slot");
   const previewCode = buildLocationCode(
     watchedZone,
-    watchedAisle,
     watchedRack,
-    watchedBin
+    watchedLevel,
+    watchedSlot
   );
 
   useEffect(() => {
@@ -102,9 +102,9 @@ export function LocationDialog({
       form.reset({
         warehouse_id: location?.warehouse_id ?? "",
         zone: location?.zone ?? "",
-        aisle: location?.aisle ?? "",
         rack: location?.rack ?? "",
-        bin: location?.bin ?? "",
+        level: location?.level ?? "",
+        slot: location?.slot ?? "",
       });
     }
   }, [open, location, form]);
@@ -133,8 +133,8 @@ export function LocationDialog({
           </DialogTitle>
           <DialogDescription>
             {location
-              ? "Update zone, aisle, rack, or bin details."
-              : "Define a new bin location inside a warehouse."}
+              ? "Update zone, rack, level, or slot details."
+              : "Define a new slot location inside a warehouse."}
           </DialogDescription>
         </DialogHeader>
 
@@ -181,25 +181,12 @@ export function LocationDialog({
               />
               <FormField
                 control={form.control}
-                name="aisle"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Aisle</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g. 01" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
                 name="rack"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Rack</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g. R2" {...field} />
+                      <Input placeholder="e.g. R1" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -207,12 +194,25 @@ export function LocationDialog({
               />
               <FormField
                 control={form.control}
-                name="bin"
+                name="level"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Bin</FormLabel>
+                    <FormLabel>Level</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g. B03" {...field} />
+                      <Input placeholder="e.g. L2" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="slot"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Slot</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. S03" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -226,7 +226,7 @@ export function LocationDialog({
               </p>
               <p className="font-mono text-sm font-semibold">{previewCode}</p>
               <FormDescription className="mt-0.5 text-[10px]">
-                Auto-generated from zone, aisle, rack, and bin.
+                Auto-generated from zone, rack, level, and slot.
               </FormDescription>
             </div>
 

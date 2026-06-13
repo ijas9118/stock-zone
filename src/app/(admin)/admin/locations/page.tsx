@@ -41,7 +41,7 @@ export default async function LocationsPage({
           data={locations}
           totalCount={totalCount}
           pageCount={pageCount}
-          searchPlaceholder="Search by code, zone, aisle, rack, or bin..."
+          searchPlaceholder="Search by code, zone, rack, level, or slot..."
         />
       </Suspense>
     </div>

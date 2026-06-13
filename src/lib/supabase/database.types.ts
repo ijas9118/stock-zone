@@ -67,37 +67,37 @@ export type Database = {
       };
       locations: {
         Row: {
-          aisle: string | null;
-          bin: string | null;
           created_at: string;
           id: string;
           is_active: boolean;
+          level: string | null;
           location_code: string;
           rack: string | null;
+          slot: string | null;
           updated_at: string;
           warehouse_id: string;
           zone: string | null;
         };
         Insert: {
-          aisle?: string | null;
-          bin?: string | null;
           created_at?: string;
           id?: string;
           is_active?: boolean;
+          level?: string | null;
           location_code: string;
           rack?: string | null;
+          slot?: string | null;
           updated_at?: string;
           warehouse_id: string;
           zone?: string | null;
         };
         Update: {
-          aisle?: string | null;
-          bin?: string | null;
           created_at?: string;
           id?: string;
           is_active?: boolean;
+          level?: string | null;
           location_code?: string;
           rack?: string | null;
+          slot?: string | null;
           updated_at?: string;
           warehouse_id?: string;
           zone?: string | null;

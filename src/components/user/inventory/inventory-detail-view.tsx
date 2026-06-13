@@ -138,11 +138,12 @@ export function InventoryDetailView({
                         {[
                           stock.locations.zone &&
                             `Zone ${stock.locations.zone}`,
-                          stock.locations.aisle &&
-                            `Aisle ${stock.locations.aisle}`,
                           stock.locations.rack &&
                             `Rack ${stock.locations.rack}`,
-                          stock.locations.bin && `Bin ${stock.locations.bin}`,
+                          stock.locations.level &&
+                            `Level ${stock.locations.level}`,
+                          stock.locations.slot &&
+                            `Slot ${stock.locations.slot}`,
                         ]
                           .filter(Boolean)
                           .join(" · ")}

@@ -103,9 +103,9 @@ export function LocationEditDialog({
                 {locations.map((loc) => (
                   <SelectItem key={loc.id} value={loc.id}>
                     <span className="font-mono">{loc.location_code}</span>
-                    {(loc.zone || loc.aisle || loc.rack || loc.bin) && (
+                    {(loc.zone || loc.rack || loc.level || loc.slot) && (
                       <span className="text-muted-foreground ml-1.5 text-xs">
-                        {[loc.zone, loc.aisle, loc.rack, loc.bin]
+                        {[loc.zone, loc.rack, loc.level, loc.slot]
                           .filter(Boolean)
                           .join(" · ")}
                       </span>

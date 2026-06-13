@@ -34,9 +34,9 @@ export async function upsertLocations(
 
     const location_code = buildLocationCode(
       row.zone,
-      row.aisle,
       row.rack,
-      row.bin
+      row.level,
+      row.slot
     );
 
     const { data: existing } = await supabase
@@ -54,9 +54,9 @@ export async function upsertLocations(
     const { error } = await supabase.from("locations").insert({
       warehouse_id: warehouseId,
       zone: row.zone ?? null,
-      aisle: row.aisle ?? null,
       rack: row.rack ?? null,
-      bin: row.bin ?? null,
+      level: row.level ?? null,
+      slot: row.slot ?? null,
       location_code,
       is_active: true,
     });

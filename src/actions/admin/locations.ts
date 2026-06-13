@@ -55,7 +55,7 @@ export async function getLocations(
 
       if (query) {
         dbQuery = dbQuery.or(
-          `location_code.ilike.%${query}%,zone.ilike.%${query}%,aisle.ilike.%${query}%,rack.ilike.%${query}%,bin.ilike.%${query}%`
+          `location_code.ilike.%${query}%,zone.ilike.%${query}%,rack.ilike.%${query}%,level.ilike.%${query}%,slot.ilike.%${query}%`
         );
       }
 
@@ -84,9 +84,9 @@ export async function getLocations(
 export async function createLocation(data: {
   warehouse_id: string;
   zone?: string;
-  aisle?: string;
   rack?: string;
-  bin?: string;
+  level?: string;
+  slot?: string;
 }) {
   try {
     await verifyAdmin();
@@ -94,17 +94,17 @@ export async function createLocation(data: {
 
     const location_code = buildLocationCode(
       data.zone,
-      data.aisle,
       data.rack,
-      data.bin
+      data.level,
+      data.slot
     );
 
     const { error } = await adminClient.from("locations").insert({
       warehouse_id: data.warehouse_id,
       zone: data.zone || null,
-      aisle: data.aisle || null,
       rack: data.rack || null,
-      bin: data.bin || null,
+      level: data.level || null,
+      slot: data.slot || null,
       location_code,
     });
 
@@ -134,9 +134,9 @@ export async function updateLocation(
   data: {
     warehouse_id: string;
     zone?: string;
-    aisle?: string;
     rack?: string;
-    bin?: string;
+    level?: string;
+    slot?: string;
     is_active?: boolean;
   }
 ) {
@@ -146,9 +146,9 @@ export async function updateLocation(
 
     const location_code = buildLocationCode(
       data.zone,
-      data.aisle,
       data.rack,
-      data.bin
+      data.level,
+      data.slot
     );
 
     const { error } = await adminClient
@@ -156,9 +156,9 @@ export async function updateLocation(
       .update({
         warehouse_id: data.warehouse_id,
         zone: data.zone || null,
-        aisle: data.aisle || null,
         rack: data.rack || null,
-        bin: data.bin || null,
+        level: data.level || null,
+        slot: data.slot || null,
         location_code,
         is_active: data.is_active ?? true,
         updated_at: new Date().toISOString(),
