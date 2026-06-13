@@ -17,7 +17,7 @@ import {
 } from "@/actions/admin/products";
 import { getUnitsOfMeasure, UnitOfMeasure } from "@/actions/admin/uom";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Loader2, Plus } from "lucide-react";
+import { ArrowLeft, Info, Loader2, Plus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -90,7 +90,6 @@ export function ProductForm({ product }: ProductFormProps) {
   const [uoms, setUoms] = useState<UnitOfMeasure[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
 
-  // Quick Brand Modal State
   const [isQuickBrandOpen, setIsQuickBrandOpen] = useState(false);
   const [newBrandName, setNewBrandName] = useState("");
   const [isCreatingBrand, setIsCreatingBrand] = useState(false);
@@ -112,7 +111,6 @@ export function ProductForm({ product }: ProductFormProps) {
 
   const selectedCategory = form.watch("category");
 
-  // Initial Data Fetch
   useEffect(() => {
     Promise.all([
       getCategories({ pageSize: 100 }),
@@ -125,7 +123,6 @@ export function ProductForm({ product }: ProductFormProps) {
     });
   }, []);
 
-  // Fetch Subcategories on Category Change
   useEffect(() => {
     if (selectedCategory) {
       getSubcategories({ categoryId: selectedCategory, pageSize: 100 }).then(
@@ -138,7 +135,6 @@ export function ProductForm({ product }: ProductFormProps) {
     }
   }, [selectedCategory]);
 
-  // Sync Form values with product prop changes
   useEffect(() => {
     if (product) {
       form.reset({
@@ -164,18 +160,14 @@ export function ProductForm({ product }: ProductFormProps) {
         toast.error(res.error);
       } else {
         toast.success("Brand added successfully");
-        // Reload brand list
         const brandRes = await getBrands({ pageSize: 100 });
         setBrands(brandRes.brands);
-
-        // Select the newly added brand automatically
         const newBrand = brandRes.brands.find(
           (b) => b.name.toLowerCase() === newBrandName.trim().toLowerCase()
         );
         if (newBrand) {
           form.setValue("brand_id", newBrand.id);
         }
-
         setIsQuickBrandOpen(false);
         setNewBrandName("");
       }
@@ -214,35 +206,82 @@ export function ProductForm({ product }: ProductFormProps) {
   }
 
   return (
-    <div className="mx-auto w-full max-w-5xl flex-1 space-y-6 pb-10">
-      {/* Top Header Row */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild className="-ml-2">
-          <Link href="/admin/products">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-xl font-bold tracking-tight sm:text-2xl lg:text-3xl">
-            {product ? "Edit Product" : "Add Product"}
-          </h1>
-          <p className="text-muted-foreground text-xs sm:text-sm">
-            {product
-              ? "Update catalog metadata and product attributes."
-              : "Add a new inventory catalog item to StockZone."}
-          </p>
-        </div>
-      </div>
-
+    <div className="mx-auto w-full max-w-5xl flex-1 pb-10">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* Sticky Header */}
+        <div className="bg-background/95 supports-backdrop-filter:bg-background/80 sticky top-0 z-10 -mx-4 mb-8 border-b px-4 py-3 backdrop-blur-sm sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex min-w-0 items-center gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                asChild
+                className="h-8 w-8 shrink-0"
+              >
+                <Link href="/admin/products">
+                  <ArrowLeft className="h-4 w-4" />
+                </Link>
+              </Button>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 text-sm">
+                  <span className="text-muted-foreground hidden sm:inline">
+                    Products
+                  </span>
+                  <span className="text-muted-foreground hidden sm:inline">
+                    /
+                  </span>
+                  <span className="truncate font-medium">
+                    {product?.name || "New Product"}
+                  </span>
+                </div>
+                <p className="text-muted-foreground hidden text-[11px] sm:block">
+                  {product
+                    ? "Update catalog metadata and product attributes"
+                    : "Add a new inventory catalog item to StockZone"}
+                </p>
+              </div>
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => router.push("/admin/products")}
+                disabled={isPending}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                form="product-form"
+                size="sm"
+                disabled={isPending}
+              >
+                {isPending ? (
+                  <>
+                    <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                    {product ? "Saving..." : "Creating..."}
+                  </>
+                ) : product ? (
+                  "Save Changes"
+                ) : (
+                  "Create Product"
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Form */}
+        <form id="product-form" onSubmit={form.handleSubmit(onSubmit)}>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            {/* Left Main Details Column (2/3 width) */}
+            {/* Left Column (2/3) */}
             <div className="space-y-6 md:col-span-2">
+              {/* Product Identity */}
               <Card className="border-border/50 bg-background/40 shadow-sm backdrop-blur-md">
                 <CardHeader>
                   <CardTitle className="text-base font-semibold">
-                    Catalog Details
+                    Product Identity
                   </CardTitle>
                   <CardDescription>
                     Primary identification details of the product.
@@ -265,56 +304,58 @@ export function ProductForm({ product }: ProductFormProps) {
                       </FormItem>
                     )}
                   />
+                  <FormField
+                    control={form.control}
+                    name="sku"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>SKU / Model Number</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="E.g. IPH15PM-256-BLK"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Description{" "}
+                          <span className="text-muted-foreground font-normal">
+                            (Optional)
+                          </span>
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Features, specs, or product notes..."
+                            className="min-h-18 resize-y"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
 
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="sku"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>SKU / Model Number</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="E.g. IPH15PM-256-BLK"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="uom"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Base / Stock UOM</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            value={field.value || ""}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select UOM" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {uoms.map((uom) => (
-                                <SelectItem key={uom.id} value={uom.id}>
-                                  {uom.full_name} ({uom.uom_code})
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormDescription className="text-[11px]">
-                            All stock quantities are stored in this unit.
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
+              {/* Classification */}
+              <Card className="border-border/50 bg-background/40 shadow-sm backdrop-blur-md">
+                <CardHeader>
+                  <CardTitle className="text-base font-semibold">
+                    Classification
+                  </CardTitle>
+                  <CardDescription>
+                    Catalog organization and brand association.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <FormField
                       control={form.control}
@@ -378,42 +419,6 @@ export function ProductForm({ product }: ProductFormProps) {
                       )}
                     />
                   </div>
-
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Description (Optional)</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Write a brief overview of features, specs, or product notes..."
-                            className="min-h-[120px] resize-none"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Right Attributes Column (1/3 width) */}
-            <div className="space-y-6">
-              {/* Branding & Status Card */}
-              <Card className="border-border/50 bg-background/40 shadow-sm backdrop-blur-md">
-                <CardHeader>
-                  <CardTitle className="text-base font-semibold">
-                    Branding & Attributes
-                  </CardTitle>
-                  <CardDescription>
-                    Product brand and catalog listing status.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Brand select with dynamic "+" inline button */}
                   <FormField
                     control={form.control}
                     name="brand_id"
@@ -453,43 +458,80 @@ export function ProductForm({ product }: ProductFormProps) {
                       </FormItem>
                     )}
                   />
+                </CardContent>
+              </Card>
 
-                  {/* Minimum Stock Alert input */}
+              {/* Inventory Settings */}
+              <Card className="border-border/50 bg-background/40 shadow-sm backdrop-blur-md">
+                <CardHeader>
+                  <CardTitle className="text-base font-semibold">
+                    Inventory Settings
+                  </CardTitle>
+                  <CardDescription>
+                    Base unit of measure for stock tracking. Alternate units can
+                    be configured below.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
                   <FormField
                     control={form.control}
-                    name="minimum_stock_quantity"
+                    name="uom"
                     render={({ field }) => (
-                      <FormItem className="space-y-2">
-                        <FormLabel>Min. Stock Alert Threshold</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min="0"
-                            placeholder="E.g. 10"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription className="text-[11px] leading-snug">
-                          Triggers alerts when stock quantities drop below this
-                          number.
+                      <FormItem>
+                        <FormLabel>Base / Stock UOM</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value || ""}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select UOM" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {uoms.map((uom) => (
+                              <SelectItem key={uom.id} value={uom.id}>
+                                {uom.full_name} ({uom.uom_code})
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormDescription className="text-[11px]">
+                          All stock quantities are stored in this unit.
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  {/* Status Toggle Switch */}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right Sidebar (1/3) */}
+            <div className="space-y-4">
+              {/* Listing Status */}
+              <Card className="border-border/50 bg-background/40 shadow-sm backdrop-blur-md">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-semibold">
+                    Listing Status
+                  </CardTitle>
+                  <CardDescription>
+                    Control visibility across inventory views.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
                   <FormField
                     control={form.control}
                     name="is_active"
                     render={({ field }) => (
-                      <FormItem className="border-border/50 bg-muted/20 flex flex-row items-center justify-between rounded-xl border p-4 shadow-inner">
+                      <FormItem className="flex items-center justify-between gap-4">
                         <div className="space-y-0.5">
-                          <FormLabel className="text-sm font-semibold">
-                            Active Status
+                          <FormLabel className="text-sm font-medium">
+                            Active
                           </FormLabel>
-                          <FormDescription className="text-[11px] leading-snug">
-                            Visible to inventory managers and stock counts.
-                          </FormDescription>
+                          <p className="text-muted-foreground text-[11px] leading-snug">
+                            Visible to managers and stock counts
+                          </p>
                         </div>
                         <FormControl>
                           <Switch
@@ -503,92 +545,115 @@ export function ProductForm({ product }: ProductFormProps) {
                 </CardContent>
               </Card>
 
-              {/* Form Actions (Sticky Desktop Card) */}
+              {/* Stock Alert */}
               <Card className="border-border/50 bg-background/40 shadow-sm backdrop-blur-md">
-                <CardContent className="flex flex-col gap-3 p-4">
-                  <Button type="submit" disabled={isPending} className="w-full">
-                    {isPending ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        {product ? "Saving Changes..." : "Adding Product..."}
-                      </>
-                    ) : product ? (
-                      "Save Changes"
-                    ) : (
-                      "Create Product"
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-semibold">
+                    Stock Alert
+                  </CardTitle>
+                  <CardDescription>
+                    Set a low-stock warning threshold.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <FormField
+                    control={form.control}
+                    name="minimum_stock_quantity"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Minimum Quantity</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min="0"
+                            placeholder="E.g. 10"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription className="text-[11px] leading-snug">
+                          Alert triggers when stock drops below this number.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => router.push("/admin/products")}
-                    className="w-full"
-                    disabled={isPending}
-                  >
-                    Cancel
-                  </Button>
+                  />
                 </CardContent>
               </Card>
             </div>
           </div>
         </form>
-      </Form>
 
-      {product?.id && (
-        <ProductUomConversionsCard
-          productId={product.id}
-          baseUomId={product.uom}
-        />
-      )}
-
-      {/* Inline Quick Brand Creation Modal */}
-      <Dialog open={isQuickBrandOpen} onOpenChange={setIsQuickBrandOpen}>
-        <DialogContent className="sm:max-w-[360px]">
-          <DialogHeader>
-            <DialogTitle className="text-base">Quick Add Brand</DialogTitle>
-            <DialogDescription className="text-xs">
-              Add a brand directly without losing your product progress.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-3 py-2">
-            <div className="space-y-2">
-              <Label>Brand Name</Label>
-              <Input
-                placeholder="E.g. Apple, Google, Sony"
-                value={newBrandName}
-                onChange={(e) => setNewBrandName(e.target.value)}
-                disabled={isCreatingBrand}
+        {/* Alternate UOM Conversions — aligned to left 2/3 column */}
+        <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3">
+          <div className="md:col-span-2">
+            {product?.id ? (
+              <ProductUomConversionsCard
+                productId={product.id}
+                baseUomId={product.uom}
               />
-            </div>
+            ) : (
+              <Card className="border-border/50 bg-background/40 shadow-sm backdrop-blur-md">
+                <CardContent className="flex items-center gap-3 p-4">
+                  <Info className="text-muted-foreground h-4 w-4 shrink-0" />
+                  <p className="text-muted-foreground text-sm">
+                    Save this product first to configure alternate units of
+                    measure.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
           </div>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setIsQuickBrandOpen(false)}
-              disabled={isCreatingBrand}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              onClick={handleQuickBrandSubmit}
-              disabled={isCreatingBrand || !newBrandName.trim()}
-            >
-              {isCreatingBrand ? (
-                <>
-                  <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
-                  Adding...
-                </>
-              ) : (
-                "Add Brand"
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </div>
+
+        {/* Quick Brand Creation Modal */}
+        <Dialog open={isQuickBrandOpen} onOpenChange={setIsQuickBrandOpen}>
+          <DialogContent className="sm:max-w-90">
+            <DialogHeader>
+              <DialogTitle className="text-base">Quick Add Brand</DialogTitle>
+              <DialogDescription className="text-xs">
+                Add a brand directly without losing your product progress.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3 py-2">
+              <div className="space-y-2">
+                <Label>Brand Name</Label>
+                <Input
+                  placeholder="E.g. Apple, Google, Sony"
+                  value={newBrandName}
+                  onChange={(e) => setNewBrandName(e.target.value)}
+                  disabled={isCreatingBrand}
+                />
+              </div>
+            </div>
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsQuickBrandOpen(false)}
+                disabled={isCreatingBrand}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleQuickBrandSubmit}
+                disabled={isCreatingBrand || !newBrandName.trim()}
+              >
+                {isCreatingBrand ? (
+                  <>
+                    <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
+                    Adding...
+                  </>
+                ) : (
+                  "Add Brand"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </Form>
     </div>
   );
 }
