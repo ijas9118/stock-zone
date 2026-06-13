@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidateTag, unstable_cache } from "next/cache";
+import { revalidateTag, revalidatePath, unstable_cache } from "next/cache";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Database } from "@/lib/supabase/database.types";
@@ -118,6 +118,7 @@ export async function createLocation(data: {
   }
 
   revalidateTag("admin:locations", "default");
+  revalidatePath("/admin/locations");
   return { success: true };
 }
 
@@ -167,6 +168,7 @@ export async function updateLocation(
   }
 
   revalidateTag("admin:locations", "default");
+  revalidatePath("/admin/locations");
   return { success: true };
 }
 
@@ -187,5 +189,6 @@ export async function deleteLocation(id: string) {
   }
 
   revalidateTag("admin:locations", "default");
+  revalidatePath("/admin/locations");
   return { success: true };
 }
