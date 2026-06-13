@@ -6,6 +6,7 @@ import {
   UomOption,
 } from "@/actions/admin/product-uom-conversions";
 import { StockWithDetails, transferStock } from "@/actions/admin/stock";
+import { getLocations } from "@/actions/admin/locations";
 import { getWarehouses } from "@/actions/admin/warehouses";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
@@ -37,6 +38,7 @@ const transferSchema = z.object({
   transactUomId: z.string().min(1, "UOM is required"),
   transactQty: z.coerce.number().positive("Quantity must be at least 0.000001"),
   notes: z.string().optional(),
+  destLocationId: z.string().optional(),
 });
 
 type TransferFormValues = z.infer<typeof transferSchema>;
@@ -56,6 +58,7 @@ export function StockTransferDialog({
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(false);
   const [uomOptions, setUomOptions] = useState<UomOption[]>([]);
+  const [destLocations, setDestLocations] = useState<{ id: string; location_code: string }[]>([]);
 
   const form = useForm<TransferFormValues>({
     resolver: zodResolver(transferSchema),
@@ -97,6 +100,15 @@ export function StockTransferDialog({
       .catch(() => toast.error("Failed to fetch UOM options"));
   }, [initialData.product_id, form]);
 
+  const watchedDestWarehouseId = form.watch("destWarehouseId");
+
+  useEffect(() => {
+    if (!watchedDestWarehouseId) return;
+    getLocations({ warehouseId: watchedDestWarehouseId, pageSize: 200 }).then(
+      (r) => setDestLocations(r.locations)
+    );
+  }, [watchedDestWarehouseId]);
+
   async function onSubmit(values: TransferFormValues) {
     setLoading(true);
     try {
@@ -109,6 +121,7 @@ export function StockTransferDialog({
         notes: values.notes,
         transactUomId: values.transactUomId,
         transactQty: values.transactQty,
+        destLocationId: values.destLocationId ?? null,
       });
 
       if ("error" in result && result.error) {
@@ -214,6 +227,47 @@ export function StockTransferDialog({
             )}
           />
         </div>
+
+        {watchedDestWarehouseId && (
+          <FormField
+            control={form.control}
+            name="destLocationId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Destination Location{" "}
+                  <span className="text-muted-foreground font-normal">
+                    (Optional)
+                  </span>
+                </FormLabel>
+                {destLocations.length > 0 ? (
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value ?? ""}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select bin location in destination..." />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {destLocations.map((loc) => (
+                        <SelectItem key={loc.id} value={loc.id}>
+                          {loc.location_code}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <p className="text-muted-foreground text-[11px]">
+                    No locations defined for the destination warehouse.
+                  </p>
+                )}
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         <FormField
           control={form.control}
