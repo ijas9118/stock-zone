@@ -59,7 +59,9 @@ export const columns: ColumnDef<StockWithDetails>[] = [
         return <span className="text-muted-foreground text-xs">—</span>;
       }
       return (
-        <span className="font-mono text-xs font-medium">{loc.location_code}</span>
+        <span className="font-mono text-xs font-medium">
+          {loc.location_code}
+        </span>
       );
     },
   },

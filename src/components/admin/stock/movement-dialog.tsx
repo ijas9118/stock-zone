@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getLocations } from "@/actions/admin/locations";
 import {
   getProductUomOptions,
   UomOption,
 } from "@/actions/admin/product-uom-conversions";
-import { getLocations } from "@/actions/admin/locations";
 import { getProducts } from "@/actions/admin/products";
 import { getShops } from "@/actions/admin/shops";
 import { processStockMovement, StockWithDetails } from "@/actions/admin/stock";
@@ -86,7 +86,9 @@ export function StockMovementDialog({
   const [uomOptions, setUomOptions] = useState<UomOption[]>([]);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(false);
-  const [locations, setLocations] = useState<{ id: string; location_code: string }[]>([]);
+  const [locations, setLocations] = useState<
+    { id: string; location_code: string }[]
+  >([]);
 
   const form = useForm<MovementFormValues>({
     resolver: zodResolver(movementSchema),

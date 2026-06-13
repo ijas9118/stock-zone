@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getLocations } from "@/actions/admin/locations";
 import {
   getProductUomOptions,
   UomOption,
 } from "@/actions/admin/product-uom-conversions";
 import { StockWithDetails, transferStock } from "@/actions/admin/stock";
-import { getLocations } from "@/actions/admin/locations";
 import { getWarehouses } from "@/actions/admin/warehouses";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
@@ -58,7 +58,9 @@ export function StockTransferDialog({
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(false);
   const [uomOptions, setUomOptions] = useState<UomOption[]>([]);
-  const [destLocations, setDestLocations] = useState<{ id: string; location_code: string }[]>([]);
+  const [destLocations, setDestLocations] = useState<
+    { id: string; location_code: string }[]
+  >([]);
 
   const form = useForm<TransferFormValues>({
     resolver: zodResolver(transferSchema),
