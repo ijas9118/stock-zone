@@ -5,6 +5,7 @@ import {
   getProductUomOptions,
   UomOption,
 } from "@/actions/admin/product-uom-conversions";
+import { getLocations } from "@/actions/admin/locations";
 import { getProducts } from "@/actions/admin/products";
 import { getShops } from "@/actions/admin/shops";
 import { processStockMovement, StockWithDetails } from "@/actions/admin/stock";
@@ -57,6 +58,7 @@ const movementSchema = z.object({
   transactQty: z.coerce.number().positive("Quantity must be greater than 0"),
   adjustmentDirection: z.enum(["add", "remove"]).default("add"),
   notes: z.string().optional(),
+  locationId: z.string().optional(),
 });
 
 type MovementFormValues = z.infer<typeof movementSchema>;
@@ -84,6 +86,7 @@ export function StockMovementDialog({
   const [uomOptions, setUomOptions] = useState<UomOption[]>([]);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(false);
+  const [locations, setLocations] = useState<{ id: string; location_code: string }[]>([]);
 
   const form = useForm<MovementFormValues>({
     resolver: zodResolver(movementSchema),
@@ -147,6 +150,15 @@ export function StockMovementDialog({
       .catch(() => toast.error("Failed to fetch UOM options"));
   }, [initialData?.product_id, watchedProductId, mode, form]);
 
+  const watchedWarehouseId = form.watch("warehouseId");
+
+  useEffect(() => {
+    if (mode !== "initial" || !watchedWarehouseId) return;
+    getLocations({ warehouseId: watchedWarehouseId, pageSize: 200 }).then((r) =>
+      setLocations(r.locations)
+    );
+  }, [mode, watchedWarehouseId]);
+
   const selectedUomOption = uomOptions.find((u) => u.id === watchedUomId);
   const conversionHint =
     selectedUomOption && !selectedUomOption.is_base && watchedQty > 0
@@ -173,6 +185,7 @@ export function StockMovementDialog({
         notes: values.notes,
         transactUomId: values.transactUomId,
         transactQuantity: signedTransactQty,
+        locationId: values.locationId ?? null,
       });
 
       if ("error" in result && result.error) {
@@ -303,6 +316,51 @@ export function StockMovementDialog({
                 </FormItem>
               )}
             />
+
+            {watchedWarehouseId && (
+              <FormField
+                control={form.control}
+                name="locationId"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col text-sm md:col-span-2">
+                    <FormLabel>
+                      Location{" "}
+                      <span className="text-muted-foreground font-normal">
+                        (Optional)
+                      </span>
+                    </FormLabel>
+                    {locations.length > 0 ? (
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value ?? ""}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select bin location..." />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {locations.map((loc) => (
+                            <SelectItem key={loc.id} value={loc.id}>
+                              {loc.location_code}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <p className="text-muted-foreground text-[11px]">
+                        No locations defined for this warehouse.{" "}
+                        <a href="/admin/locations" className="underline">
+                          Create locations
+                        </a>{" "}
+                        first.
+                      </p>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
           </div>
         )}
 
