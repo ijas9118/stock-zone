@@ -24,6 +24,14 @@ export type UserStockWithDetails =
     } | null;
     warehouses: { name: string } | null;
     shop_types: { name: string } | null;
+    locations: {
+      id: string;
+      location_code: string;
+      zone: string | null;
+      aisle: string | null;
+      rack: string | null;
+      bin: string | null;
+    } | null;
   };
 
 export async function getUserStocks(
@@ -69,6 +77,7 @@ export async function getUserStocks(
     shop_type_id,
     warehouse_id,
     updated_at,
+    location_id,
     products!inner(
       id,
       name,
@@ -83,7 +92,8 @@ export async function getUserStocks(
       product_uom_conversions(conversion_factor, units_of_measure(uom_code, full_name))
     ),
     warehouses(name),
-    shop_types(name)
+    shop_types(name),
+    locations(id, location_code, zone, aisle, rack, bin)
     `,
     { count: "exact" }
   );
@@ -224,7 +234,8 @@ export async function getUserStockById(stockId: string) {
         product_uom_conversions(conversion_factor, units_of_measure(uom_code, full_name))
       ),
       warehouses(name, id),
-      shop_types(name, id)
+      shop_types(name, id),
+      locations(id, location_code, zone, aisle, rack, bin)
     `
     )
     .eq("id", stockId)

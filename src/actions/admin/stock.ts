@@ -25,6 +25,14 @@ export type StockWithDetails = StockRow & {
   } | null;
   warehouses: { name: string } | null;
   shop_types: { name: string } | null;
+  locations: {
+    id: string;
+    location_code: string;
+    zone: string | null;
+    aisle: string | null;
+    rack: string | null;
+    bin: string | null;
+  } | null;
 };
 
 async function verifyUserPermission(
@@ -133,7 +141,8 @@ export async function getStocks(
             product_uom_conversions(conversion_factor, units_of_measure(uom_code, full_name))
           ),
           warehouses(name),
-          shop_types(name)
+          shop_types(name),
+          locations(id, location_code, zone, aisle, rack, bin)
         `,
         { count: "exact" }
       );
@@ -210,6 +219,7 @@ export async function processStockMovement(data: {
   referenceId?: string; // Optional, can be provided by caller (e.g. transferId)
   transactUomId?: string;
   transactQuantity?: number;
+  locationId?: string | null;
 }) {
   try {
     const userId = await verifyUserPermission(
@@ -299,12 +309,16 @@ export async function processStockMovement(data: {
 
     if (currentStock) {
       // Update existing stock
+      const updatePayload: Record<string, unknown> = {
+        quantity: newQuantity,
+        updated_at: new Date().toISOString(),
+      };
+      if (data.locationId !== undefined) {
+        updatePayload.location_id = data.locationId;
+      }
       const { error: updateError } = await adminClient
         .from("stock")
-        .update({
-          quantity: newQuantity,
-          updated_at: new Date().toISOString(),
-        })
+        .update(updatePayload)
         .eq("id", currentStock.id);
 
       if (updateError) throw updateError;
@@ -315,6 +329,7 @@ export async function processStockMovement(data: {
         warehouse_id: data.warehouseId,
         shop_type_id: data.shopTypeId,
         quantity: newQuantity,
+        location_id: data.locationId ?? null,
       });
 
       if (insertError) throw insertError;
@@ -367,6 +382,7 @@ export async function transferStock(data: {
   notes?: string;
   transactUomId?: string;
   transactQty?: number;
+  destLocationId?: string | null;
 }) {
   try {
     const userId = await verifyUserPermission("transfer");
@@ -420,6 +436,7 @@ export async function transferStock(data: {
         notes: data.notes || null,
         transferred_by: userId,
         status: "approved",
+        dest_location_id: data.destLocationId ?? null,
       })
       .select()
       .single();
@@ -460,6 +477,7 @@ export async function transferStock(data: {
       notes: data.notes || `Transfer from warehouse ${data.sourceWarehouseId}`,
       transactUomId: data.transactUomId,
       transactQuantity: data.transactQty,
+      locationId: data.destLocationId,
     });
 
     if (inResult.error) {
