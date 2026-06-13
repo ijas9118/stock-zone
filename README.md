@@ -160,9 +160,35 @@ New to open source? No problem — this guide walks you through everything step 
 
 ---
 
-### 1. Install pnpm
+### 1. Install Node.js (if you don't have it)
 
-If you don't have pnpm installed yet:
+First, check if Node.js is already installed:
+
+```bash
+node --version
+```
+
+If you get an error or nothing shows up, install it:
+
+- Go to [https://nodejs.org](https://nodejs.org)
+- Download the **LTS** version (the left button)
+- Run the installer — keep clicking Next, leave all defaults as-is
+- Restart your terminal after it finishes
+
+Verify Node and npm installed correctly:
+
+```bash
+node --version
+npm --version
+```
+
+Both should print a version number (e.g. `v22.x.x`).
+
+---
+
+### 2. Install pnpm
+
+This project uses pnpm instead of npm. Install it once on your machine:
 
 ```bash
 npm install -g pnpm
@@ -176,7 +202,7 @@ pnpm --version
 
 ---
 
-### 2. Fork & clone the repo
+### 3. Fork & clone the repo
 
 - Click **Fork** on GitHub (top-right of this page)
 - Then clone your fork locally:
@@ -189,7 +215,7 @@ pnpm install
 
 ---
 
-### 3. Create a feature branch
+### 4. Create a feature branch
 
 Never work directly on `main`. Always create a new branch for your changes:
 
@@ -202,7 +228,7 @@ git checkout -b feat/your-feature-name
 
 ---
 
-### 4. Run the dev server
+### 5. Run the dev server
 
 ```bash
 pnpm dev
@@ -212,7 +238,7 @@ Open [http://localhost:3000](http://localhost:3000) and test your changes live. 
 
 ---
 
-### 5. Make changes with Claude Code
+### 6. Make changes with Claude Code
 
 This project is designed to be worked on with [Claude Code](https://claude.ai/code). Just describe what you want to change in plain English and it will write the code for you.
 
@@ -222,7 +248,7 @@ This project is designed to be worked on with [Claude Code](https://claude.ai/co
 
 ---
 
-### 6. Commit your changes
+### 7. Commit your changes
 
 Stage and commit your work:
 
@@ -241,7 +267,7 @@ Keep commit messages short and clear. Start with a type:
 
 ---
 
-### 7. Before pushing — run these two commands
+### 8. Before pushing — run these two commands
 
 ```bash
 pnpm lint:fix
@@ -254,7 +280,7 @@ This fixes code style issues automatically. Always do this before opening a PR �
 
 ---
 
-### 8. If you changed anything in Supabase
+### 9. If you changed anything in Supabase
 
 If you ran any SQL in the Supabase dashboard (added a column, renamed a field, created a table), pull the updated TypeScript types:
 
@@ -266,7 +292,7 @@ This regenerates `src/lib/supabase/database.types.ts`. Commit that file along wi
 
 ---
 
-### 9. Push and open a Pull Request
+### 10. Push and open a Pull Request
 
 ```bash
 git push origin feat/your-feature-name
