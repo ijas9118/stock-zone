@@ -104,15 +104,17 @@ export default function ImportLocationsPage() {
   };
 
   const downloadTemplate = () => {
-    const csv =
-      "warehouse_name,zone,aisle,rack,bin\nMain Warehouse,A,01,R1,B01\nMain Warehouse,A,01,R1,B02\n";
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "locations_template.csv";
-    a.click();
-    URL.revokeObjectURL(url);
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      encodeURIComponent(
+        "warehouse_name,zone,aisle,rack,bin\nMain Warehouse,A,01,R1,B01\nMain Warehouse,A,01,R1,B02\n"
+      );
+    const link = document.createElement("a");
+    link.setAttribute("href", csvContent);
+    link.setAttribute("download", "locations_template.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const downloadErrorsCsv = () => {
