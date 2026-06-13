@@ -274,7 +274,7 @@ pnpm lint:fix
 pnpm format
 ```
 
-This fixes code style issues automatically. Always do this before opening a PR — CI will fail without it.
+This fixes code style issues automatically. Always do this before merging to make sure the code is clean.
 
 > **Using Claude Code?** Just say _"fix any lint issues"_ and it will run these for you.
 
@@ -292,13 +292,26 @@ This regenerates `src/lib/supabase/database.types.ts`. Commit that file along wi
 
 ---
 
-### 10. Push and open a Pull Request
+### 10. Merge into main and push
 
+Once everything is working locally and lint/format are clean:
+
+**Switch to the main branch:**
 ```bash
-git push origin feat/your-feature-name
+git checkout main
 ```
 
-Then go to GitHub → your fork → click **"Compare & pull request"** → target the `main` branch → submit.
+**Merge your feature branch into main:**
+```bash
+git merge feat/your-feature-name
+```
+
+**Push main to GitHub:**
+```bash
+git push origin main
+```
+
+That's it — your changes are now live on the main branch.
 
 ---
 
