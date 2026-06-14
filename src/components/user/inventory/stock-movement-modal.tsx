@@ -314,7 +314,7 @@ function OutForm({ stock, uomOptions, onSuccess }: OutFormProps) {
       subType: values.subType as MovementSubType,
       notes: values.notes,
       transactUomId: values.transactUomId,
-      transactQuantity: -values.transactQty,
+      transactQuantity: values.transactQty,
     });
     setLoading(false);
     if (result.error) return toast.error(result.error);
