@@ -27,6 +27,8 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { logout } from "@/app/auth/actions";
 
+import { PasswordSection } from "./password-section";
+
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 
 interface AssignedShop {
@@ -264,6 +266,9 @@ export function UserProfileView({
           })}
         </div>
       </div>
+
+      {/* Password section */}
+      <PasswordSection />
 
       {/* Sign Out section */}
       <div className="pt-2">
