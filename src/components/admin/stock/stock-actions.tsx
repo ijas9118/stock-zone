@@ -6,7 +6,6 @@ import {
   Edit2,
   MapPin,
   MoreHorizontal,
-  RotateCcw,
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
@@ -39,7 +38,7 @@ interface StockActionsProps {
 
 export function StockActions({ stock }: StockActionsProps) {
   const [movementMode, setMovementMode] = useState<
-    "adjustment" | "in" | "out" | "return" | null
+    "adjustment" | "in" | "out" | null
   >(null);
   const [isTransferOpen, setIsTransferOpen] = useState(false);
   const [isLocationEditOpen, setIsLocationEditOpen] = useState(false);
@@ -71,10 +70,6 @@ export function StockActions({ stock }: StockActionsProps) {
           <DropdownMenuItem onClick={() => setMovementMode("out")}>
             <TrendingDown className="text-destructive mr-2 h-4 w-4" />
             Stock Out
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setMovementMode("return")}>
-            <RotateCcw className="text-primary mr-2 h-4 w-4" />
-            Return
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setMovementMode("in")}>
             <TrendingUp className="mr-2 h-4 w-4 text-green-500" />

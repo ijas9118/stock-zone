@@ -14,7 +14,11 @@ import {
 } from "@/actions/admin/product-uom-conversions";
 import { getProducts } from "@/actions/admin/products";
 import { getShops } from "@/actions/admin/shops";
-import { processStockMovement, StockWithDetails } from "@/actions/admin/stock";
+import {
+  MovementSubType,
+  processStockMovement,
+  StockWithDetails,
+} from "@/actions/admin/stock";
 import { getWarehouses } from "@/actions/admin/warehouses";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -50,6 +54,32 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
+const SUB_TYPE_OPTIONS: Record<
+  "in" | "out" | "adjustment" | "initial",
+  { value: MovementSubType; label: string }[]
+> = {
+  in: [
+    { value: "supplier_delivery", label: "Supplier Delivery" },
+    { value: "customer_return", label: "Customer Return" },
+    { value: "sent_from_shop", label: "Sent from Shop" },
+    { value: "initial_stock", label: "Initial Stock" },
+  ],
+  out: [
+    { value: "sent_to_customer", label: "Sent to Customer" },
+    { value: "sent_to_shop", label: "Sent to Shop" },
+    { value: "supplier_return", label: "Supplier Return" },
+  ],
+  adjustment: [
+    { value: "stock_count_correction", label: "Stock Count Correction" },
+    { value: "system_mistake", label: "System Mistake" },
+    { value: "damaged_goods", label: "Damaged Goods" },
+    { value: "expired_goods", label: "Expired Goods" },
+    { value: "missing_lost", label: "Missing / Lost" },
+    { value: "found_extra_stock", label: "Found Extra Stock" },
+  ],
+  initial: [{ value: "initial_stock", label: "Initial Stock" }],
+};
+
 const movementSchema = z.object({
   productId: z.string().min(1, "Product is required"),
   warehouseId: z.string().min(1, "Warehouse is required"),
@@ -57,6 +87,7 @@ const movementSchema = z.object({
   transactUomId: z.string().min(1, "UOM is required"),
   transactQty: z.coerce.number().positive("Quantity must be greater than 0"),
   adjustmentDirection: z.enum(["add", "remove"]).default("add"),
+  subType: z.string().min(1, "Movement type is required"),
   notes: z.string().optional(),
   locationId: z.string().optional(),
 });
@@ -64,7 +95,7 @@ const movementSchema = z.object({
 type MovementFormValues = z.infer<typeof movementSchema>;
 
 interface StockMovementDialogProps {
-  mode: "initial" | "adjustment" | "in" | "out" | "return";
+  mode: "initial" | "adjustment" | "in" | "out";
   initialData?: StockWithDetails;
   onSuccess: () => void;
 }
@@ -99,6 +130,7 @@ export function StockMovementDialog({
       transactUomId: "",
       transactQty: 1,
       adjustmentDirection: "add",
+      subType: "",
       notes: "",
     },
   });
@@ -143,7 +175,7 @@ export function StockMovementDialog({
           mode === "in" || mode === "initial"
             ? (result.allOptions.find((u) => u.is_purchase_default) ??
               result.baseUom)
-            : mode === "out" || mode === "return"
+            : mode === "out"
               ? (result.allOptions.find((u) => u.is_sales_default) ??
                 result.baseUom)
               : result.baseUom;
@@ -183,7 +215,10 @@ export function StockMovementDialog({
         warehouseId: values.warehouseId,
         shopTypeId: values.shopTypeId,
         quantityDelta: signedTransactQty,
-        type: mode === "initial" ? "initial_stock" : mode,
+        type: mode === "initial" ? "in" : mode,
+        subType: (mode === "initial"
+          ? "initial_stock"
+          : values.subType) as MovementSubType,
         notes: values.notes,
         transactUomId: values.transactUomId,
         transactQuantity: signedTransactQty,
@@ -193,7 +228,9 @@ export function StockMovementDialog({
       if ("error" in result && result.error) {
         toast.error(result.error);
       } else {
-        toast.success(`Stock ${mode} processed successfully`);
+        toast.success(
+          `Stock ${mode === "initial" ? "initial stock" : mode} processed successfully`
+        );
         onSuccess();
       }
     } catch {
@@ -364,6 +401,34 @@ export function StockMovementDialog({
               />
             )}
           </div>
+        )}
+
+        {/* Sub-type selector — not shown for initial mode (always initial_stock) */}
+        {mode !== "initial" && (
+          <FormField
+            control={form.control}
+            name="subType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Movement Type</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select type..." />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {SUB_TYPE_OPTIONS[mode].map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         )}
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
