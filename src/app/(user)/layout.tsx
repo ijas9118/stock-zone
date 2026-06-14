@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { getAuthContext } from "@/lib/supabase/server";
+import { BottomTabBar } from "@/components/user/layout/bottom-tab-bar";
 import { UserNavbar } from "@/components/user/layout/user-navbar";
 
 export default async function UserLayout({
@@ -28,9 +29,10 @@ export default async function UserLayout({
           avatarUrl: auth.avatarUrl,
         }}
       />
-      <main className="mx-auto w-full max-w-screen-lg flex-1 px-4 py-6 sm:px-6 lg:px-8">
+      <main className="mx-auto w-full max-w-screen-lg flex-1 px-4 py-6 pb-24 sm:px-6 lg:px-8">
         {children}
       </main>
+      <BottomTabBar />
     </div>
   );
 }
