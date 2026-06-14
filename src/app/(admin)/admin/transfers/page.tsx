@@ -1,6 +1,5 @@
 import { getTransfers } from "@/actions/admin/transfers";
 import { ADMIN_PAGE_SIZE } from "@/lib/config";
-
 import { TransfersFilters } from "@/components/admin/transfers/transfers-filters";
 import { TransfersHeader } from "@/components/admin/transfers/transfers-header";
 import { TransfersTable } from "@/components/admin/transfers/transfers-table";

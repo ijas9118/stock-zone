@@ -1,7 +1,6 @@
+import { getTransfers } from "@/actions/user/transfers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthContext } from "@/lib/supabase/server";
-import { getTransfers } from "@/actions/user/transfers";
-
 import { TransfersList } from "@/components/user/transfers/transfers-list";
 
 export default async function TransfersPage() {

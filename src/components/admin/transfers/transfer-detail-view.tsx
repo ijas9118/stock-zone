@@ -169,9 +169,7 @@ export function TransferDetailView({ transfer }: TransferDetailViewProps) {
                   </p>
                   <p className="font-mono text-sm font-semibold">
                     {(
-                      transfer.dest_location as
-                        | { location_code: string }
-                        | null
+                      transfer.dest_location as { location_code: string } | null
                     )?.location_code || "—"}
                   </p>
                 </div>

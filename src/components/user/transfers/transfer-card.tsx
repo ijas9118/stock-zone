@@ -82,8 +82,7 @@ export function TransferCard({ transfer, canAct }: TransferCardProps) {
               </div>
               {transfer.profiles && (
                 <span className="text-muted-foreground text-[11px]">
-                  by{" "}
-                  {transfer.profiles.full_name || transfer.profiles.email}
+                  by {transfer.profiles.full_name || transfer.profiles.email}
                 </span>
               )}
             </div>

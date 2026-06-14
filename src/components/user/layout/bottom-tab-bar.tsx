@@ -15,7 +15,7 @@ export function BottomTabBar() {
   const pathname = usePathname();
 
   return (
-    <div className="bg-background/95 supports-[backdrop-filter]:bg-background/60 fixed bottom-0 left-0 right-0 z-50 border-t backdrop-blur-md">
+    <div className="bg-background/95 supports-[backdrop-filter]:bg-background/60 fixed right-0 bottom-0 left-0 z-50 border-t backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-screen-lg items-center justify-around px-4">
         {tabs.map(({ href, label, icon: Icon }) => {
           const isActive =
