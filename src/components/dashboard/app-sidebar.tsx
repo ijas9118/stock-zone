@@ -92,6 +92,11 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
           icon: Icons.transfer,
         },
         {
+          title: "Transfers",
+          href: "/admin/transfers",
+          icon: Icons.transfer,
+        },
+        {
           title: "Warehouses",
           href: "/admin/warehouses",
           icon: Icons.warehouses,
