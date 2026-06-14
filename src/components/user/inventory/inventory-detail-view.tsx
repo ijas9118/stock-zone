@@ -1,22 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import {
   ArrowLeft,
   ArrowRightLeft,
+  CheckCircle2,
   Edit,
   Info,
   MapPin,
   Minus,
   Package,
   Plus,
-  RotateCcw,
   Store,
+  XCircle,
 } from "lucide-react";
+import { toast } from "sonner";
 
-import { UserStockWithDetails } from "@/actions/user/stock";
+import { cancelTransfer, completeTransfer } from "@/actions/admin/stock";
+import { PendingTransfer, UserStockWithDetails } from "@/actions/user/stock";
 import { getLargestFittingUom } from "@/lib/uom/convert";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +28,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
 import { InventoryDialogs } from "./inventory-dialogs";
+import { MovementActionType } from "./stock-movement-modal";
 
 interface InventoryDetailViewProps {
   stock: UserStockWithDetails;
@@ -33,31 +37,55 @@ interface InventoryDetailViewProps {
     perm_do_adjustment: boolean;
     perm_do_purchase: boolean;
     perm_do_sale: boolean;
-    perm_do_return: boolean;
   };
+  pendingTransfers: PendingTransfer[];
 }
 
 export function InventoryDetailView({
   stock,
   permissions,
+  pendingTransfers,
 }: InventoryDetailViewProps) {
   const router = useRouter();
   const [activeDialog, setActiveDialog] = useState<{
-    type: "transfer" | "adjustment" | "in" | "out" | "return";
+    type: MovementActionType;
     stock: UserStockWithDetails;
   } | null>(null);
+  const [isPending, startTransition] = useTransition();
 
   const isLowStock =
     stock.quantity <= (stock.products?.minimum_stock_quantity ?? 10);
 
-  const handleAction = (
-    type: "transfer" | "adjustment" | "in" | "out" | "return"
-  ) => {
+  const handleAction = (type: MovementActionType) => {
     setActiveDialog({ type, stock });
   };
 
-  const handleRefresh = () => {
-    router.refresh();
+  const handleRefresh = () => router.refresh();
+
+  const handleComplete = (transferId: string) => {
+    startTransition(() => {
+      void completeTransfer(transferId).then((result) => {
+        if ("error" in result) {
+          toast.error(result.error);
+        } else {
+          toast.success("Transfer completed — stock moved");
+          router.refresh();
+        }
+      });
+    });
+  };
+
+  const handleCancel = (transferId: string) => {
+    startTransition(() => {
+      void cancelTransfer(transferId).then((result) => {
+        if ("error" in result) {
+          toast.error(result.error);
+        } else {
+          toast.success("Transfer cancelled");
+          router.refresh();
+        }
+      });
+    });
   };
 
   return (
@@ -213,6 +241,64 @@ export function InventoryDetailView({
               </div>
             </CardHeader>
           </Card>
+
+          {/* Pending Transfers */}
+          {pendingTransfers.length > 0 && (
+            <Card className="border shadow-sm">
+              <CardHeader className="p-4 pb-2">
+                <CardTitle className="flex items-center gap-2 text-sm font-medium">
+                  <ArrowRightLeft className="h-4 w-4 opacity-70" />
+                  Pending Transfers ({pendingTransfers.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 p-4 pt-0">
+                {pendingTransfers.map((t) => (
+                  <div
+                    key={t.id}
+                    className="bg-muted/50 flex items-center justify-between rounded-md p-3"
+                  >
+                    <div className="space-y-0.5">
+                      <p className="text-xs font-medium">
+                        {(t.source_warehouse as { name: string } | null)?.name}{" "}
+                        → {(t.dest_warehouse as { name: string } | null)?.name}
+                      </p>
+                      <p className="text-muted-foreground text-[11px]">
+                        Qty: {t.quantity} ·{" "}
+                        {format(new Date(t.transferred_at), "MMM d, hh:mm a")}
+                      </p>
+                      {t.notes && (
+                        <p className="text-muted-foreground text-[10px] italic">
+                          {t.notes}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex gap-1.5">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 gap-1 text-[11px] text-emerald-600"
+                        disabled={isPending}
+                        onClick={() => handleComplete(t.id)}
+                      >
+                        <CheckCircle2 className="h-3 w-3" />
+                        Complete
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 gap-1 text-[11px] text-red-600"
+                        disabled={isPending}
+                        onClick={() => handleCancel(t.id)}
+                      >
+                        <XCircle className="h-3 w-3" />
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Sidebar */}
@@ -252,14 +338,6 @@ export function InventoryDetailView({
                 className="h-10 justify-start gap-2.5 rounded-md border-none bg-amber-50 text-sm text-amber-700 hover:bg-amber-100 dark:bg-amber-900/10 dark:text-amber-400"
               >
                 <Edit className="h-4 w-4" /> Adjust
-              </Button>
-              <Button
-                onClick={() => handleAction("return")}
-                disabled={!permissions.perm_do_return}
-                variant="secondary"
-                className="col-span-2 h-10 justify-start gap-2.5 rounded-md border-none bg-purple-50 text-sm text-purple-700 hover:bg-purple-100 lg:col-span-1 dark:bg-purple-900/10 dark:text-purple-400"
-              >
-                <RotateCcw className="h-4 w-4" /> Return
               </Button>
             </div>
           </div>

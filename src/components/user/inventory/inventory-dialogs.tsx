@@ -8,12 +8,27 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { StockMovementDialog } from "@/components/admin/stock/movement-dialog";
-import { StockTransferDialog } from "@/components/admin/stock/transfer-dialog";
+
+import { MovementActionType, StockMovementModal } from "./stock-movement-modal";
+
+const TITLES: Record<MovementActionType, string> = {
+  in: "Stock In",
+  out: "Stock Out",
+  transfer: "Transfer Stock",
+  adjustment: "Stock Adjustment",
+};
+
+const DESCRIPTIONS: Record<MovementActionType, string> = {
+  in: "Record incoming inventory for this item.",
+  out: "Record outgoing inventory for this item.",
+  transfer:
+    "Move this item to another warehouse. Transfer will be pending until completed.",
+  adjustment: "Correct the stock quantity for this item.",
+};
 
 interface InventoryDialogsProps {
   activeDialog: {
-    type: "transfer" | "adjustment" | "in" | "out" | "return";
+    type: MovementActionType;
     stock: UserStockWithDetails;
   } | null;
   onClose: () => void;
@@ -30,48 +45,26 @@ export function InventoryDialogs({
       open={activeDialog !== null}
       onOpenChange={(open) => !open && onClose()}
     >
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[520px]">
         <DialogHeader>
-          <DialogTitle className="capitalize">
-            {activeDialog?.type === "in"
-              ? "Stock In"
-              : activeDialog?.type === "out"
-                ? "Stock Out"
-                : activeDialog?.type}
-            : {activeDialog?.stock.products?.name}
+          <DialogTitle>
+            {activeDialog ? TITLES[activeDialog.type] : ""}:{" "}
+            {activeDialog?.stock.products?.name}
           </DialogTitle>
           <DialogDescription>
-            Process a{" "}
-            {activeDialog?.type === "in"
-              ? "Stock In"
-              : activeDialog?.type === "out"
-                ? "Stock Out"
-                : activeDialog?.type}{" "}
-            transaction for this inventory item.
+            {activeDialog ? DESCRIPTIONS[activeDialog.type] : ""}
           </DialogDescription>
         </DialogHeader>
-
-        {activeDialog?.type === "transfer" ? (
-          <StockTransferDialog
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            initialData={activeDialog.stock as any}
+        {activeDialog && (
+          <StockMovementModal
+            actionType={activeDialog.type}
+            stock={activeDialog.stock}
             onSuccess={() => {
               onClose();
               onRefresh();
             }}
           />
-        ) : activeDialog ? (
-          <StockMovementDialog
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            mode={activeDialog.type as any}
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            initialData={activeDialog.stock as any}
-            onSuccess={() => {
-              onClose();
-              onRefresh();
-            }}
-          />
-        ) : null}
+        )}
       </DialogContent>
     </Dialog>
   );
