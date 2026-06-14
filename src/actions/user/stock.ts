@@ -248,3 +248,54 @@ export async function getUserStockById(stockId: string) {
 
   return data as unknown as UserStockWithDetails;
 }
+
+export type PendingTransfer = {
+  id: string;
+  product_id: string;
+  source_warehouse_id: string;
+  dest_warehouse_id: string;
+  quantity: number;
+  notes: string | null;
+  transferred_at: string;
+  source_warehouse: { name: string } | null;
+  dest_warehouse: { name: string } | null;
+};
+
+export async function getPendingTransfers(
+  productId: string,
+  warehouseId: string,
+  shopTypeId: string
+): Promise<PendingTransfer[]> {
+  const auth = await getAuthContext();
+  if (!auth.isAuthenticated) throw new Error("Unauthorized");
+
+  const adminClient = createAdminClient();
+
+  const { data, error } = await adminClient
+    .from("stock_transfers")
+    .select(
+      `
+      id,
+      product_id,
+      source_warehouse_id,
+      dest_warehouse_id,
+      quantity,
+      notes,
+      transferred_at,
+      source_warehouse:warehouses!stock_transfers_source_warehouse_id_fkey(name),
+      dest_warehouse:warehouses!stock_transfers_dest_warehouse_id_fkey(name)
+      `
+    )
+    .eq("product_id", productId)
+    .eq("shop_type_id", shopTypeId)
+    .or(`source_warehouse_id.eq.${warehouseId},dest_warehouse_id.eq.${warehouseId}`)
+    .eq("status", "pending")
+    .order("transferred_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching pending transfers:", error);
+    return [];
+  }
+
+  return data as unknown as PendingTransfer[];
+}
