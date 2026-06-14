@@ -347,7 +347,3 @@ pnpm format       # Auto-format all files
 pnpm typecheck    # Check TypeScript types
 pnpm db:types     # Sync Supabase types after schema changes
 ```
-
-## License
-
-MIT — see [LICENSE](LICENSE) for details.
