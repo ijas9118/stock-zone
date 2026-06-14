@@ -7,6 +7,7 @@ import { Database } from "@/lib/supabase/database.types";
 import { getAuthContext } from "@/lib/supabase/server";
 
 export type StockMovementType = Database["public"]["Enums"]["movement_type"];
+export type MovementSubType = Database["public"]["Enums"]["movement_sub_type"];
 
 export type StockRow = Database["public"]["Tables"]["stock"]["Row"];
 export type StockWithDetails = StockRow & {
@@ -36,34 +37,25 @@ export type StockWithDetails = StockRow & {
 };
 
 async function verifyUserPermission(
-  actionType:
-    | "transfer"
-    | "adjustment"
-    | "in"
-    | "out"
-    | "return"
-    | "initial_stock"
+  actionType: "transfer" | "adjustment" | "in" | "out" | "initial_stock"
 ) {
   const auth = await getAuthContext();
   if (!auth.isAuthenticated || !auth.userId) throw new Error("Unauthorized");
 
-  // Admins bypass granular checks
   if (auth.role === "admin") return auth.userId;
 
   const adminClient = createAdminClient();
   const { data: profile, error } = await adminClient
     .from("profiles")
     .select(
-      "perm_do_transfer, perm_do_adjustment, perm_do_purchase, perm_do_sale, perm_do_return"
+      "perm_do_transfer, perm_do_adjustment, perm_do_purchase, perm_do_sale"
     )
     .eq("id", auth.userId)
     .single();
 
-  if (error || !profile) {
+  if (error || !profile)
     throw new Error("Forbidden: Could not verify user permissions");
-  }
 
-  // Check specific permissions based on the action
   let hasPermission = false;
   switch (actionType) {
     case "transfer":
@@ -79,16 +71,12 @@ async function verifyUserPermission(
     case "out":
       hasPermission = profile.perm_do_sale;
       break;
-    case "return":
-      hasPermission = profile.perm_do_return;
-      break;
   }
 
-  if (!hasPermission) {
+  if (!hasPermission)
     throw new Error(
       `Forbidden: You do not have permission to perform ${actionType}`
     );
-  }
 
   return auth.userId;
 }
@@ -206,17 +194,18 @@ export async function getStocks(
 }
 
 /**
- * Perform a stock movement (Adjustment, Purchase, Sale, Return)
+ * Perform a stock movement (Adjustment, Purchase, Sale, Transfer)
  * This handles updating the stock table and adding a ledger entry.
  */
 export async function processStockMovement(data: {
   productId: string;
   warehouseId: string;
   shopTypeId: string;
-  quantityDelta: number; // Positive for additions, negative for deductions
+  quantityDelta: number;
   type: StockMovementType;
+  subType?: MovementSubType;
   notes?: string;
-  referenceId?: string; // Optional, can be provided by caller (e.g. transferId)
+  referenceId?: string;
   transactUomId?: string;
   transactQuantity?: number;
   locationId?: string | null;
@@ -225,11 +214,12 @@ export async function processStockMovement(data: {
     const userId = await verifyUserPermission(
       data.type === "transfer_out" || data.type === "transfer_in"
         ? "transfer"
-        : data.type
+        : data.type === "in" && data.subType === "initial_stock"
+          ? "initial_stock"
+          : data.type
     );
     const adminClient = createAdminClient();
 
-    // UOM conversion: if an alternate UOM was transacted, derive the base-unit delta
     let effectiveQuantityDelta = data.quantityDelta;
     let effectiveTransactUomId: string | null = null;
     let effectiveTransactQuantity: number | null = null;
@@ -256,7 +246,6 @@ export async function processStockMovement(data: {
       }
     }
 
-    // 1. Get current stock
     const { data: currentStock, error: fetchError } = await adminClient
       .from("stock")
       .select("id, quantity")
@@ -267,23 +256,25 @@ export async function processStockMovement(data: {
 
     if (fetchError) throw fetchError;
 
-    if (data.type === "initial_stock" && currentStock) {
+    if (
+      data.type === "in" &&
+      data.subType === "initial_stock" &&
+      currentStock
+    ) {
       return {
         error:
-          "Inventory already exists for this product in the selected warehouse and shop type. Please use 'Adjustment' or 'Purchase' to update its quantity.",
+          "Inventory already exists for this product in the selected warehouse and shop type. Use Adjustment to update the quantity.",
       };
     }
 
     const previousQuantity = currentStock?.quantity || 0;
     const newQuantity = previousQuantity + effectiveQuantityDelta;
 
-    if (newQuantity < 0) {
+    if (newQuantity < 0)
       return { error: "Insufficient stock for this operation" };
-    }
 
     let effectiveReferenceId = data.referenceId;
 
-    // 1.5 Special handling for Adjustments (create a record in stock_adjustments if not already linked)
     if (data.type === "adjustment" && !effectiveReferenceId) {
       const { data: adj, error: adjError } = await adminClient
         .from("stock_adjustments")
@@ -294,7 +285,8 @@ export async function processStockMovement(data: {
           quantity_delta: effectiveQuantityDelta,
           notes: data.notes || null,
           adjusted_by: userId,
-          status: "approved",
+          status: "completed",
+          adjustment_type: data.subType ?? null,
         })
         .select()
         .single();
@@ -303,27 +295,19 @@ export async function processStockMovement(data: {
       effectiveReferenceId = adj.id;
     }
 
-    // 2. Update/Insert stock record
-    // Use a transaction-like approach (Supabase doesn't have multi-table transactions in JS SDK easily without RPC,
-    // but we can do them sequentially or create an RPC if needed. For now, sequential is okay for admin actions).
-
     if (currentStock) {
-      // Update existing stock
       const updatePayload: Record<string, unknown> = {
         quantity: newQuantity,
         updated_at: new Date().toISOString(),
       };
-      if (data.locationId !== undefined) {
+      if (data.locationId !== undefined)
         updatePayload.location_id = data.locationId;
-      }
       const { error: updateError } = await adminClient
         .from("stock")
         .update(updatePayload)
         .eq("id", currentStock.id);
-
       if (updateError) throw updateError;
     } else {
-      // Insert new stock record
       const { error: insertError } = await adminClient.from("stock").insert({
         product_id: data.productId,
         warehouse_id: data.warehouseId,
@@ -331,11 +315,9 @@ export async function processStockMovement(data: {
         quantity: newQuantity,
         location_id: data.locationId ?? null,
       });
-
       if (insertError) throw insertError;
     }
 
-    // 2. Add to stock_movements ledger
     const { error: movementError } = await adminClient
       .from("stock_movements")
       .insert({
@@ -346,6 +328,7 @@ export async function processStockMovement(data: {
         previous_quantity: previousQuantity,
         new_quantity: newQuantity,
         type: data.type,
+        sub_type: data.subType ?? null,
         notes: data.notes || null,
         reference_id: effectiveReferenceId || null,
         created_by: userId,
@@ -402,7 +385,7 @@ export async function updateStockLocation(
 }
 
 /**
- * Transfer stock between warehouses
+ * Create a pending transfer record (no stock movement yet).
  */
 export async function transferStock(data: {
   productId: string;
@@ -419,7 +402,6 @@ export async function transferStock(data: {
     const userId = await verifyUserPermission("transfer");
     const adminClient = createAdminClient();
 
-    // Resolve base quantity for availability check and transfer record
     let baseQuantity = data.quantity;
     if (data.transactUomId && data.transactQty) {
       const { data: conversion } = await adminClient
@@ -428,7 +410,6 @@ export async function transferStock(data: {
         .eq("product_id", data.productId)
         .eq("uom_id", data.transactUomId)
         .maybeSingle();
-
       if (conversion) {
         baseQuantity =
           Math.round(
@@ -437,11 +418,9 @@ export async function transferStock(data: {
       }
     }
 
-    if (data.sourceWarehouseId === data.destWarehouseId) {
+    if (data.sourceWarehouseId === data.destWarehouseId)
       return { error: "Source and destination warehouses cannot be the same" };
-    }
 
-    // 1. Check source stock
     const { data: sourceStock, error: sourceError } = await adminClient
       .from("stock")
       .select("quantity")
@@ -451,11 +430,9 @@ export async function transferStock(data: {
       .maybeSingle();
 
     if (sourceError) throw sourceError;
-    if (!sourceStock || sourceStock.quantity < baseQuantity) {
+    if (!sourceStock || sourceStock.quantity < baseQuantity)
       return { error: "Insufficient stock in source warehouse" };
-    }
 
-    // 1. Create the transfer record first to get a reference_id
     const { data: transfer, error: transferInsertError } = await adminClient
       .from("stock_transfers")
       .insert({
@@ -466,68 +443,122 @@ export async function transferStock(data: {
         quantity: baseQuantity,
         notes: data.notes || null,
         transferred_by: userId,
-        status: "approved",
+        status: "pending",
         dest_location_id: data.destLocationId ?? null,
       })
       .select()
       .single();
 
     if (transferInsertError) throw transferInsertError;
-    const transferId = transfer.id;
 
-    // 2. Perform outbound movement
+    revalidatePath("/");
+    return { success: true, transferId: transfer.id };
+  } catch (err: unknown) {
+    console.error("Error creating transfer:", err);
+    return {
+      error: err instanceof Error ? err.message : "An unknown error occurred",
+    };
+  }
+}
+
+/**
+ * Complete a pending transfer — deducts source stock and adds to destination.
+ */
+export async function completeTransfer(transferId: string) {
+  try {
+    await verifyUserPermission("transfer");
+    const adminClient = createAdminClient();
+
+    const { data: transfer, error: fetchError } = await adminClient
+      .from("stock_transfers")
+      .select("*")
+      .eq("id", transferId)
+      .single();
+
+    if (fetchError || !transfer) return { error: "Transfer not found" };
+    if (transfer.status !== "pending")
+      return { error: "Transfer is not in pending status" };
+
     const outResult = await processStockMovement({
-      productId: data.productId,
-      warehouseId: data.sourceWarehouseId,
-      shopTypeId: data.shopTypeId,
-      quantityDelta: -baseQuantity,
+      productId: transfer.product_id,
+      warehouseId: transfer.source_warehouse_id,
+      shopTypeId: transfer.shop_type_id,
+      quantityDelta: -transfer.quantity,
       type: "transfer_out",
       referenceId: transferId,
-      notes: data.notes || `Transfer to warehouse ${data.destWarehouseId}`,
-      transactUomId: data.transactUomId,
-      transactQuantity: data.transactQty ? -data.transactQty : undefined,
+      notes: transfer.notes ?? undefined,
     });
 
-    if (outResult.error) {
-      // If outbound fails, we should ideally mark transfer as failed
-      await adminClient
-        .from("stock_transfers")
-        .update({ status: "rejected", notes: outResult.error })
-        .eq("id", transferId);
-      return outResult;
-    }
+    if (outResult.error) return outResult;
 
-    // 3. Perform inbound movement
     const inResult = await processStockMovement({
-      productId: data.productId,
-      warehouseId: data.destWarehouseId,
-      shopTypeId: data.shopTypeId,
-      quantityDelta: baseQuantity,
+      productId: transfer.product_id,
+      warehouseId: transfer.dest_warehouse_id,
+      shopTypeId: transfer.shop_type_id,
+      quantityDelta: transfer.quantity,
       type: "transfer_in",
       referenceId: transferId,
-      notes: data.notes || `Transfer from warehouse ${data.sourceWarehouseId}`,
-      transactUomId: data.transactUomId,
-      transactQuantity: data.transactQty,
-      locationId: data.destLocationId,
+      notes: transfer.notes ?? undefined,
+      locationId: transfer.dest_location_id,
     });
 
     if (inResult.error) {
       await adminClient
         .from("stock_transfers")
-        .update({ status: "rejected", notes: inResult.error })
+        .update({ status: "cancelled" })
         .eq("id", transferId);
       return inResult;
     }
 
+    const { error: statusError } = await adminClient
+      .from("stock_transfers")
+      .update({ status: "completed" })
+      .eq("id", transferId);
+
+    if (statusError) throw statusError;
+
     revalidateTag("admin:stocks", "default");
     revalidateTag("admin:stock-movements", "default");
     revalidateTag("admin:dashboard", "default");
-    revalidatePath("/admin");
     revalidatePath("/admin/stock");
     revalidatePath("/");
     return { success: true };
   } catch (err: unknown) {
-    console.error("Error transferring stock:", err);
+    console.error("Error completing transfer:", err);
+    return {
+      error: err instanceof Error ? err.message : "An unknown error occurred",
+    };
+  }
+}
+
+/**
+ * Cancel a pending transfer (no stock has moved yet).
+ */
+export async function cancelTransfer(transferId: string) {
+  try {
+    await verifyUserPermission("transfer");
+    const adminClient = createAdminClient();
+
+    const { data: transfer, error: fetchError } = await adminClient
+      .from("stock_transfers")
+      .select("status")
+      .eq("id", transferId)
+      .single();
+
+    if (fetchError || !transfer) return { error: "Transfer not found" };
+    if (transfer.status !== "pending")
+      return { error: "Only pending transfers can be cancelled" };
+
+    const { error } = await adminClient
+      .from("stock_transfers")
+      .update({ status: "cancelled" })
+      .eq("id", transferId);
+
+    if (error) throw error;
+
+    revalidatePath("/");
+    return { success: true };
+  } catch (err: unknown) {
     return {
       error: err instanceof Error ? err.message : "An unknown error occurred",
     };
