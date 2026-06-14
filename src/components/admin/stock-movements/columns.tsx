@@ -6,8 +6,6 @@ import {
   ArrowDown,
   ArrowRightLeft,
   ArrowUp,
-  PackagePlus,
-  RotateCcw,
   SlidersHorizontal,
   TrendingDown,
   TrendingUp,
@@ -48,18 +46,22 @@ const typeConfig = {
     className:
       "bg-amber-500/10 text-amber-700 dark:bg-amber-400/10 dark:text-amber-400",
   },
-  return: {
-    label: "Return",
-    icon: RotateCcw,
-    className:
-      "bg-purple-500/10 text-purple-700 dark:bg-purple-400/10 dark:text-purple-400",
-  },
-  initial_stock: {
-    label: "Initial Stock",
-    icon: PackagePlus,
-    className:
-      "bg-slate-500/10 text-slate-700 dark:bg-slate-400/10 dark:text-slate-400",
-  },
+};
+
+const SUB_TYPE_LABELS: Record<string, string> = {
+  sent_from_shop: "Sent from Shop",
+  supplier_delivery: "Supplier Delivery",
+  customer_return: "Customer Return",
+  initial_stock: "Initial Stock",
+  sent_to_shop: "Sent to Shop",
+  sent_to_customer: "Sent to Customer",
+  supplier_return: "Supplier Return",
+  stock_count_correction: "Stock Count Correction",
+  system_mistake: "System Mistake",
+  damaged_goods: "Damaged Goods",
+  expired_goods: "Expired Goods",
+  missing_lost: "Missing / Lost",
+  found_extra_stock: "Found Extra Stock",
 };
 
 export const columns: ColumnDef<StockMovementWithDetails>[] = [
@@ -68,21 +70,30 @@ export const columns: ColumnDef<StockMovementWithDetails>[] = [
     header: "Type",
     cell: ({ row }) => {
       const type = row.original.type;
-      const config =
-        typeConfig[type as keyof typeof typeConfig] || typeConfig.initial_stock;
+      const subType = row.original.sub_type;
+      const config = typeConfig[type as keyof typeof typeConfig];
+      if (!config)
+        return <span className="text-muted-foreground text-xs">{type}</span>;
       const Icon = config.icon;
 
       return (
-        <Badge
-          variant="outline"
-          className={cn(
-            "gap-1 rounded-full border border-current/20 px-2.5 py-0.5 text-[11px] font-semibold shadow-none",
-            config.className
+        <div className="flex flex-col gap-0.5">
+          <Badge
+            variant="outline"
+            className={cn(
+              "gap-1 rounded-full border border-current/20 px-2.5 py-0.5 text-[11px] font-semibold shadow-none",
+              config.className
+            )}
+          >
+            <Icon className="h-3 w-3" />
+            {config.label}
+          </Badge>
+          {subType && SUB_TYPE_LABELS[subType] && (
+            <span className="text-muted-foreground pl-0.5 text-[10px]">
+              {SUB_TYPE_LABELS[subType]}
+            </span>
           )}
-        >
-          <Icon className="h-3 w-3" />
-          {config.label}
-        </Badge>
+        </div>
       );
     },
   },
