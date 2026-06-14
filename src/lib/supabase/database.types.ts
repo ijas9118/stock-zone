@@ -448,6 +448,9 @@ export type Database = {
         Row: {
           adjusted_at: string;
           adjusted_by: string | null;
+          adjustment_type:
+            | Database["public"]["Enums"]["movement_sub_type"]
+            | null;
           id: string;
           notes: string | null;
           product_id: string;
@@ -459,6 +462,9 @@ export type Database = {
         Insert: {
           adjusted_at?: string;
           adjusted_by?: string | null;
+          adjustment_type?:
+            | Database["public"]["Enums"]["movement_sub_type"]
+            | null;
           id?: string;
           notes?: string | null;
           product_id: string;
@@ -470,6 +476,9 @@ export type Database = {
         Update: {
           adjusted_at?: string;
           adjusted_by?: string | null;
+          adjustment_type?:
+            | Database["public"]["Enums"]["movement_sub_type"]
+            | null;
           id?: string;
           notes?: string | null;
           product_id?: string;
@@ -521,6 +530,7 @@ export type Database = {
           quantity_delta: number;
           reference_id: string | null;
           shop_type_id: string;
+          sub_type: Database["public"]["Enums"]["movement_sub_type"] | null;
           transact_quantity: number | null;
           transact_uom_id: string | null;
           type: Database["public"]["Enums"]["movement_type"];
@@ -537,6 +547,7 @@ export type Database = {
           quantity_delta: number;
           reference_id?: string | null;
           shop_type_id: string;
+          sub_type?: Database["public"]["Enums"]["movement_sub_type"] | null;
           transact_quantity?: number | null;
           transact_uom_id?: string | null;
           type: Database["public"]["Enums"]["movement_type"];
@@ -553,6 +564,7 @@ export type Database = {
           quantity_delta?: number;
           reference_id?: string | null;
           shop_type_id?: string;
+          sub_type?: Database["public"]["Enums"]["movement_sub_type"] | null;
           transact_quantity?: number | null;
           transact_uom_id?: string | null;
           type?: Database["public"]["Enums"]["movement_type"];
@@ -786,22 +798,6 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      adjust_stock: {
-        Args: {
-          p_adjusted_by?: string;
-          p_delta: number;
-          p_notes?: string;
-          p_product_id: string;
-          p_reason?: string;
-          p_shop_type_id: string;
-          p_warehouse_id: string;
-        };
-        Returns: undefined;
-      };
-      approve_transaction: {
-        Args: { p_admin_id?: string; p_id: string; p_table: string };
-        Returns: undefined;
-      };
       authorize: {
         Args: {
           requested_permission: Database["public"]["Enums"]["app_permission"];
@@ -815,19 +811,6 @@ export type Database = {
       };
       show_limit: { Args: never; Returns: number };
       show_trgm: { Args: { "": string }; Returns: string[] };
-      transfer_stock: {
-        Args: {
-          p_dest_warehouse_id: string;
-          p_notes?: string;
-          p_product_id: string;
-          p_quantity: number;
-          p_reason?: string;
-          p_shop_type_id: string;
-          p_source_warehouse_id: string;
-          p_transferred_by?: string;
-        };
-        Returns: undefined;
-      };
     };
     Enums: {
       access_level: "read_only" | "write";
@@ -842,15 +825,27 @@ export type Database = {
         | "stock.read_own_shop"
         | "users.manage";
       app_role: "admin" | "manager" | "user";
+      movement_sub_type:
+        | "sent_from_shop"
+        | "supplier_delivery"
+        | "customer_return"
+        | "initial_stock"
+        | "sent_to_shop"
+        | "sent_to_customer"
+        | "supplier_return"
+        | "stock_count_correction"
+        | "system_mistake"
+        | "damaged_goods"
+        | "expired_goods"
+        | "missing_lost"
+        | "found_extra_stock";
       movement_type:
-        | "adjustment"
         | "in"
+        | "out"
         | "transfer_in"
         | "transfer_out"
-        | "out"
-        | "return"
-        | "initial_stock";
-      transaction_status: "pending" | "approved" | "rejected";
+        | "adjustment";
+      transaction_status: "pending" | "completed" | "cancelled";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -994,16 +989,23 @@ export const Constants = {
         "users.manage",
       ],
       app_role: ["admin", "manager", "user"],
-      movement_type: [
-        "adjustment",
-        "in",
-        "transfer_in",
-        "transfer_out",
-        "out",
-        "return",
+      movement_sub_type: [
+        "sent_from_shop",
+        "supplier_delivery",
+        "customer_return",
         "initial_stock",
+        "sent_to_shop",
+        "sent_to_customer",
+        "supplier_return",
+        "stock_count_correction",
+        "system_mistake",
+        "damaged_goods",
+        "expired_goods",
+        "missing_lost",
+        "found_extra_stock",
       ],
-      transaction_status: ["pending", "approved", "rejected"],
+      movement_type: ["in", "out", "transfer_in", "transfer_out", "adjustment"],
+      transaction_status: ["pending", "completed", "cancelled"],
     },
   },
 } as const;

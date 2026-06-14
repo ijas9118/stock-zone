@@ -288,7 +288,9 @@ export async function getPendingTransfers(
     )
     .eq("product_id", productId)
     .eq("shop_type_id", shopTypeId)
-    .or(`source_warehouse_id.eq.${warehouseId},dest_warehouse_id.eq.${warehouseId}`)
+    .or(
+      `source_warehouse_id.eq.${warehouseId},dest_warehouse_id.eq.${warehouseId}`
+    )
     .eq("status", "pending")
     .order("transferred_at", { ascending: false });
 
