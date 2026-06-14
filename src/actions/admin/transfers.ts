@@ -8,6 +8,25 @@ import { getAuthContext } from "@/lib/supabase/server";
 
 import { processStockMovement } from "./stock";
 
+const TRANSFER_SELECT_FIELDS = `
+  id,
+  product_id,
+  source_warehouse_id,
+  dest_warehouse_id,
+  shop_type_id,
+  quantity,
+  notes,
+  transferred_at,
+  status,
+  dest_location_id,
+  products(name, sku),
+  source_warehouse:warehouses!stock_transfers_source_warehouse_id_fkey(name),
+  dest_warehouse:warehouses!stock_transfers_dest_warehouse_id_fkey(name),
+  shop_types(name),
+  profiles:transferred_by(full_name, email),
+  dest_location:locations!stock_transfers_dest_location_id_fkey(location_code)
+`;
+
 export type TransferStatus = Database["public"]["Enums"]["transaction_status"];
 
 export type TransferWithDetails = {
@@ -53,27 +72,7 @@ export async function getTransfers(
 
       let query = adminClient
         .from("stock_transfers")
-        .select(
-          `
-          id,
-          product_id,
-          source_warehouse_id,
-          dest_warehouse_id,
-          shop_type_id,
-          quantity,
-          notes,
-          transferred_at,
-          status,
-          dest_location_id,
-          products(name, sku),
-          source_warehouse:warehouses!stock_transfers_source_warehouse_id_fkey(name),
-          dest_warehouse:warehouses!stock_transfers_dest_warehouse_id_fkey(name),
-          shop_types(name),
-          profiles:transferred_by(full_name, email),
-          dest_location:locations!stock_transfers_dest_location_id_fkey(location_code)
-          `,
-          { count: "exact" }
-        )
+        .select(TRANSFER_SELECT_FIELDS, { count: "exact" })
         .order("transferred_at", { ascending: false });
 
       if (status && status !== "all") {
@@ -85,7 +84,10 @@ export async function getTransfers(
 
       const { data, error, count } = await query.range(from, to);
 
-      if (error) throw new Error("Failed to fetch transfers");
+      if (error) {
+        console.error("Error fetching transfers:", error);
+        throw new Error("Failed to fetch transfers");
+      }
 
       return {
         transfers: data as unknown as TransferWithDetails[],
@@ -99,35 +101,23 @@ export async function getTransfers(
 
 export async function getTransferById(id: string) {
   await verifyAdmin();
-  const adminClient = createAdminClient();
 
-  const { data, error } = await adminClient
-    .from("stock_transfers")
-    .select(
-      `
-      id,
-      product_id,
-      source_warehouse_id,
-      dest_warehouse_id,
-      shop_type_id,
-      quantity,
-      notes,
-      transferred_at,
-      status,
-      dest_location_id,
-      products(name, sku),
-      source_warehouse:warehouses!stock_transfers_source_warehouse_id_fkey(name),
-      dest_warehouse:warehouses!stock_transfers_dest_warehouse_id_fkey(name),
-      shop_types(name),
-      profiles:transferred_by(full_name, email),
-      dest_location:locations!stock_transfers_dest_location_id_fkey(location_code)
-      `
-    )
-    .eq("id", id)
-    .single();
+  return unstable_cache(
+    async () => {
+      const adminClient = createAdminClient();
 
-  if (error || !data) return null;
-  return data as unknown as TransferWithDetails;
+      const { data, error } = await adminClient
+        .from("stock_transfers")
+        .select(TRANSFER_SELECT_FIELDS)
+        .eq("id", id)
+        .single();
+
+      if (error || !data) return null;
+      return data as unknown as TransferWithDetails;
+    },
+    ["admin-transfer", id],
+    { tags: ["admin:transfers"], revalidate: 60 }
+  )();
 }
 
 export async function completeTransfer(
@@ -232,12 +222,12 @@ export async function cancelTransfer(transferId: string) {
     if (transfer.status !== "pending")
       return { error: "Only pending transfers can be cancelled" };
 
-    const { error } = await adminClient
+    const { error: cancelError } = await adminClient
       .from("stock_transfers")
       .update({ status: "cancelled" })
       .eq("id", transferId);
 
-    if (error) throw error;
+    if (cancelError) throw cancelError;
 
     revalidateTag("admin:transfers", "default");
     revalidatePath("/admin/transfers");
