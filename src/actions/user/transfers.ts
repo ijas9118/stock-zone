@@ -4,6 +4,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 
 import { processStockMovement } from "@/actions/admin/stock";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { Database } from "@/lib/supabase/database.types";
 import { getAuthContext } from "@/lib/supabase/server";
 
 export type UserTransferWithDetails = {
@@ -15,6 +16,7 @@ export type UserTransferWithDetails = {
   quantity: number;
   notes: string | null;
   transferred_at: string;
+  status: Database["public"]["Enums"]["transaction_status"];
   dest_location_id: string | null;
   products: { name: string; sku: string | null } | null;
   source_warehouse: { name: string } | null;
