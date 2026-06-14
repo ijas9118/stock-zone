@@ -85,13 +85,13 @@ export function PasswordSection({ hasPassword = false }: PasswordSectionProps) {
       </div>
 
       <div className="bg-muted/20 border-border/40 rounded-xl border p-4">
-        <FormDescription className="mb-4">
-          {hasPassword
-            ? "Update your password to a new one."
-            : "You're currently signed in with Google. Set a password to also sign in with email & password."}
-        </FormDescription>
-
         <Form {...form}>
+          <FormDescription className="mb-4">
+            {hasPassword
+              ? "Update your password to a new one."
+              : "You're currently signed in with Google. Set a password to also sign in with email & password."}
+          </FormDescription>
+
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
