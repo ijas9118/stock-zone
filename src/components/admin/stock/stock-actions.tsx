@@ -91,11 +91,13 @@ export function StockActions({ stock }: StockActionsProps) {
               {stock.products?.name} ({stock.warehouses?.name})
             </DialogDescription>
           </DialogHeader>
-          <StockMovementDialog
-            mode={movementMode!}
-            initialData={stock}
-            onSuccess={() => setMovementMode(null)}
-          />
+          {movementMode && (
+            <StockMovementDialog
+              mode={movementMode}
+              initialData={stock}
+              onSuccess={() => setMovementMode(null)}
+            />
+          )}
         </DialogContent>
       </Dialog>
 
