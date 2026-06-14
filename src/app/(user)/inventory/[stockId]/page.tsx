@@ -1,10 +1,6 @@
 import { notFound } from "next/navigation";
 
-import {
-  getMyProfile,
-  getPendingTransfers,
-  getUserStockById,
-} from "@/actions/user/stock";
+import { getMyProfile, getUserStockById } from "@/actions/user/stock";
 import { InventoryDetailView } from "@/components/user/inventory/inventory-detail-view";
 
 interface InventoryDetailPageProps {
@@ -23,12 +19,6 @@ export default async function InventoryDetailPage({
 
   if (!stock) notFound();
 
-  const pendingTransfers = await getPendingTransfers(
-    stock.product_id,
-    stock.warehouse_id,
-    stock.shop_type_id
-  );
-
   const permissions = {
     perm_do_transfer: profile.perm_do_transfer,
     perm_do_adjustment: profile.perm_do_adjustment,
@@ -38,11 +28,7 @@ export default async function InventoryDetailPage({
 
   return (
     <div className="flex flex-col gap-6 pb-10">
-      <InventoryDetailView
-        stock={stock}
-        permissions={permissions}
-        pendingTransfers={pendingTransfers}
-      />
+      <InventoryDetailView stock={stock} permissions={permissions} />
     </div>
   );
 }
