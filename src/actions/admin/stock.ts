@@ -433,6 +433,10 @@ export async function transferStock(data: {
     if (!sourceStock || sourceStock.quantity < baseQuantity)
       return { error: "Insufficient stock in source warehouse" };
 
+    // Note: Stock is not reserved at pending-creation time. Concurrent transfers for
+    // the same SKU can both pass this check. Completion will fail safely if stock
+    // has been consumed in the interim (processStockMovement returns "Insufficient stock").
+
     const { data: transfer, error: transferInsertError } = await adminClient
       .from("stock_transfers")
       .insert({
@@ -451,6 +455,7 @@ export async function transferStock(data: {
 
     if (transferInsertError) throw transferInsertError;
 
+    revalidatePath("/admin/stock");
     revalidatePath("/");
     return { success: true, transferId: transfer.id };
   } catch (err: unknown) {
@@ -503,6 +508,16 @@ export async function completeTransfer(transferId: string) {
     });
 
     if (inResult.error) {
+      // Compensate: reverse the transfer_out so source stock is restored
+      await processStockMovement({
+        productId: transfer.product_id,
+        warehouseId: transfer.source_warehouse_id,
+        shopTypeId: transfer.shop_type_id,
+        quantityDelta: transfer.quantity,
+        type: "transfer_in",
+        referenceId: transferId,
+        notes: `Reversal: inbound failed — ${inResult.error}`,
+      });
       await adminClient
         .from("stock_transfers")
         .update({ status: "cancelled" })
@@ -559,6 +574,7 @@ export async function cancelTransfer(transferId: string) {
     revalidatePath("/");
     return { success: true };
   } catch (err: unknown) {
+    console.error("Error cancelling transfer:", err);
     return {
       error: err instanceof Error ? err.message : "An unknown error occurred",
     };
