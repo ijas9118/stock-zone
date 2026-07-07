@@ -55,9 +55,27 @@ export async function getProducts(
         .order("name", { ascending: true });
 
       if (query) {
-        supabaseQuery = supabaseQuery.or(
-          `name.ilike.%${query}%,sku.ilike.%${query}%,brands.name.ilike.%${query}%`
-        );
+        // Escape commas/parens so the search text can't break the .or() filter syntax,
+        // and use * (PostgREST's wildcard) instead of % to avoid ilike-pattern parsing issues.
+        const escapedQuery = query.replace(/[,()]/g, (char) => `\\${char}`);
+        const orFilters = [
+          `name.ilike.*${escapedQuery}*`,
+          `sku.ilike.*${escapedQuery}*`,
+        ];
+
+        // Brand name can't be filtered inside the same .or() as it's a joined
+        // table's column, so look up matching brand ids separately and OR them in.
+        const { data: matchingBrands } = await adminClient
+          .from("brands")
+          .select("id")
+          .ilike("name", `%${query}%`);
+
+        if (matchingBrands && matchingBrands.length > 0) {
+          const brandIds = matchingBrands.map((b) => b.id).join(",");
+          orFilters.push(`brand_id.in.(${brandIds})`);
+        }
+
+        supabaseQuery = supabaseQuery.or(orFilters.join(","));
       }
 
       if (categoryId && categoryId !== "all") {
