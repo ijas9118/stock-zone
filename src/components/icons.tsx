@@ -6,6 +6,7 @@ import {
   ChevronsUpDown,
   Eye,
   EyeOff,
+  FileDown,
   Layers,
   LayoutDashboard,
   LayoutGrid,
@@ -69,4 +70,5 @@ export const Icons = {
   brands: Tag,
   stock: Package, // Reusing Package for now or I can add Boxes
   locations: MapPin,
+  reports: FileDown,
 };

@@ -1,20 +1,5 @@
-"use client";
-
-import Link from "next/link";
 import { format } from "date-fns";
-import {
-  ArrowRightLeft,
-  ChevronRight,
-  LucideIcon,
-  PackagePlus,
-  RotateCcw,
-  SlidersHorizontal,
-  TrendingDown,
-  TrendingUp,
-} from "lucide-react";
 
-import { DashboardStats } from "@/actions/admin/dashboard";
-import { cn } from "@/lib/utils";
 import {
   Card,
   CardContent,
@@ -22,147 +7,88 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
-const typeConfig: Record<
-  string,
-  { label: string; icon: LucideIcon; className: string }
-> = {
-  in: {
-    label: "Stock In",
-    icon: TrendingUp,
-    className:
-      "bg-emerald-500/10 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-400",
-  },
-  out: {
-    label: "Stock Out",
-    icon: TrendingDown,
-    className:
-      "bg-red-500/10 text-red-700 dark:bg-red-400/10 dark:text-red-400",
-  },
-  transfer_in: {
-    label: "Transfer In",
-    icon: ArrowRightLeft,
-    className:
-      "bg-blue-500/10 text-blue-700 dark:bg-blue-400/10 dark:text-blue-400",
-  },
-  transfer_out: {
-    label: "Transfer Out",
-    icon: ArrowRightLeft,
-    className:
-      "bg-orange-500/10 text-orange-700 dark:bg-orange-400/10 dark:text-orange-400",
-  },
-  adjustment: {
-    label: "Adjustment",
-    icon: SlidersHorizontal,
-    className:
-      "bg-amber-500/10 text-amber-700 dark:bg-amber-400/10 dark:text-amber-400",
-  },
-  return: {
-    label: "Return",
-    icon: RotateCcw,
-    className:
-      "bg-purple-500/10 text-purple-700 dark:bg-purple-400/10 dark:text-purple-400",
-  },
-  initial_stock: {
-    label: "Initial Stock",
-    icon: PackagePlus,
-    className:
-      "bg-slate-500/10 text-slate-700 dark:bg-slate-400/10 dark:text-slate-400",
-  },
-};
-
-interface RecentMovementsCardProps {
-  data: DashboardStats["recentMovements"];
+interface RecentMovement {
+  id: string;
+  type: string;
+  quantityDelta: number;
+  createdAt: string;
+  productName: string;
+  productSku: string | null;
+  warehouseName: string;
+  userName: string;
 }
 
-export function RecentMovementsCard({ data }: RecentMovementsCardProps) {
+interface RecentMovementsCardProps {
+  movements: RecentMovement[];
+}
+
+const TYPE_LABELS: Record<string, string> = {
+  in: "IN",
+  out: "OUT",
+  transfer_in: "Transfer In",
+  transfer_out: "Transfer Out",
+  adjustment: "Adjustment",
+};
+
+const TYPE_STYLES: Record<string, string> = {
+  in: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300",
+  out: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300",
+  transfer_in: "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300",
+  transfer_out: "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300",
+  adjustment: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
+};
+
+export function RecentMovementsCard({ movements }: RecentMovementsCardProps) {
   return (
-    <Card className="h-full border shadow-none">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-sm font-semibold">
-              Recent Movements
-            </CardTitle>
-            <CardDescription className="mt-0.5 text-xs">
-              Latest stock activity
-            </CardDescription>
-          </div>
-          <Link
-            href="/admin/stock-movements"
-            className="text-muted-foreground hover:text-foreground flex items-center gap-1 text-xs transition-colors"
-          >
-            View all
-            <ChevronRight className="h-3 w-3" />
-          </Link>
-        </div>
+    <Card className="border shadow-none">
+      <CardHeader>
+        <CardTitle className="text-base font-medium">Recent Stock Movements</CardTitle>
+        <CardDescription>Latest activity for this selection</CardDescription>
       </CardHeader>
-      <CardContent className="px-0 pb-2">
-        <div className="divide-border/50 divide-y">
-          {data.map((movement) => {
-            const config =
-              typeConfig[movement.type] || typeConfig.initial_stock;
-            const Icon = config.icon;
-            const isPositive = movement.quantity_delta > 0;
-            return (
-              <Link
-                key={movement.id}
-                href={`/admin/stock-movements/${movement.id}`}
-                className="hover:bg-muted/40 group flex items-center gap-3 px-6 py-2.5 transition-colors"
+      <CardContent>
+        {movements.length === 0 ? (
+          <p className="text-muted-foreground py-10 text-center text-sm">
+            No recent movements to show.
+          </p>
+        ) : (
+          <ul className="divide-border divide-y">
+            {movements.map((m) => (
+              <li
+                key={m.id}
+                className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
               >
-                {/* Type icon badge */}
-                <div
-                  className={cn(
-                    "flex h-7 w-7 shrink-0 items-center justify-center rounded-md",
-                    config.className
-                  )}
-                >
-                  <Icon className="h-3.5 w-3.5" />
+                <div className="min-w-0 space-y-0.5">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={cn(
+                        "rounded px-1.5 py-0.5 text-[10px] font-semibold",
+                        TYPE_STYLES[m.type] ?? "bg-muted text-muted-foreground"
+                      )}
+                    >
+                      {TYPE_LABELS[m.type] ?? m.type}
+                    </span>
+                    <p className="truncate text-sm font-medium">{m.productName}</p>
+                  </div>
+                  <p className="text-muted-foreground truncate text-xs">
+                    {m.warehouseName} · {m.userName} ·{" "}
+                    {format(new Date(m.createdAt), "MMM d, h:mm a")}
+                  </p>
                 </div>
-
-                {/* Content: two lines */}
-                <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  {/* Line 1: product name */}
-                  <span className="truncate text-xs leading-none font-medium">
-                    {movement.products?.name || "Unknown Product"}
-                  </span>
-                  {/* Line 2: type · warehouse · shop · time */}
-                  <span className="text-muted-foreground truncate text-[10px] leading-none">
-                    {[
-                      config.label,
-                      movement.warehouses?.name,
-                      movement.shop_types?.name,
-                      format(new Date(movement.created_at), "MMM d, h:mm a"),
-                    ]
-                      .filter(Boolean)
-                      .join(" · ")}
-                  </span>
-                </div>
-
-                {/* Delta */}
                 <span
                   className={cn(
-                    "shrink-0 font-mono text-xs font-semibold",
-                    isPositive
-                      ? "text-emerald-600 dark:text-emerald-400"
-                      : "text-red-600 dark:text-red-400"
+                    "shrink-0 text-sm font-semibold",
+                    m.quantityDelta >= 0 ? "text-indigo-600" : "text-rose-600"
                   )}
                 >
-                  {isPositive
-                    ? `+${movement.quantity_delta}`
-                    : movement.quantity_delta}
+                  {m.quantityDelta >= 0 ? "+" : ""}
+                  {m.quantityDelta}
                 </span>
-              </Link>
-            );
-          })}
-          {data.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-10 text-center">
-              <p className="text-muted-foreground text-xs">
-                No recent movements
-              </p>
-            </div>
-          )}
-        </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </CardContent>
     </Card>
   );

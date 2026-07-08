@@ -40,16 +40,16 @@ type MovementSubType = Database["public"]["Enums"]["movement_sub_type"];
 export type MovementActionType = "in" | "out" | "transfer" | "adjustment";
 
 const IN_SUB_TYPES: { value: MovementSubType; label: string }[] = [
-  { value: "supplier_delivery", label: "Supplier Delivery" },
+  { value: "supplier_delivery", label: "Received from Supplier" },
   { value: "customer_return", label: "Customer Return" },
-  { value: "sent_from_shop", label: "Sent from Shop" },
-  { value: "initial_stock", label: "Initial Stock" },
+  { value: "sent_from_shop", label: "Transfer from Shop" },
+  { value: "initial_stock", label: "Opening Stock" },
 ];
 
 const OUT_SUB_TYPES: { value: MovementSubType; label: string }[] = [
-  { value: "sent_to_customer", label: "Sent to Customer" },
-  { value: "sent_to_shop", label: "Sent to Shop" },
-  { value: "supplier_return", label: "Supplier Return" },
+  { value: "sent_to_customer", label: "Customer Delivery" },
+  { value: "sent_to_shop", label: "Transfer to Shop" },
+  { value: "supplier_return", label: "Return to Supplier" },
 ];
 
 const ADJUSTMENT_SUB_TYPES: { value: MovementSubType; label: string }[] = [

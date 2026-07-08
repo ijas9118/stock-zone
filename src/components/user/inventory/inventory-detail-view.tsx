@@ -226,7 +226,7 @@ export function InventoryDetailView({
                 onClick={() => handleAction("out")}
                 disabled={!permissions.perm_do_sale}
                 variant="secondary"
-                className="h-10 justify-start gap-2.5 rounded-md border-none bg-red-50 text-sm text-red-700 hover:bg-red-100 dark:bg-red-900/10 dark:text-red-400"
+                className="h-10 justify-start gap-2.5 rounded-md border-none bg-red-50 text-sm text-red-700 hover:bg-red-100 dark:bg-red-900/40 dark:text-red-300 dark:hover:bg-red-900/60"
               >
                 <Minus className="h-4 w-4" /> Stock Out
               </Button>
@@ -234,7 +234,7 @@ export function InventoryDetailView({
                 onClick={() => handleAction("in")}
                 disabled={!permissions.perm_do_purchase}
                 variant="secondary"
-                className="h-10 justify-start gap-2.5 rounded-md border-none bg-green-50 text-sm text-green-700 hover:bg-green-100 dark:bg-green-900/10 dark:text-green-400"
+                className="h-10 justify-start gap-2.5 rounded-md border-none bg-green-50 text-sm text-green-700 hover:bg-green-100 dark:bg-green-900/40 dark:text-green-300 dark:hover:bg-green-900/60"
               >
                 <Plus className="h-4 w-4" /> Stock In
               </Button>
@@ -242,7 +242,7 @@ export function InventoryDetailView({
                 onClick={() => handleAction("transfer")}
                 disabled={!permissions.perm_do_transfer}
                 variant="secondary"
-                className="h-10 justify-start gap-2.5 rounded-md border-none bg-blue-50 text-sm text-blue-700 hover:bg-blue-100 dark:bg-blue-900/10 dark:text-blue-400"
+                className="h-10 justify-start gap-2.5 rounded-md border-none bg-blue-50 text-sm text-blue-700 hover:bg-blue-100 dark:bg-blue-900/40 dark:text-blue-300 dark:hover:bg-blue-900/60"
               >
                 <ArrowRightLeft className="h-4 w-4" /> Transfer
               </Button>
@@ -250,7 +250,7 @@ export function InventoryDetailView({
                 onClick={() => handleAction("adjustment")}
                 disabled={!permissions.perm_do_adjustment}
                 variant="secondary"
-                className="h-10 justify-start gap-2.5 rounded-md border-none bg-amber-50 text-sm text-amber-700 hover:bg-amber-100 dark:bg-amber-900/10 dark:text-amber-400"
+                className="h-10 justify-start gap-2.5 rounded-md border-none bg-amber-50 text-sm text-amber-700 hover:bg-amber-100 dark:bg-amber-900/40 dark:text-amber-300 dark:hover:bg-amber-900/60"
               >
                 <Edit className="h-4 w-4" /> Adjust
               </Button>

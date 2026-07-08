@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 
-import { getDashboardStats } from "@/actions/admin/dashboard";
+import { getDashboardAccess } from "@/actions/admin/dashboard";
 import { AdminDashboard } from "@/components/admin/dashboard/admin-dashboard";
 import { DashboardSkeleton } from "@/components/admin/dashboard/dashboard-skeleton";
 
@@ -16,6 +16,6 @@ export default async function AdminDashboardPage() {
 }
 
 async function DashboardContent() {
-  const stats = await getDashboardStats();
-  return <AdminDashboard stats={stats} />;
+  const access = await getDashboardAccess();
+  return <AdminDashboard access={access} />;
 }

@@ -112,7 +112,10 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
     {
       title: "Settings & System",
       icon: Icons.settings,
-      items: [{ title: "Users", href: "/admin/users", icon: Icons.users }],
+      items: [
+        { title: "Reports", href: "/admin/reports", icon: Icons.reports },
+        { title: "Users", href: "/admin/users", icon: Icons.users },
+      ],
     },
   ];
 
