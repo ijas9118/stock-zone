@@ -120,12 +120,14 @@ export function InventoryDetailView({
                       {stock.warehouses?.name}
                     </p>
                   </div>
-                  {stock.locations && (
-                    <div className="space-y-1">
-                      <label className="text-muted-foreground flex items-center gap-1.5 text-xs font-medium">
-                        <MapPin className="h-3.5 w-3.5 opacity-70" /> Bin
-                        Location
-                      </label>
+                </div>
+
+                <div className="space-y-1 py-2">
+                  <label className="text-muted-foreground flex items-center gap-1.5 text-xs font-medium">
+                    <MapPin className="h-3.5 w-3.5 opacity-70" /> Bin Location
+                  </label>
+                  {stock.locations ? (
+                    <>
                       <p className="font-mono text-sm font-semibold">
                         {stock.locations.location_code}
                       </p>
@@ -143,7 +145,11 @@ export function InventoryDetailView({
                           .filter(Boolean)
                           .join(" · ")}
                       </p>
-                    </div>
+                    </>
+                  ) : (
+                    <p className="text-muted-foreground text-sm font-medium">
+                      -
+                    </p>
                   )}
                 </div>
 

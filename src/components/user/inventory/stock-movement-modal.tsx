@@ -510,11 +510,14 @@ function TransferForm({ stock, uomOptions, onSuccess }: TransferFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-2">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <FormLabel>Source Warehouse</FormLabel>
-            <div className="border-input bg-muted h-10 rounded-md border px-3 py-2 text-sm">
-              {stock.warehouses?.name} (qty: {stock.quantity})
+            <div className="border-input bg-muted min-h-10 rounded-md border px-3 py-2 text-sm">
+              <p className="truncate font-medium">{stock.warehouses?.name}</p>
+              <p className="text-muted-foreground text-xs">
+                Qty: {stock.quantity}
+              </p>
             </div>
           </div>
           <FormField
@@ -525,8 +528,11 @@ function TransferForm({ stock, uomOptions, onSuccess }: TransferFormProps) {
                 <FormLabel>Destination Warehouse</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select destination..." />
+                    <SelectTrigger className="w-full">
+                      <SelectValue
+                        className="truncate"
+                        placeholder="Select destination..."
+                      />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -542,7 +548,7 @@ function TransferForm({ stock, uomOptions, onSuccess }: TransferFormProps) {
             )}
           />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FormField
             control={form.control}
             name="transactUomId"
@@ -551,7 +557,10 @@ function TransferForm({ stock, uomOptions, onSuccess }: TransferFormProps) {
                 <FormLabel>Unit of Measure</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
-                    <SelectTrigger disabled={uomOptions.length === 0}>
+                    <SelectTrigger
+                      className="w-full"
+                      disabled={uomOptions.length === 0}
+                    >
                       <SelectValue placeholder="Select UOM..." />
                     </SelectTrigger>
                   </FormControl>
