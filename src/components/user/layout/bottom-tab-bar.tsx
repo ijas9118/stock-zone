@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowRightLeft, Home } from "lucide-react";
+import { ArrowRightLeft, History, Home } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
 const tabs = [
   { href: "/", label: "Inventory", icon: Home },
   { href: "/transfers", label: "Transfers", icon: ArrowRightLeft },
+  { href: "/movements", label: "Activity", icon: History },
 ];
 
 export function BottomTabBar() {
