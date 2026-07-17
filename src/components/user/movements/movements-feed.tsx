@@ -2,6 +2,8 @@
 
 import { format } from "date-fns";
 
+import { UserRecentMovement } from "@/actions/user/stock-movements";
+import { cn } from "@/lib/utils";
 import {
   Table,
   TableBody,
@@ -10,8 +12,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
-import { UserRecentMovement } from "@/actions/user/stock-movements";
 
 const TYPE_LABELS: Record<string, string> = {
   in: "IN",
@@ -25,8 +25,7 @@ const TYPE_STYLES: Record<string, string> = {
   in: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300",
   out: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300",
   transfer_in: "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300",
-  transfer_out:
-    "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300",
+  transfer_out: "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300",
   adjustment:
     "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
 };
@@ -69,9 +68,7 @@ export function MovementsFeed({ movements }: MovementsFeedProps) {
           {movements.map((m) => (
             <TableRow key={m.id}>
               <TableCell className="py-3 pl-4 whitespace-normal">
-                <p className="truncate text-sm font-medium">
-                  {m.product_name}
-                </p>
+                <p className="truncate text-sm font-medium">{m.product_name}</p>
                 <p className="text-muted-foreground truncate text-xs">
                   {m.product_sku ? `${m.product_sku} · ` : ""}
                   {m.warehouse_name} · {m.shop_type_name}
