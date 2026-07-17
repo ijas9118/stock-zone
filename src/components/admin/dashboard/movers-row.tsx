@@ -28,7 +28,9 @@ export function MoversRow({ fastMovers, slowMovers, title }: MoversRowProps) {
         <Card className="border shadow-none">
           <CardHeader>
             <CardTitle className="text-base font-medium">Fast Movers</CardTitle>
-            <CardDescription>Highest OUT quantity, last 30 days</CardDescription>
+            <CardDescription>
+              Highest OUT quantity, last 30 days
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {fastMovers.length === 0 ? (

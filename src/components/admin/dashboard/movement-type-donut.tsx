@@ -27,7 +27,9 @@ export function MovementTypeDonut({ data }: MovementTypeDonutProps) {
   return (
     <Card className="border shadow-none">
       <CardHeader>
-        <CardTitle className="text-base font-medium">Movement Breakdown</CardTitle>
+        <CardTitle className="text-base font-medium">
+          Movement Breakdown
+        </CardTitle>
       </CardHeader>
       <CardContent>
         {total === 0 ? (

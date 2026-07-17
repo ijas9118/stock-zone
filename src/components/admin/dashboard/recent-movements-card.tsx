@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 
+import { cn } from "@/lib/utils";
 import {
   Card,
   CardContent,
@@ -7,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 
 interface RecentMovement {
   id: string;
@@ -37,14 +37,17 @@ const TYPE_STYLES: Record<string, string> = {
   out: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300",
   transfer_in: "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300",
   transfer_out: "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300",
-  adjustment: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
+  adjustment:
+    "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
 };
 
 export function RecentMovementsCard({ movements }: RecentMovementsCardProps) {
   return (
     <Card className="border shadow-none">
       <CardHeader>
-        <CardTitle className="text-base font-medium">Recent Stock Movements</CardTitle>
+        <CardTitle className="text-base font-medium">
+          Recent Stock Movements
+        </CardTitle>
         <CardDescription>Latest activity for this selection</CardDescription>
       </CardHeader>
       <CardContent>
@@ -69,7 +72,9 @@ export function RecentMovementsCard({ movements }: RecentMovementsCardProps) {
                     >
                       {TYPE_LABELS[m.type] ?? m.type}
                     </span>
-                    <p className="truncate text-sm font-medium">{m.productName}</p>
+                    <p className="truncate text-sm font-medium">
+                      {m.productName}
+                    </p>
                   </div>
                   <p className="text-muted-foreground truncate text-xs">
                     {m.warehouseName} · {m.userName} ·{" "}

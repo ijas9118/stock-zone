@@ -11,21 +11,29 @@ import {
 } from "@/actions/admin/reports";
 import { exportRowsToExcel } from "@/lib/reports/export-excel";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Icons } from "@/components/icons";
 
 const REPORTS = [
   {
     id: "stock-summary",
     title: "Stock Summary",
-    description: "Current quantity for every product, by warehouse and shop type.",
+    description:
+      "Current quantity for every product, by warehouse and shop type.",
     fetch: getStockSummaryReport,
     filename: "stock-summary",
   },
   {
     id: "low-stock",
     title: "Low Stock / Reorder",
-    description: "Products at or below their minimum stock level, with suggested reorder quantity.",
+    description:
+      "Products at or below their minimum stock level, with suggested reorder quantity.",
     fetch: getLowStockReport,
     filename: "low-stock-reorder",
   },
@@ -63,7 +71,9 @@ export function ReportsList() {
       {REPORTS.map((report) => (
         <Card key={report.id} className="border shadow-none">
           <CardHeader>
-            <CardTitle className="text-base font-medium">{report.title}</CardTitle>
+            <CardTitle className="text-base font-medium">
+              {report.title}
+            </CardTitle>
             <CardDescription>{report.description}</CardDescription>
           </CardHeader>
           <CardContent>

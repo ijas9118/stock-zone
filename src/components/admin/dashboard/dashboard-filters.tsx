@@ -1,6 +1,9 @@
 "use client";
 
-import { DashboardShopType, DashboardWarehouse } from "@/actions/admin/dashboard";
+import {
+  DashboardShopType,
+  DashboardWarehouse,
+} from "@/actions/admin/dashboard";
 import {
   Select,
   SelectContent,

@@ -6,7 +6,8 @@ import { getAuthContext } from "@/lib/supabase/server";
 async function verifyAdmin() {
   const auth = await getAuthContext();
   if (!auth.isAuthenticated) throw new Error("Unauthorized");
-  if (auth.role !== "admin") throw new Error("Forbidden: Admin access required");
+  if (auth.role !== "admin")
+    throw new Error("Forbidden: Admin access required");
 }
 
 export async function getStockSummaryReport() {
@@ -23,7 +24,9 @@ export async function getStockSummaryReport() {
   if (error) throw new Error("Failed to fetch stock summary report");
 
   return (data || []).map((row) => {
-    const product = Array.isArray(row.products) ? row.products[0] : row.products;
+    const product = Array.isArray(row.products)
+      ? row.products[0]
+      : row.products;
     const category = Array.isArray(product?.categories)
       ? product?.categories[0]
       : product?.categories;
@@ -60,12 +63,16 @@ export async function getLowStockReport() {
 
   return (data || [])
     .filter((row) => {
-      const product = Array.isArray(row.products) ? row.products[0] : row.products;
+      const product = Array.isArray(row.products)
+        ? row.products[0]
+        : row.products;
       const minQty = product?.minimum_stock_quantity ?? 10;
       return row.quantity <= minQty;
     })
     .map((row) => {
-      const product = Array.isArray(row.products) ? row.products[0] : row.products;
+      const product = Array.isArray(row.products)
+        ? row.products[0]
+        : row.products;
       const category = Array.isArray(product?.categories)
         ? product?.categories[0]
         : product?.categories;
@@ -90,10 +97,12 @@ export async function getLowStockReport() {
     });
 }
 
-export async function getStockMovementsReport(params: {
-  dateFrom?: string;
-  dateTo?: string;
-} = {}) {
+export async function getStockMovementsReport(
+  params: {
+    dateFrom?: string;
+    dateTo?: string;
+  } = {}
+) {
   await verifyAdmin();
   const adminClient = createAdminClient();
 
@@ -119,7 +128,9 @@ export async function getStockMovementsReport(params: {
   if (error) throw new Error("Failed to fetch stock movements report");
 
   return (data || []).map((row) => {
-    const product = Array.isArray(row.products) ? row.products[0] : row.products;
+    const product = Array.isArray(row.products)
+      ? row.products[0]
+      : row.products;
     const warehouse = Array.isArray(row.warehouses)
       ? row.warehouses[0]
       : row.warehouses;

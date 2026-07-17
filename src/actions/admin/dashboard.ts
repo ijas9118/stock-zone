@@ -43,7 +43,9 @@ export async function getDashboardAccess(): Promise<DashboardAccess> {
     .eq("profile_id", auth.userId);
 
   const shopTypes = (data || [])
-    .map((row) => (Array.isArray(row.shop_types) ? row.shop_types[0] : row.shop_types))
+    .map((row) =>
+      Array.isArray(row.shop_types) ? row.shop_types[0] : row.shop_types
+    )
     .filter((s): s is DashboardShopType => !!s);
 
   return { shopTypes };
@@ -68,7 +70,9 @@ export async function getWarehousesForShopType(
 
   const seen = new Map<string, DashboardWarehouse>();
   (data || []).forEach((row) => {
-    const w = Array.isArray(row.warehouses) ? row.warehouses[0] : row.warehouses;
+    const w = Array.isArray(row.warehouses)
+      ? row.warehouses[0]
+      : row.warehouses;
     if (w) seen.set(w.id, w);
   });
 
@@ -157,7 +161,9 @@ export async function getDashboardData(filters: DashboardFilters = {}) {
   let outOfStock = 0;
 
   (stockRows || []).forEach((row) => {
-    const product = Array.isArray(row.products) ? row.products[0] : row.products;
+    const product = Array.isArray(row.products)
+      ? row.products[0]
+      : row.products;
     const minQty = product?.minimum_stock_quantity ?? 10;
     totalStockUnits += row.quantity;
     if (row.quantity <= 0) outOfStock++;
@@ -185,7 +191,10 @@ export async function getDashboardData(filters: DashboardFilters = {}) {
   for (let i = MOVEMENT_DAYS - 1; i >= 0; i--) {
     const d = new Date();
     d.setDate(d.getDate() - i);
-    const key = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    const key = d.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
     volumeByDay.set(key, { inbound: 0, outbound: 0 });
   }
   (movementRows || []).forEach((m) => {
@@ -205,7 +214,9 @@ export async function getDashboardData(filters: DashboardFilters = {}) {
 
   const recentMovements = (recentMovementRows || []).map((m) => {
     const product = Array.isArray(m.products) ? m.products[0] : m.products;
-    const warehouse = Array.isArray(m.warehouses) ? m.warehouses[0] : m.warehouses;
+    const warehouse = Array.isArray(m.warehouses)
+      ? m.warehouses[0]
+      : m.warehouses;
     const createdBy = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles;
 
     return {
@@ -240,7 +251,11 @@ export async function getDashboardData(filters: DashboardFilters = {}) {
           categoryDistribution: movers.categoryDistribution,
           categoryTable: movers.categoryTable,
         }
-      : { available: false as const, categoryDistribution: [], categoryTable: [] },
+      : {
+          available: false as const,
+          categoryDistribution: [],
+          categoryTable: [],
+        },
   };
 }
 
@@ -284,7 +299,8 @@ async function getMoversAndCategory(
     .eq("type", "out")
     .gte("created_at", periodStart.toISOString());
   if (shopTypeId) movementQuery = movementQuery.eq("shop_type_id", shopTypeId);
-  if (warehouseId) movementQuery = movementQuery.eq("warehouse_id", warehouseId);
+  if (warehouseId)
+    movementQuery = movementQuery.eq("warehouse_id", warehouseId);
 
   const [{ data: stockRows }, { data: outMovements }] = await Promise.all([
     stockQuery,
