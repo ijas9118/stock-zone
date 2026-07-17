@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { getMyProfile, getUserStockById } from "@/actions/user/stock";
+import { getStockMovementHistory } from "@/actions/user/stock-movements";
 import { InventoryDetailView } from "@/components/user/inventory/inventory-detail-view";
 
 interface InventoryDetailPageProps {
@@ -26,9 +27,20 @@ export default async function InventoryDetailPage({
     perm_do_sale: profile.perm_do_sale,
   };
 
+  const recentMovements = await getStockMovementHistory(
+    stock.product_id,
+    stock.warehouse_id,
+    stock.shop_type_id,
+    3
+  );
+
   return (
     <div className="flex flex-col gap-6 pb-10">
-      <InventoryDetailView stock={stock} permissions={permissions} />
+      <InventoryDetailView
+        stock={stock}
+        permissions={permissions}
+        recentMovements={recentMovements}
+      />
     </div>
   );
 }
