@@ -22,15 +22,6 @@ interface LocationMultiSelectProps {
   placeholder?: string;
 }
 
-function locationDetail(loc: {
-  zone: string | null;
-  rack: string | null;
-  level: string | null;
-  slot: string | null;
-}) {
-  return [loc.zone, loc.rack, loc.level, loc.slot].filter(Boolean).join(" · ");
-}
-
 export function LocationMultiSelect({
   warehouseId,
   selected,
@@ -130,11 +121,6 @@ export function LocationMultiSelect({
                   className="cursor-pointer"
                 >
                   <span className="font-mono">{loc.location_code}</span>
-                  {locationDetail(loc) && (
-                    <span className="text-muted-foreground ml-1.5 text-xs">
-                      {locationDetail(loc)}
-                    </span>
-                  )}
                 </CommandItem>
               ))}
             </CommandGroup>

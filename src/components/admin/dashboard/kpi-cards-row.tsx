@@ -42,7 +42,9 @@ export function KpiCardsRow({ kpis }: KpiCardsRowProps) {
       value: kpis.outOfStock.toLocaleString(),
       subtext: "Items with zero quantity",
       icon: PackageX,
-      accent: ACCENT[500],
+      // Intentional exception to the accent-only palette — this one needs
+      // to read as a critical alert at a glance.
+      accent: kpis.outOfStock > 0 ? "#dc2626" : ACCENT[500],
     },
     {
       label: "Movements Today",
