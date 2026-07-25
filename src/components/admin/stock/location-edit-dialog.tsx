@@ -5,7 +5,11 @@ import { MapPin } from "lucide-react";
 import { toast } from "sonner";
 
 import { getLocations, LocationWithWarehouse } from "@/actions/admin/locations";
-import { StockWithDetails, updateStockLocation } from "@/actions/admin/stock";
+import {
+  getStockLocations,
+  StockWithDetails,
+  updateStockLocations,
+} from "@/actions/admin/stock";
 import { ACCENT } from "@/lib/chart-colors";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,33 +39,28 @@ export function LocationEditDialog({
   const [isSaving, setIsSaving] = useState(false);
   const [hasAnyLocations, setHasAnyLocations] = useState(true);
 
-  // Derived-state reset: when `open` transitions to true, sync the selection
-  // from the current stock prop. Called during render (not in an effect) so
-  // React re-renders immediately with the correct initial value.
-  const [prevOpen, setPrevOpen] = useState(open);
-  if (prevOpen !== open) {
-    setPrevOpen(open);
-    if (open && stock.locations) {
-      setSelected([stock.locations as unknown as LocationWithWarehouse]);
-    } else if (open) {
-      setSelected([]);
-    }
-  }
-
   useEffect(() => {
     if (!open) return;
+    getStockLocations(stock.id).then((locs) => {
+      if (locs.length > 0) {
+        setSelected(locs as unknown as LocationWithWarehouse[]);
+      } else if (stock.locations) {
+        setSelected([stock.locations as unknown as LocationWithWarehouse]);
+      } else {
+        setSelected([]);
+      }
+    });
     getLocations({ warehouseId: stock.warehouse_id, pageSize: 1 }).then((r) => {
       setHasAnyLocations(r.totalCount > 0);
     });
-  }, [open, stock.warehouse_id]);
+  }, [open, stock.id, stock.warehouse_id, stock.locations]);
 
   async function handleSave() {
     setIsSaving(true);
-    // Only one location can be persisted today — the schema stores a single
-    // location_id per stock row. Saving the first pick keeps this safe (no
-    // silent data loss) until multi-location storage is added.
-    const primary = selected[0] ?? null;
-    const result = await updateStockLocation(stock.id, primary?.id ?? null);
+    const result = await updateStockLocations(
+      stock.id,
+      selected.map((s) => s.id)
+    );
     setIsSaving(false);
     if (result.error) {
       toast.error(result.error);
@@ -95,30 +94,12 @@ export function LocationEditDialog({
               page first.
             </p>
           ) : (
-            <>
-              <LocationMultiSelect
-                warehouseId={stock.warehouse_id}
-                selected={selected}
-                onChange={setSelected}
-                placeholder="Search and select locations…"
-              />
-              {selected.length > 1 && (
-                <p
-                  className="rounded-md border p-2 text-xs"
-                  style={{
-                    borderColor: `${ACCENT[300]}80`,
-                    color: ACCENT[700],
-                    background: `${ACCENT[100]}40`,
-                  }}
-                >
-                  Only{" "}
-                  <span className="font-mono">{selected[0].location_code}</span>{" "}
-                  will be saved for now — storing multiple locations per item
-                  needs a small database update that hasn&apos;t been applied
-                  yet. The rest are kept here so you don&apos;t lose the pick.
-                </p>
-              )}
-            </>
+            <LocationMultiSelect
+              warehouseId={stock.warehouse_id}
+              selected={selected}
+              onChange={setSelected}
+              placeholder="Search and select locations…"
+            />
           )}
         </div>
 

@@ -41,7 +41,7 @@ export const columns: ColumnDef<Warehouse>[] = [
     cell: ({ row }) => {
       const isActive = row.getValue("is_active") as boolean;
       return (
-        <Badge variant={isActive ? "success" : "secondary"}>
+        <Badge variant={isActive ? "default" : "secondary"}>
           {isActive ? "Active" : "Inactive"}
         </Badge>
       );

@@ -228,7 +228,7 @@ function InForm({ stock, uomOptions, onSuccess }: InFormProps) {
                   />
                 </FormControl>
                 {hint ? (
-                  <FormDescription className="text-xs text-blue-600 dark:text-blue-400">
+                  <FormDescription className="text-xs text-[#7A3483] dark:text-[#C78AD0]">
                     {hint}
                   </FormDescription>
                 ) : (
@@ -415,7 +415,7 @@ function OutForm({ stock, uomOptions, onSuccess }: OutFormProps) {
                   />
                 </FormControl>
                 {hint ? (
-                  <FormDescription className="text-xs text-blue-600 dark:text-blue-400">
+                  <FormDescription className="text-xs text-[#7A3483] dark:text-[#C78AD0]">
                     {hint}
                   </FormDescription>
                 ) : (
@@ -627,7 +627,7 @@ function TransferForm({ stock, uomOptions, onSuccess }: TransferFormProps) {
                   />
                 </FormControl>
                 {hint ? (
-                  <FormDescription className="text-xs text-blue-600 dark:text-blue-400">
+                  <FormDescription className="text-xs text-[#7A3483] dark:text-[#C78AD0]">
                     {hint}
                   </FormDescription>
                 ) : (
@@ -841,7 +841,7 @@ function AdjustmentForm({ stock, uomOptions, onSuccess }: AdjustmentFormProps) {
                   />
                 </FormControl>
                 {hint ? (
-                  <FormDescription className="text-xs text-blue-600 dark:text-blue-400">
+                  <FormDescription className="text-xs text-[#7A3483] dark:text-[#C78AD0]">
                     {hint}
                   </FormDescription>
                 ) : (
