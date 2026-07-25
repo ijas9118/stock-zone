@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 
+import { ACCENT } from "@/lib/chart-colors";
 import { cn } from "@/lib/utils";
 import {
   Card,
@@ -32,13 +33,16 @@ const TYPE_LABELS: Record<string, string> = {
   adjustment: "Adjustment",
 };
 
+// Same accent family throughout, no other hues — shade signals the type.
 const TYPE_STYLES: Record<string, string> = {
-  in: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300",
-  out: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300",
-  transfer_in: "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300",
-  transfer_out: "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300",
+  in: "bg-[#441D49]/10 text-[#441D49] dark:bg-[#441D49]/40 dark:text-[#DDB6E2]",
+  out: "bg-[#7A3483]/10 text-[#7A3483] dark:bg-[#7A3483]/40 dark:text-[#DDB6E2]",
+  transfer_in:
+    "bg-[#A346AF]/10 text-[#A346AF] dark:bg-[#A346AF]/40 dark:text-[#DDB6E2]",
+  transfer_out:
+    "bg-[#A346AF]/10 text-[#A346AF] dark:bg-[#A346AF]/40 dark:text-[#DDB6E2]",
   adjustment:
-    "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
+    "bg-[#C78AD0]/25 text-[#7A3483] dark:bg-[#C78AD0]/25 dark:text-[#DDB6E2]",
 };
 
 export function RecentMovementsCard({ movements }: RecentMovementsCardProps) {
@@ -82,10 +86,10 @@ export function RecentMovementsCard({ movements }: RecentMovementsCardProps) {
                   </p>
                 </div>
                 <span
-                  className={cn(
-                    "shrink-0 text-sm font-semibold",
-                    m.quantityDelta >= 0 ? "text-indigo-600" : "text-rose-600"
-                  )}
+                  className="shrink-0 text-sm font-semibold"
+                  style={{
+                    color: m.quantityDelta >= 0 ? ACCENT[900] : ACCENT[500],
+                  }}
                 >
                   {m.quantityDelta >= 0 ? "+" : ""}
                   {m.quantityDelta}

@@ -19,6 +19,8 @@ interface KpiCardsRowProps {
   };
 }
 
+// Each card gets its own shade from the same 5-step ramp, darkest -> lightest,
+// so all five feel like one family while still reading as distinct.
 export function KpiCardsRow({ kpis }: KpiCardsRowProps) {
   const cards = [
     {
@@ -26,61 +28,62 @@ export function KpiCardsRow({ kpis }: KpiCardsRowProps) {
       value: kpis.totalStockUnits.toLocaleString(),
       subtext: "Across current selection",
       icon: Boxes,
-      color: undefined,
+      accent: ACCENT[900],
     },
     {
       label: "Low Stock",
-      value: kpis.lowStockCount,
-      subtext: "Items at or below reorder point",
+      value: kpis.lowStockCount.toLocaleString(),
+      subtext: "At or below reorder point",
       icon: TriangleAlert,
-      color: kpis.lowStockCount > 0 ? ACCENT[500] : undefined,
+      accent: ACCENT[700],
     },
     {
       label: "Out of Stock",
-      value: kpis.outOfStock,
+      value: kpis.outOfStock.toLocaleString(),
       subtext: "Items with zero quantity",
       icon: PackageX,
-      color: kpis.outOfStock > 0 ? ACCENT[900] : undefined,
+      accent: ACCENT[500],
     },
     {
       label: "Movements Today",
-      value: kpis.movementsToday,
+      value: kpis.movementsToday.toLocaleString(),
       subtext: "IN / OUT / Transfer / Adjustment",
       icon: ArrowRightLeft,
-      color: undefined,
+      accent: ACCENT[300],
     },
     {
       label: "Pending Transfers",
-      value: kpis.pendingTransfers,
+      value: kpis.pendingTransfers.toLocaleString(),
       subtext: "Awaiting completion",
       icon: PackageSearch,
-      color: kpis.pendingTransfers > 0 ? ACCENT[700] : undefined,
+      accent: ACCENT[900],
     },
   ];
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
       {cards.map((c) => (
-        <Card key={c.label} className="border shadow-none">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-muted-foreground text-sm font-medium">
+        <Card
+          key={c.label}
+          className="border-t-2 shadow-none"
+          style={{ borderTopColor: c.accent }}
+        >
+          <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
+            <CardTitle className="text-muted-foreground min-h-8 text-xs leading-4 font-medium">
               {c.label}
             </CardTitle>
             <span
-              className="flex h-7 w-7 items-center justify-center rounded-full"
-              style={{ background: `${ACCENT[300]}33` }}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
+              style={{ background: `${c.accent}1f` }}
             >
-              <c.icon className="h-3.5 w-3.5" style={{ color: ACCENT[900] }} />
+              <c.icon className="h-4 w-4" style={{ color: c.accent }} />
             </span>
           </CardHeader>
           <CardContent>
-            <div
-              className="text-2xl font-bold"
-              style={c.color ? { color: c.color } : undefined}
-            >
+            <div className="text-2xl leading-none font-bold tabular-nums">
               {c.value}
             </div>
-            <p className="text-muted-foreground text-xs">{c.subtext}</p>
+            <p className="text-muted-foreground mt-1.5 text-xs">{c.subtext}</p>
           </CardContent>
         </Card>
       ))}
