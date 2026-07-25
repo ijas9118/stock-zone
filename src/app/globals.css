@@ -116,6 +116,16 @@
   --sidebar-ring: oklch(0.439 0 0);
 }
 
+/* Admin/manager area accent — applied to <body> while those routes are
+   mounted (see AdminThemeScope), so it also reaches Radix portals (dialogs,
+   selects, popovers), which render to document.body rather than inside the
+   layout tree. Scoped here instead of editing the shadcn/ui primitives. */
+.admin-theme {
+  --primary: #441d49;
+  --primary-foreground: #ffffff;
+  --ring: #a346af;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

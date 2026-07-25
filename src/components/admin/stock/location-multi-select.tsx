@@ -75,8 +75,7 @@ export function LocationMultiSelect({
     <div ref={containerRef} className="relative">
       <Command shouldFilter={false} className="overflow-visible bg-transparent">
         <div
-          className="focus-within:ring-offset-background flex min-h-11 flex-wrap items-center gap-1.5 rounded-md border px-2 py-1.5 focus-within:ring-2 focus-within:ring-offset-2"
-          style={{ "--tw-ring-color": ACCENT[500] } as React.CSSProperties}
+          className="focus-within:border-ring focus-within:ring-ring/50 flex min-h-11 flex-wrap items-center gap-1.5 rounded-md border px-2 py-1.5 focus-within:ring-[3px]"
           onClick={() => inputRef.current?.focus()}
         >
           {selected.map((loc) => (

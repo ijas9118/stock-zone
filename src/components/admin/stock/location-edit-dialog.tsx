@@ -126,12 +126,7 @@ export function LocationEditDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button
-            onClick={handleSave}
-            disabled={isSaving}
-            style={{ background: ACCENT[900] }}
-            className="text-white hover:opacity-90"
-          >
+          <Button onClick={handleSave} disabled={isSaving}>
             {isSaving ? "Saving..." : "Save"}
           </Button>
         </DialogFooter>
