@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, MapPin } from "lucide-react";
 import { toast } from "sonner";
 
 import { getLocations, LocationWithWarehouse } from "@/actions/admin/locations";
 import { StockWithDetails, updateStockLocation } from "@/actions/admin/stock";
+import { ACCENT } from "@/lib/chart-colors";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -84,7 +85,11 @@ export function LocationEditDialog({
         query: search || undefined,
         pageSize: 50,
       }).then((r) => {
-        setLocations(r.locations);
+        // Belt-and-braces de-dupe by id in case of any overlapping fetches.
+        const unique = Array.from(
+          new Map(r.locations.map((l) => [l.id, l])).values()
+        );
+        setLocations(unique);
         if (!search) setHasAnyLocations(r.totalCount > 0);
       });
     }, 200);
@@ -94,7 +99,7 @@ export function LocationEditDialog({
   const selectedFromList = locations.find((l) => l.id === selectedId);
   const selectedLabel =
     selectedId === NONE
-      ? "— None —"
+      ? "No location assigned"
       : selectedFromList
         ? locationLabel(selectedFromList)
         : stock.locations && stock.locations.id === selectedId
@@ -118,16 +123,19 @@ export function LocationEditDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-100">
         <DialogHeader>
-          <DialogTitle>Edit Location</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <MapPin className="h-4 w-4" style={{ color: ACCENT[500] }} />
+            Edit Location
+          </DialogTitle>
           <DialogDescription>
             {stock.products?.name} · {stock.warehouses?.name}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-2 py-1">
-          <Label>Location</Label>
+        <div className="space-y-2 py-2">
+          <Label className="text-sm font-medium">Bin Location</Label>
           {!hasAnyLocations ? (
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground rounded-lg border border-dashed p-4 text-sm">
               No locations defined for this warehouse. Add some from the{" "}
               <a href="/admin/locations" className="underline">
                 Locations
@@ -141,7 +149,7 @@ export function LocationEditDialog({
                   variant="outline"
                   role="combobox"
                   aria-expanded={comboOpen}
-                  className="w-full justify-between font-normal"
+                  className="h-11 w-full justify-between px-3 font-normal"
                 >
                   <span
                     className={cn(
@@ -154,7 +162,11 @@ export function LocationEditDialog({
                   <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-(--radix-popover-trigger-width) p-0">
+              <PopoverContent
+                align="start"
+                sideOffset={6}
+                className="w-[360px] p-0"
+              >
                 <Command shouldFilter={false}>
                   <CommandInput
                     placeholder="Search location…"
@@ -177,7 +189,9 @@ export function LocationEditDialog({
                             selectedId === NONE ? "opacity-100" : "opacity-0"
                           )}
                         />
-                        <span className="text-muted-foreground">— None —</span>
+                        <span className="text-muted-foreground">
+                          No location
+                        </span>
                       </CommandItem>
                       {locations.map((loc) => (
                         <CommandItem
@@ -218,7 +232,12 @@ export function LocationEditDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={isSaving}>
+          <Button
+            onClick={handleSave}
+            disabled={isSaving}
+            style={{ background: ACCENT[900] }}
+            className="text-white hover:opacity-90"
+          >
             {isSaving ? "Saving..." : "Save"}
           </Button>
         </DialogFooter>

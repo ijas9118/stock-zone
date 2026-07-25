@@ -2,18 +2,18 @@
 
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
+import { ACCENT } from "@/lib/chart-colors";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface StockHealthDonutProps {
   data: { healthy: number; low: number; outOfStock: number };
 }
 
-// Blue -> purple contrast: healthiest on the blue end, most severe deepest
-// purple, matching the app's black theme.
+// Same palette throughout: lightest = healthiest, darkest = most severe.
 const COLORS: Record<string, string> = {
-  Healthy: "#3b82f6",
-  Low: "#8b5cf6",
-  "Out of Stock": "#5b21b6",
+  Healthy: ACCENT[300],
+  Low: ACCENT[500],
+  "Out of Stock": ACCENT[900],
 };
 
 export function StockHealthDonut({ data }: StockHealthDonutProps) {
@@ -23,6 +23,7 @@ export function StockHealthDonut({ data }: StockHealthDonutProps) {
     { name: "Out of Stock", value: data.outOfStock },
   ];
   const total = chartData.reduce((sum, d) => sum + d.value, 0);
+  const healthyPct = total > 0 ? Math.round((data.healthy / total) * 100) : 0;
 
   return (
     <Card className="border shadow-none">
@@ -36,30 +37,43 @@ export function StockHealthDonut({ data }: StockHealthDonutProps) {
           </p>
         ) : (
           <div className="flex items-center gap-4">
-            <ResponsiveContainer width="60%" height={200}>
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  dataKey="value"
-                  nameKey="name"
-                  innerRadius={50}
-                  outerRadius={80}
-                  paddingAngle={2}
-                >
-                  {chartData.map((d) => (
-                    <Cell key={d.name} fill={COLORS[d.name]} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    background: "var(--popover)",
-                    border: "1px solid var(--border)",
-                    color: "var(--popover-foreground)",
-                    fontSize: 12,
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+            <div className="relative h-[200px] w-[60%] shrink-0">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={chartData}
+                    dataKey="value"
+                    nameKey="name"
+                    innerRadius="68%"
+                    outerRadius="95%"
+                    paddingAngle={2}
+                    startAngle={90}
+                    endAngle={-270}
+                  >
+                    {chartData.map((d) => (
+                      <Cell key={d.name} fill={COLORS[d.name]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      background: "var(--popover)",
+                      border: "1px solid var(--border)",
+                      borderRadius: 8,
+                      color: "var(--popover-foreground)",
+                      fontSize: 12,
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-3xl font-bold tracking-tight">
+                  {healthyPct}%
+                </span>
+                <span className="text-muted-foreground text-[10px] font-bold tracking-widest uppercase">
+                  Healthy
+                </span>
+              </div>
+            </div>
             <div className="space-y-2">
               {chartData.map((d) => (
                 <div key={d.name} className="flex items-center gap-2 text-xs">
@@ -68,7 +82,9 @@ export function StockHealthDonut({ data }: StockHealthDonutProps) {
                     style={{ background: COLORS[d.name] }}
                   />
                   <span className="text-muted-foreground">{d.name}</span>
-                  <span className="font-medium">{d.value}</span>
+                  <span className="font-medium">
+                    {total > 0 ? Math.round((d.value / total) * 100) : 0}%
+                  </span>
                 </div>
               ))}
             </div>

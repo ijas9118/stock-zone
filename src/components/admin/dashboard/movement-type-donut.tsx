@@ -2,19 +2,14 @@
 
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
+import { ACCENT_RAMP } from "@/lib/chart-colors";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface MovementTypeDonutProps {
   data: { in: number; out: number; transfer: number; adjustment: number };
 }
 
-// Blue -> purple contrast family, matching the app's black theme.
-const COLORS: Record<string, string> = {
-  IN: "#2563eb",
-  OUT: "#7c3aed",
-  Transfer: "#60a5fa",
-  Adjustment: "#8b5cf6",
-};
+const LABELS = ["IN", "OUT", "Transfer", "Adjustment"];
 
 export function MovementTypeDonut({ data }: MovementTypeDonutProps) {
   const chartData = [
@@ -24,6 +19,7 @@ export function MovementTypeDonut({ data }: MovementTypeDonutProps) {
     { name: "Adjustment", value: data.adjustment },
   ];
   const total = chartData.reduce((sum, d) => sum + d.value, 0);
+  const colorFor = (name: string) => ACCENT_RAMP[LABELS.indexOf(name)];
 
   return (
     <Card className="border shadow-none">
@@ -39,36 +35,49 @@ export function MovementTypeDonut({ data }: MovementTypeDonutProps) {
           </p>
         ) : (
           <div className="flex items-center gap-4">
-            <ResponsiveContainer width="60%" height={200}>
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  dataKey="value"
-                  nameKey="name"
-                  innerRadius={50}
-                  outerRadius={80}
-                  paddingAngle={2}
-                >
-                  {chartData.map((d) => (
-                    <Cell key={d.name} fill={COLORS[d.name]} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    background: "var(--popover)",
-                    border: "1px solid var(--border)",
-                    color: "var(--popover-foreground)",
-                    fontSize: 12,
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+            <div className="relative h-[200px] w-[60%] shrink-0">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={chartData}
+                    dataKey="value"
+                    nameKey="name"
+                    innerRadius="68%"
+                    outerRadius="95%"
+                    paddingAngle={2}
+                    startAngle={90}
+                    endAngle={-270}
+                  >
+                    {chartData.map((d) => (
+                      <Cell key={d.name} fill={colorFor(d.name)} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      background: "var(--popover)",
+                      border: "1px solid var(--border)",
+                      borderRadius: 8,
+                      color: "var(--popover-foreground)",
+                      fontSize: 12,
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-3xl font-bold tracking-tight">
+                  {total}
+                </span>
+                <span className="text-muted-foreground text-[10px] font-bold tracking-widest uppercase">
+                  Movements
+                </span>
+              </div>
+            </div>
             <div className="space-y-2">
               {chartData.map((d) => (
                 <div key={d.name} className="flex items-center gap-2 text-xs">
                   <span
                     className="h-2.5 w-2.5 rounded-full"
-                    style={{ background: COLORS[d.name] }}
+                    style={{ background: colorFor(d.name) }}
                   />
                   <span className="text-muted-foreground">{d.name}</span>
                   <span className="font-medium">{d.value}</span>

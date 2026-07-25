@@ -6,6 +6,7 @@ import {
   TriangleAlert,
 } from "lucide-react";
 
+import { ACCENT } from "@/lib/chart-colors";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface KpiCardsRowProps {
@@ -25,35 +26,35 @@ export function KpiCardsRow({ kpis }: KpiCardsRowProps) {
       value: kpis.totalStockUnits.toLocaleString(),
       subtext: "Across current selection",
       icon: Boxes,
-      tone: "text-foreground",
+      color: undefined,
     },
     {
       label: "Low Stock",
       value: kpis.lowStockCount,
       subtext: "Items at or below reorder point",
       icon: TriangleAlert,
-      tone: kpis.lowStockCount > 0 ? "text-amber-600" : "text-foreground",
+      color: kpis.lowStockCount > 0 ? ACCENT[500] : undefined,
     },
     {
       label: "Out of Stock",
       value: kpis.outOfStock,
       subtext: "Items with zero quantity",
       icon: PackageX,
-      tone: kpis.outOfStock > 0 ? "text-rose-600" : "text-foreground",
+      color: kpis.outOfStock > 0 ? ACCENT[900] : undefined,
     },
     {
       label: "Movements Today",
       value: kpis.movementsToday,
       subtext: "IN / OUT / Transfer / Adjustment",
       icon: ArrowRightLeft,
-      tone: "text-foreground",
+      color: undefined,
     },
     {
       label: "Pending Transfers",
       value: kpis.pendingTransfers,
       subtext: "Awaiting completion",
       icon: PackageSearch,
-      tone: kpis.pendingTransfers > 0 ? "text-indigo-600" : "text-foreground",
+      color: kpis.pendingTransfers > 0 ? ACCENT[700] : undefined,
     },
   ];
 
@@ -65,10 +66,20 @@ export function KpiCardsRow({ kpis }: KpiCardsRowProps) {
             <CardTitle className="text-muted-foreground text-sm font-medium">
               {c.label}
             </CardTitle>
-            <c.icon className="text-muted-foreground h-4 w-4" />
+            <span
+              className="flex h-7 w-7 items-center justify-center rounded-full"
+              style={{ background: `${ACCENT[300]}33` }}
+            >
+              <c.icon className="h-3.5 w-3.5" style={{ color: ACCENT[900] }} />
+            </span>
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${c.tone}`}>{c.value}</div>
+            <div
+              className="text-2xl font-bold"
+              style={c.color ? { color: c.color } : undefined}
+            >
+              {c.value}
+            </div>
             <p className="text-muted-foreground text-xs">{c.subtext}</p>
           </CardContent>
         </Card>
