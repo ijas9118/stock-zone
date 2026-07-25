@@ -8,10 +8,12 @@ interface StockHealthDonutProps {
   data: { healthy: number; low: number; outOfStock: number };
 }
 
+// Blue -> purple contrast: healthiest on the blue end, most severe deepest
+// purple, matching the app's black theme.
 const COLORS: Record<string, string> = {
-  Healthy: "#6366f1",
-  Low: "#f59e0b",
-  "Out of Stock": "#f43f5e",
+  Healthy: "#3b82f6",
+  Low: "#8b5cf6",
+  "Out of Stock": "#5b21b6",
 };
 
 export function StockHealthDonut({ data }: StockHealthDonutProps) {

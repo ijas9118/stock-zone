@@ -25,9 +25,16 @@ interface AdminDashboardProps {
   access: DashboardAccess;
 }
 
+// Jubail is the primary imports warehouse and the most useful default view;
+// fall back to the first available shop type if Jubail isn't in scope.
+function pickDefaultShopTypeId(shopTypes: DashboardAccess["shopTypes"]) {
+  const jubail = shopTypes.find((s) => /jubail/i.test(s.name));
+  return jubail?.id ?? shopTypes[0]?.id ?? "";
+}
+
 export function AdminDashboard({ access }: AdminDashboardProps) {
   const [shopTypeId, setShopTypeId] = useState<string>(
-    access.shopTypes[0]?.id ?? ""
+    pickDefaultShopTypeId(access.shopTypes)
   );
   const [warehouseId, setWarehouseId] = useState<string>("");
   const [warehouses, setWarehouses] = useState<DashboardWarehouse[]>([]);

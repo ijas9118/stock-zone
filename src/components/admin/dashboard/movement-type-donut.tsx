@@ -8,11 +8,12 @@ interface MovementTypeDonutProps {
   data: { in: number; out: number; transfer: number; adjustment: number };
 }
 
+// Blue -> purple contrast family, matching the app's black theme.
 const COLORS: Record<string, string> = {
-  IN: "#6366f1",
-  OUT: "#f43f5e",
-  Transfer: "#0ea5e9",
-  Adjustment: "#f59e0b",
+  IN: "#2563eb",
+  OUT: "#7c3aed",
+  Transfer: "#60a5fa",
+  Adjustment: "#8b5cf6",
 };
 
 export function MovementTypeDonut({ data }: MovementTypeDonutProps) {

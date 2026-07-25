@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 import { DashboardData } from "@/actions/admin/dashboard";
@@ -10,6 +11,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -23,17 +31,30 @@ interface JubailSectionProps {
   data: DashboardData["jubail"];
 }
 
+// Blue -> purple family instead of a rainbow, so multi-slice charts still
+// read as one cohesive palette.
 const DONUT_COLORS = [
-  "#6366f1",
-  "#0ea5e9",
-  "#f59e0b",
-  "#f43f5e",
+  "#2563eb",
+  "#3b82f6",
+  "#60a5fa",
   "#8b5cf6",
-  "#06b6d4",
-  "#ec4899",
+  "#7c3aed",
+  "#6d28d9",
+  "#4c1d95",
 ];
 
 export function JubailSection({ data }: JubailSectionProps) {
+  const [selectedCategory, setSelectedCategory] = useState(
+    data.available ? (data.categories[0] ?? "") : ""
+  );
+
+  const filteredSubcategories = useMemo(() => {
+    if (!data.available) return [];
+    return data.subcategoryTable
+      .filter((s) => s.category === selectedCategory)
+      .sort((a, b) => b.quantity - a.quantity);
+  }, [data, selectedCategory]);
+
   if (!data.available) {
     return null;
   }
@@ -75,6 +96,7 @@ export function JubailSection({ data }: JubailSectionProps) {
                     contentStyle={{
                       background: "var(--popover)",
                       border: "1px solid var(--border)",
+                      borderRadius: 8,
                       color: "var(--popover-foreground)",
                       fontSize: 12,
                     }}
@@ -86,39 +108,58 @@ export function JubailSection({ data }: JubailSectionProps) {
         </Card>
 
         <Card className="border shadow-none">
-          <CardHeader>
-            <CardTitle className="text-base font-medium">
-              Stock by Category
-            </CardTitle>
-            <CardDescription>Quantity and low-stock count</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
+            <div>
+              <CardTitle className="text-base font-medium">
+                Subcategory Stock
+              </CardTitle>
+              <CardDescription>Quantity and low-stock count</CardDescription>
+            </div>
+            {data.categories.length > 0 && (
+              <Select
+                value={selectedCategory}
+                onValueChange={setSelectedCategory}
+              >
+                <SelectTrigger className="h-8 w-[160px] text-xs">
+                  <SelectValue placeholder="Choose category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {data.categories.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </CardHeader>
           <CardContent>
-            {data.categoryTable.length === 0 ? (
+            {filteredSubcategories.length === 0 ? (
               <p className="text-muted-foreground py-10 text-center text-sm">
-                No categories to show.
+                No subcategories to show.
               </p>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Category</TableHead>
+                    <TableHead>Subcategory</TableHead>
                     <TableHead className="text-right">Quantity</TableHead>
                     <TableHead className="text-right">Low Stock</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data.categoryTable.map((c) => (
-                    <TableRow key={c.category}>
+                  {filteredSubcategories.map((s) => (
+                    <TableRow key={s.subcategory}>
                       <TableCell className="font-medium">
-                        {c.category}
+                        {s.subcategory}
                       </TableCell>
                       <TableCell className="text-right">
-                        {c.quantity.toLocaleString()}
+                        {s.quantity.toLocaleString()}
                       </TableCell>
                       <TableCell className="text-right">
-                        {c.lowStockCount > 0 ? (
+                        {s.lowStockCount > 0 ? (
                           <span className="font-medium text-red-600">
-                            {c.lowStockCount}
+                            {s.lowStockCount}
                           </span>
                         ) : (
                           "-"

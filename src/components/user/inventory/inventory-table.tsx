@@ -74,6 +74,11 @@ export function InventoryTable({ stocks }: InventoryTableProps) {
                       <span className="text-muted-foreground/80 font-mono text-[10px]">
                         {stock.products?.sku || "NO-SKU"}
                       </span>
+                      {stock.locations && (
+                        <span className="text-muted-foreground/60 font-mono text-[10px]">
+                          · {stock.locations.location_code}
+                        </span>
+                      )}
                       <Badge
                         variant="outline"
                         className="h-3 origin-left scale-95 px-1 py-0 text-[8px] font-medium md:hidden"
@@ -89,9 +94,16 @@ export function InventoryTable({ stocks }: InventoryTableProps) {
                   {stock.products?.sku || "NO-SKU"}
                 </TableCell>
                 <TableCell className="hidden px-4 py-3 lg:table-cell">
-                  <span className="text-foreground text-[13px] font-medium lg:text-sm lg:font-semibold">
-                    {stock.products?.name}
-                  </span>
+                  <div className="flex flex-col">
+                    <span className="text-foreground text-[13px] font-medium lg:text-sm lg:font-semibold">
+                      {stock.products?.name}
+                    </span>
+                    {stock.locations && (
+                      <span className="text-muted-foreground/70 font-mono text-[10px]">
+                        Bin {stock.locations.location_code}
+                      </span>
+                    )}
+                  </div>
                 </TableCell>
 
                 {/* Mobile/Tablet Location */}

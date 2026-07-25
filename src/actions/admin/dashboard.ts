@@ -146,7 +146,7 @@ export async function getDashboardData(filters: DashboardFilters = {}) {
           "id, type, quantity_delta, created_at, products(name, sku), warehouses(name), profiles:created_by(full_name, email)"
         )
         .order("created_at", { ascending: false })
-        .limit(8);
+        .limit(5);
       if (shopTypeId) q = q.eq("shop_type_id", shopTypeId);
       if (warehouseId) q = q.eq("warehouse_id", warehouseId);
       return q;
@@ -249,12 +249,14 @@ export async function getDashboardData(filters: DashboardFilters = {}) {
       ? {
           available: true as const,
           categoryDistribution: movers.categoryDistribution,
-          categoryTable: movers.categoryTable,
+          categories: movers.categories,
+          subcategoryTable: movers.subcategoryTable,
         }
       : {
           available: false as const,
           categoryDistribution: [],
-          categoryTable: [],
+          categories: [],
+          subcategoryTable: [],
         },
   };
 }
@@ -284,7 +286,7 @@ async function getMoversAndCategory(
   periodStart.setDate(periodStart.getDate() - MOVEMENT_DAYS);
 
   const productSelect = includeCategory
-    ? "name, sku, minimum_stock_quantity, category, categories(category_name)"
+    ? "name, sku, minimum_stock_quantity, category, categories(category_name), subcategories(subcategory_name)"
     : "name, sku, minimum_stock_quantity";
 
   let stockQuery = adminClient
@@ -313,6 +315,10 @@ async function getMoversAndCategory(
     minimum_stock_quantity?: number;
     category?: string | null;
     categories?: { category_name: string } | { category_name: string }[] | null;
+    subcategories?:
+      | { subcategory_name: string }
+      | { subcategory_name: string }[]
+      | null;
   };
 
   const outByProduct = new Map<
@@ -344,6 +350,15 @@ async function getMoversAndCategory(
     string,
     { category: string; quantity: number; lowStockCount: number }
   >();
+  const subcategoryMap = new Map<
+    string,
+    {
+      category: string;
+      subcategory: string;
+      quantity: number;
+      lowStockCount: number;
+    }
+  >();
 
   (stockRows || []).forEach((row) => {
     const product = (
@@ -363,8 +378,13 @@ async function getMoversAndCategory(
       const category = Array.isArray(product.categories)
         ? product.categories[0]
         : product.categories;
+      const subcategory = Array.isArray(product.subcategories)
+        ? product.subcategories[0]
+        : product.subcategories;
       const categoryName = category?.category_name ?? "Uncategorized";
+      const subcategoryName = subcategory?.subcategory_name ?? "Uncategorized";
       const minQty = product.minimum_stock_quantity ?? 10;
+      const isLow = row.quantity <= minQty;
 
       const existing = categoryMap.get(categoryName) ?? {
         category: categoryName,
@@ -372,8 +392,19 @@ async function getMoversAndCategory(
         lowStockCount: 0,
       };
       existing.quantity += row.quantity;
-      if (row.quantity <= minQty) existing.lowStockCount++;
+      if (isLow) existing.lowStockCount++;
       categoryMap.set(categoryName, existing);
+
+      const subKey = `${categoryName}::${subcategoryName}`;
+      const subExisting = subcategoryMap.get(subKey) ?? {
+        category: categoryName,
+        subcategory: subcategoryName,
+        quantity: 0,
+        lowStockCount: 0,
+      };
+      subExisting.quantity += row.quantity;
+      if (isLow) subExisting.lowStockCount++;
+      subcategoryMap.set(subKey, subExisting);
     }
   });
 
@@ -388,6 +419,9 @@ async function getMoversAndCategory(
     name: c.category,
     value: c.quantity,
   }));
+  const subcategoryTable = Array.from(subcategoryMap.values()).sort(
+    (a, b) => b.quantity - a.quantity
+  );
 
   return {
     available: true as const,
@@ -395,6 +429,8 @@ async function getMoversAndCategory(
     slowMovers,
     categoryDistribution,
     categoryTable,
+    categories: categoryTable.map((c) => c.category),
+    subcategoryTable,
   };
 }
 

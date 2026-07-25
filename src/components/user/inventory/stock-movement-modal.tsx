@@ -104,7 +104,7 @@ function InForm({ stock, uomOptions, onSuccess }: InFormProps) {
     defaultValues: {
       subType: "",
       transactUomId: "",
-      transactQty: 1,
+      transactQty: undefined as unknown as number,
       notes: "",
     },
   });
@@ -213,8 +213,18 @@ function InForm({ stock, uomOptions, onSuccess }: InFormProps) {
                     type="number"
                     min="0.000001"
                     step="any"
+                    placeholder="0"
+                    className="[appearance:textfield] border-violet-600 bg-black text-white placeholder:text-zinc-500 focus-visible:ring-violet-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    value={field.value ?? ""}
+                    onChange={(e) =>
+                      field.onChange(
+                        (e.target.value === ""
+                          ? ""
+                          : Number(e.target.value)) as number
+                      )
+                    }
+                    onFocus={(e) => e.target.select()}
                   />
                 </FormControl>
                 {hint ? (
@@ -281,7 +291,7 @@ function OutForm({ stock, uomOptions, onSuccess }: OutFormProps) {
     defaultValues: {
       subType: "",
       transactUomId: "",
-      transactQty: 1,
+      transactQty: undefined as unknown as number,
       notes: "",
     },
   });
@@ -390,8 +400,18 @@ function OutForm({ stock, uomOptions, onSuccess }: OutFormProps) {
                     type="number"
                     min="0.000001"
                     step="any"
+                    placeholder="0"
+                    className="[appearance:textfield] border-violet-600 bg-black text-white placeholder:text-zinc-500 focus-visible:ring-violet-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    value={field.value ?? ""}
+                    onChange={(e) =>
+                      field.onChange(
+                        (e.target.value === ""
+                          ? ""
+                          : Number(e.target.value)) as number
+                      )
+                    }
+                    onFocus={(e) => e.target.select()}
                   />
                 </FormControl>
                 {hint ? (
@@ -461,7 +481,7 @@ function TransferForm({ stock, uomOptions, onSuccess }: TransferFormProps) {
     defaultValues: {
       destWarehouseId: "",
       transactUomId: "",
-      transactQty: 1,
+      transactQty: undefined as unknown as number,
       notes: "",
     },
   });
@@ -592,8 +612,18 @@ function TransferForm({ stock, uomOptions, onSuccess }: TransferFormProps) {
                     type="number"
                     min="0.000001"
                     step="any"
+                    placeholder="0"
+                    className="[appearance:textfield] border-violet-600 bg-black text-white placeholder:text-zinc-500 focus-visible:ring-violet-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    value={field.value ?? ""}
+                    onChange={(e) =>
+                      field.onChange(
+                        (e.target.value === ""
+                          ? ""
+                          : Number(e.target.value)) as number
+                      )
+                    }
+                    onFocus={(e) => e.target.select()}
                   />
                 </FormControl>
                 {hint ? (
@@ -658,7 +688,7 @@ function AdjustmentForm({ stock, uomOptions, onSuccess }: AdjustmentFormProps) {
       subType: "",
       direction: "add",
       transactUomId: "",
-      transactQty: 1,
+      transactQty: undefined as unknown as number,
       notes: "",
     },
   });
@@ -796,8 +826,18 @@ function AdjustmentForm({ stock, uomOptions, onSuccess }: AdjustmentFormProps) {
                     type="number"
                     min="0.000001"
                     step="any"
+                    placeholder="0"
+                    className="[appearance:textfield] border-violet-600 bg-black text-white placeholder:text-zinc-500 focus-visible:ring-violet-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    value={field.value ?? ""}
+                    onChange={(e) =>
+                      field.onChange(
+                        (e.target.value === ""
+                          ? ""
+                          : Number(e.target.value)) as number
+                      )
+                    }
+                    onFocus={(e) => e.target.select()}
                   />
                 </FormControl>
                 {hint ? (
