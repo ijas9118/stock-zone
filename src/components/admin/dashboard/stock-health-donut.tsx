@@ -62,6 +62,8 @@ export function StockHealthDonut({ data }: StockHealthDonutProps) {
                       color: "var(--popover-foreground)",
                       fontSize: 12,
                     }}
+                    itemStyle={{ color: "var(--popover-foreground)" }}
+                    labelStyle={{ color: "var(--popover-foreground)" }}
                   />
                 </PieChart>
               </ResponsiveContainer>

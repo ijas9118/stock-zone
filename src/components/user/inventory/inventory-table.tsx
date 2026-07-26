@@ -135,7 +135,7 @@ export function InventoryTable({ stocks }: InventoryTableProps) {
                 <TableCell className="py-2 pr-4 pl-0 text-right">
                   <div className="flex flex-col items-end">
                     <span
-                      className={`text-sm leading-none font-bold ${isLowStock ? "text-destructive" : "text-primary"}`}
+                      className={`text-sm leading-none font-bold ${isLowStock ? "text-destructive" : "text-[#7A3483] dark:text-[#DDB6E2]"}`}
                     >
                       {stock.quantity}
                     </span>
