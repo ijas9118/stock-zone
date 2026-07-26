@@ -75,6 +75,8 @@ export function MovementVolumeChart({ data }: MovementVolumeChartProps) {
                   color: "var(--popover-foreground)",
                   fontSize: 12,
                 }}
+                itemStyle={{ color: "var(--popover-foreground)" }}
+                labelStyle={{ color: "var(--popover-foreground)" }}
               />
               <Area
                 type="monotone"

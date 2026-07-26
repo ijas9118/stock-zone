@@ -80,6 +80,8 @@ function RankedBarChart({
             color: "var(--popover-foreground)",
             fontSize: 12,
           }}
+          itemStyle={{ color: "var(--popover-foreground)" }}
+          labelStyle={{ color: "var(--popover-foreground)" }}
         />
         <Bar dataKey="value" radius={[0, 6, 6, 0]} maxBarSize={22}>
           {rows.map((r, i) => (

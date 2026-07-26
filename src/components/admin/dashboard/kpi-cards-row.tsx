@@ -67,7 +67,7 @@ export function KpiCardsRow({ kpis }: KpiCardsRowProps) {
       {cards.map((c) => (
         <Card
           key={c.label}
-          className="border-t-2 shadow-none"
+          className="flex h-full flex-col border-t-2 shadow-none"
           style={{ borderTopColor: c.accent }}
         >
           <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
@@ -81,8 +81,8 @@ export function KpiCardsRow({ kpis }: KpiCardsRowProps) {
               <c.icon className="h-4 w-4" style={{ color: c.accent }} />
             </span>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl leading-none font-bold tabular-nums">
+          <CardContent className="flex flex-1 flex-col justify-center">
+            <div className="text-3xl leading-none font-bold tabular-nums sm:text-4xl">
               {c.value}
             </div>
             <p className="text-muted-foreground mt-1.5 text-xs">{c.subtext}</p>
