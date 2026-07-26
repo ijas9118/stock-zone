@@ -63,7 +63,7 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
       ],
     },
     {
-      title: "Catalog Management",
+      title: "Catalog",
       icon: Icons.products,
       items: [
         { title: "Products", href: "/admin/products", icon: Icons.products },
@@ -78,14 +78,14 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
           href: "/admin/subcategories",
           icon: Icons.subcategories,
         },
-        { title: "Units of Measure", href: "/admin/uom", icon: Icons.uom },
+        { title: "Units", href: "/admin/uom", icon: Icons.uom },
       ],
     },
     {
-      title: "Inventory & Operations",
+      title: "Inventory",
       icon: Icons.stock,
       items: [
-        { title: "Current Stock", href: "/admin/stock", icon: Icons.stock },
+        { title: "Stock", href: "/admin/stock", icon: Icons.stock },
         {
           title: "Stock Movements",
           href: "/admin/stock-movements",
@@ -96,25 +96,31 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
           href: "/admin/transfers",
           icon: Icons.transfer,
         },
+      ],
+    },
+    {
+      title: "Locations",
+      icon: Icons.warehouses,
+      items: [
         {
           title: "Warehouses",
           href: "/admin/warehouses",
           icon: Icons.warehouses,
         },
+        { title: "Shops", href: "/admin/shops", icon: Icons.shops },
         {
-          title: "Item Location",
+          title: "Storage Locations",
           href: "/admin/locations",
           icon: Icons.locations,
         },
-        { title: "Shops", href: "/admin/shops", icon: Icons.shops },
       ],
     },
     {
-      title: "Settings & System",
+      title: "Settings",
       icon: Icons.settings,
       items: [
-        { title: "Reports", href: "/admin/reports", icon: Icons.reports },
         { title: "Users", href: "/admin/users", icon: Icons.users },
+        { title: "Reports", href: "/admin/reports", icon: Icons.reports },
       ],
     },
   ];

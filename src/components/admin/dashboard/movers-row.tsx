@@ -1,3 +1,4 @@
+import { ACCENT_RAMP } from "@/lib/chart-colors";
 import {
   Card,
   CardContent,
@@ -16,6 +17,33 @@ interface MoversRowProps {
   fastMovers: Mover[];
   slowMovers: Mover[];
   title?: string;
+}
+
+function MoverList({ movers }: { movers: Mover[] }) {
+  const maxQty = Math.max(...movers.map((m) => m.outQty), 1);
+  return (
+    <ul className="space-y-3">
+      {movers.map((p, i) => (
+        <li key={`${p.sku}-${i}`} className="space-y-1">
+          <div className="flex items-center justify-between text-sm">
+            <span className="truncate">{p.name}</span>
+            <span className="shrink-0 font-semibold">
+              {p.outQty.toLocaleString()}
+            </span>
+          </div>
+          <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
+            <div
+              className="h-full rounded-full"
+              style={{
+                width: `${(p.outQty / maxQty) * 100}%`,
+                background: ACCENT_RAMP[i % ACCENT_RAMP.length],
+              }}
+            />
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
 }
 
 export function MoversRow({ fastMovers, slowMovers, title }: MoversRowProps) {
@@ -38,19 +66,7 @@ export function MoversRow({ fastMovers, slowMovers, title }: MoversRowProps) {
                 No outbound movement recorded.
               </p>
             ) : (
-              <ul className="space-y-2">
-                {fastMovers.map((p, i) => (
-                  <li
-                    key={`${p.sku}-${i}`}
-                    className="flex items-center justify-between text-sm"
-                  >
-                    <span className="truncate">{p.name}</span>
-                    <span className="font-medium text-indigo-600">
-                      {p.outQty.toLocaleString()}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              <MoverList movers={fastMovers} />
             )}
           </CardContent>
         </Card>
@@ -68,19 +84,7 @@ export function MoversRow({ fastMovers, slowMovers, title }: MoversRowProps) {
                 No stocked products to show.
               </p>
             ) : (
-              <ul className="space-y-2">
-                {slowMovers.map((p, i) => (
-                  <li
-                    key={`${p.sku}-${i}`}
-                    className="flex items-center justify-between text-sm"
-                  >
-                    <span className="truncate">{p.name}</span>
-                    <span className="text-muted-foreground font-medium">
-                      {p.outQty.toLocaleString()}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              <MoverList movers={slowMovers} />
             )}
           </CardContent>
         </Card>

@@ -1,6 +1,7 @@
 import {
   AlertCircle,
   ArrowRightLeft,
+  Boxes,
   CheckCircle2,
   ChevronRight,
   ChevronsUpDown,
@@ -68,7 +69,7 @@ export const Icons = {
   categories: LayoutGrid,
   subcategories: Layers,
   brands: Tag,
-  stock: Package, // Reusing Package for now or I can add Boxes
+  stock: Boxes,
   locations: MapPin,
   reports: FileDown,
 };

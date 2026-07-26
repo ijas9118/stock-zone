@@ -54,14 +54,25 @@ export const columns: ColumnDef<StockWithDetails>[] = [
     header: "Location",
     meta: { className: "hidden lg:table-cell" },
     cell: ({ row }) => {
-      const loc = row.original.locations;
-      if (!loc) {
+      const locs = row.original.all_locations?.length
+        ? row.original.all_locations
+        : row.original.locations
+          ? [row.original.locations]
+          : [];
+      if (locs.length === 0) {
         return <span className="text-muted-foreground text-xs">—</span>;
       }
       return (
-        <span className="font-mono text-xs font-medium">
-          {loc.location_code}
-        </span>
+        <div className="flex items-center gap-1">
+          <span className="font-mono text-xs font-medium">
+            {locs[0].location_code}
+          </span>
+          {locs.length > 1 && (
+            <span className="text-muted-foreground bg-muted rounded px-1 py-0.5 text-[10px] font-semibold">
+              +{locs.length - 1}
+            </span>
+          )}
+        </div>
       );
     },
   },

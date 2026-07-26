@@ -113,14 +113,14 @@ export function InventoryDetailView({
             className={cn(
               "flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase",
               isLowStock
-                ? "border-red-200 bg-red-50 text-red-600 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-400"
-                : "border-emerald-200 bg-emerald-50 text-emerald-600 dark:border-emerald-900/40 dark:bg-emerald-900/20 dark:text-emerald-400"
+                ? "border-[#441D49]/30 bg-[#441D49]/10 text-[#441D49] dark:border-[#441D49]/40 dark:bg-[#441D49]/20 dark:text-[#DDB6E2]"
+                : "border-[#C78AD0]/40 bg-[#C78AD0]/10 text-[#7A3483] dark:border-[#7A3483]/40 dark:bg-[#7A3483]/20 dark:text-[#DDB6E2]"
             )}
           >
             <span
               className={cn(
                 "h-1.5 w-1.5 rounded-full",
-                isLowStock ? "bg-red-500" : "bg-emerald-500"
+                isLowStock ? "bg-[#441D49]" : "bg-[#C78AD0]"
               )}
             />
             {isLowStock ? "Low Stock" : "In Stock"}
@@ -145,7 +145,9 @@ export function InventoryDetailView({
             <span
               className={cn(
                 "text-4xl leading-none font-bold tracking-tight",
-                isLowStock ? "text-red-600" : "text-foreground"
+                isLowStock
+                  ? "text-[#441D49] dark:text-[#DDB6E2]"
+                  : "text-foreground"
               )}
             >
               {stock.quantity}
@@ -170,7 +172,15 @@ export function InventoryDetailView({
               <p className="text-muted-foreground text-xs font-medium">
                 Bin Location
               </p>
-              {stock.locations ? (
+              {stock.all_locations && stock.all_locations.length > 0 ? (
+                <div className="space-y-1">
+                  {stock.all_locations.map((loc) => (
+                    <p key={loc.id} className="font-mono text-sm font-semibold">
+                      {loc.location_code}
+                    </p>
+                  ))}
+                </div>
+              ) : stock.locations ? (
                 <>
                   <p className="font-mono text-sm font-semibold">
                     {stock.locations.location_code}
@@ -225,7 +235,7 @@ export function InventoryDetailView({
             <Button
               onClick={() => handleAction("in")}
               disabled={!permissions.perm_do_purchase}
-              className="h-11 w-full justify-center gap-2 border border-emerald-200 bg-emerald-50 font-bold text-emerald-700 hover:bg-emerald-100 dark:border-emerald-900/40 dark:bg-emerald-900/30 dark:text-emerald-300 dark:hover:bg-emerald-900/50"
+              className="h-11 w-full justify-center gap-2 border border-[#C78AD0]/50 bg-[#C78AD0]/15 font-bold text-[#7A3483] hover:bg-[#C78AD0]/25 dark:border-[#7A3483]/40 dark:bg-[#7A3483]/20 dark:text-[#DDB6E2] dark:hover:bg-[#7A3483]/30"
             >
               <Plus className="h-4 w-4" /> Stock In
             </Button>
@@ -279,7 +289,7 @@ export function InventoryDetailView({
                   <span
                     className={cn(
                       "h-2 w-2 shrink-0 rounded-full",
-                      m.quantity_delta >= 0 ? "bg-emerald-500" : "bg-red-500"
+                      m.quantity_delta >= 0 ? "bg-[#441D49]" : "bg-red-500"
                     )}
                   />
                   <div className="min-w-0 flex-1">
@@ -311,7 +321,9 @@ export function InventoryDetailView({
             <span
               className={cn(
                 "font-bold",
-                isLowStock ? "text-red-600" : "text-emerald-600"
+                isLowStock
+                  ? "text-[#441D49] dark:text-[#DDB6E2]"
+                  : "text-[#7A3483] dark:text-[#C78AD0]"
               )}
             >
               {isLowStock ? "Low" : "Healthy"}
@@ -321,7 +333,7 @@ export function InventoryDetailView({
             <div
               className={cn(
                 "h-full rounded-full",
-                isLowStock ? "bg-red-500" : "bg-emerald-500"
+                isLowStock ? "bg-[#441D49]" : "bg-[#C78AD0]"
               )}
               style={{ width: `${stockRatio}%` }}
             />
@@ -331,8 +343,8 @@ export function InventoryDetailView({
           </p>
 
           {isLowStock ? (
-            <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-center dark:border-red-900/40 dark:bg-red-900/20">
-              <div className="flex items-center justify-center gap-2 text-red-600 dark:text-red-400">
+            <div className="mt-4 rounded-lg border border-[#441D49]/30 bg-[#441D49]/10 p-3 text-center dark:border-[#441D49]/40 dark:bg-[#441D49]/20">
+              <div className="flex items-center justify-center gap-2 text-[#441D49] dark:text-[#DDB6E2]">
                 <AlertTriangle className="h-4 w-4" />
                 <p className="text-xs font-bold tracking-wider uppercase">
                   Reorder Needed

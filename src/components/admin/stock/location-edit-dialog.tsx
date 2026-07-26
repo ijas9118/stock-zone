@@ -1,10 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { MapPin } from "lucide-react";
 import { toast } from "sonner";
 
 import { getLocations, LocationWithWarehouse } from "@/actions/admin/locations";
-import { StockWithDetails, updateStockLocation } from "@/actions/admin/stock";
+import {
+  getStockLocations,
+  StockWithDetails,
+  updateStockLocations,
+} from "@/actions/admin/stock";
+import { ACCENT } from "@/lib/chart-colors";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,15 +21,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
-const NONE = "__none__";
+import { LocationMultiSelect } from "./location-multi-select";
 
 interface LocationEditDialogProps {
   stock: StockWithDetails;
@@ -36,32 +35,32 @@ export function LocationEditDialog({
   open,
   onOpenChange,
 }: LocationEditDialogProps) {
-  const [locations, setLocations] = useState<LocationWithWarehouse[]>([]);
-  const [selectedId, setSelectedId] = useState(stock.location_id ?? NONE);
+  const [selected, setSelected] = useState<LocationWithWarehouse[]>([]);
   const [isSaving, setIsSaving] = useState(false);
-
-  // Derived-state reset: when `open` transitions to true, sync selectedId from
-  // the current stock prop. Called during render (not in an effect) so React
-  // re-renders immediately with the correct initial value.
-  const [prevOpen, setPrevOpen] = useState(open);
-  if (prevOpen !== open) {
-    setPrevOpen(open);
-    if (open) {
-      setSelectedId(stock.location_id ?? NONE);
-    }
-  }
+  const [hasAnyLocations, setHasAnyLocations] = useState(true);
 
   useEffect(() => {
     if (!open) return;
-    getLocations({ warehouseId: stock.warehouse_id, pageSize: 100 }).then((r) =>
-      setLocations(r.locations)
-    );
-  }, [open, stock.warehouse_id]);
+    getStockLocations(stock.id).then((locs) => {
+      if (locs.length > 0) {
+        setSelected(locs as unknown as LocationWithWarehouse[]);
+      } else if (stock.locations) {
+        setSelected([stock.locations as unknown as LocationWithWarehouse]);
+      } else {
+        setSelected([]);
+      }
+    });
+    getLocations({ warehouseId: stock.warehouse_id, pageSize: 1 }).then((r) => {
+      setHasAnyLocations(r.totalCount > 0);
+    });
+  }, [open, stock.id, stock.warehouse_id, stock.locations]);
 
   async function handleSave() {
     setIsSaving(true);
-    const locationId = selectedId === NONE ? null : selectedId;
-    const result = await updateStockLocation(stock.id, locationId);
+    const result = await updateStockLocations(
+      stock.id,
+      selected.map((s) => s.id)
+    );
     setIsSaving(false);
     if (result.error) {
       toast.error(result.error);
@@ -75,16 +74,19 @@ export function LocationEditDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-100">
         <DialogHeader>
-          <DialogTitle>Edit Location</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <MapPin className="h-4 w-4" style={{ color: ACCENT[500] }} />
+            Edit Location
+          </DialogTitle>
           <DialogDescription>
             {stock.products?.name} · {stock.warehouses?.name}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-2 py-1">
-          <Label>Location</Label>
-          {locations.length === 0 ? (
-            <p className="text-muted-foreground text-sm">
+        <div className="space-y-2 py-2">
+          <Label className="text-sm font-medium">Bin Location(s)</Label>
+          {!hasAnyLocations ? (
+            <p className="text-muted-foreground rounded-lg border border-dashed p-4 text-sm">
               No locations defined for this warehouse. Add some from the{" "}
               <a href="/admin/locations" className="underline">
                 Locations
@@ -92,28 +94,12 @@ export function LocationEditDialog({
               page first.
             </p>
           ) : (
-            <Select value={selectedId} onValueChange={setSelectedId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select location..." />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={NONE}>
-                  <span className="text-muted-foreground">— None —</span>
-                </SelectItem>
-                {locations.map((loc) => (
-                  <SelectItem key={loc.id} value={loc.id}>
-                    <span className="font-mono">{loc.location_code}</span>
-                    {(loc.zone || loc.rack || loc.level || loc.slot) && (
-                      <span className="text-muted-foreground ml-1.5 text-xs">
-                        {[loc.zone, loc.rack, loc.level, loc.slot]
-                          .filter(Boolean)
-                          .join(" · ")}
-                      </span>
-                    )}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <LocationMultiSelect
+              warehouseId={stock.warehouse_id}
+              selected={selected}
+              onChange={setSelected}
+              placeholder="Search and select locations…"
+            />
           )}
         </div>
 

@@ -3,6 +3,7 @@
 import { format } from "date-fns";
 
 import { UserRecentMovement } from "@/actions/user/stock-movements";
+import { DELTA_COLOR_CLASS, MOVEMENT_BADGE_CLASS } from "@/lib/movement-colors";
 import { cn } from "@/lib/utils";
 import {
   Table,
@@ -19,15 +20,6 @@ const TYPE_LABELS: Record<string, string> = {
   transfer_in: "Transfer In",
   transfer_out: "Transfer Out",
   adjustment: "Adjustment",
-};
-
-const TYPE_STYLES: Record<string, string> = {
-  in: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300",
-  out: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300",
-  transfer_in: "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300",
-  transfer_out: "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300",
-  adjustment:
-    "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
 };
 
 interface MovementsFeedProps {
@@ -78,7 +70,8 @@ export function MovementsFeed({ movements }: MovementsFeedProps) {
                 <span
                   className={cn(
                     "rounded px-1.5 py-0.5 text-[10px] font-semibold whitespace-nowrap",
-                    TYPE_STYLES[m.type] ?? "bg-muted text-muted-foreground"
+                    MOVEMENT_BADGE_CLASS[m.type] ??
+                      "bg-muted text-muted-foreground"
                   )}
                 >
                   {TYPE_LABELS[m.type] ?? m.type}
@@ -87,7 +80,9 @@ export function MovementsFeed({ movements }: MovementsFeedProps) {
               <TableCell
                 className={cn(
                   "text-right text-sm font-semibold whitespace-nowrap",
-                  m.quantity_delta >= 0 ? "text-indigo-600" : "text-rose-600"
+                  m.quantity_delta >= 0
+                    ? DELTA_COLOR_CLASS.positive
+                    : DELTA_COLOR_CLASS.negative
                 )}
               >
                 {m.quantity_delta >= 0 ? "+" : ""}

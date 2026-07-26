@@ -14,6 +14,7 @@ import {
 
 import { ShopType } from "@/actions/admin/shops";
 import { Warehouse } from "@/actions/admin/warehouses";
+import { MOVEMENT_ICON_CLASS } from "@/lib/movement-colors";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,43 +45,43 @@ const movementTypes = [
     value: "in",
     label: "Stock In",
     icon: TrendingUp,
-    color: "text-emerald-500",
+    color: MOVEMENT_ICON_CLASS.in,
   },
   {
     value: "out",
     label: "Stock Out",
     icon: TrendingDown,
-    color: "text-red-500",
+    color: MOVEMENT_ICON_CLASS.out,
   },
   {
     value: "transfer_in",
     label: "Transfer In",
     icon: ArrowRightLeft,
-    color: "text-blue-500",
+    color: MOVEMENT_ICON_CLASS.transfer_in,
   },
   {
     value: "transfer_out",
     label: "Transfer Out",
     icon: ArrowRightLeft,
-    color: "text-orange-500",
+    color: MOVEMENT_ICON_CLASS.transfer_out,
   },
   {
     value: "adjustment",
     label: "Adjustment",
     icon: SlidersHorizontal,
-    color: "text-amber-500",
+    color: MOVEMENT_ICON_CLASS.adjustment,
   },
   {
     value: "return",
     label: "Return",
     icon: RotateCcw,
-    color: "text-purple-500",
+    color: MOVEMENT_ICON_CLASS.return,
   },
   {
     value: "initial_stock",
     label: "Initial Stock",
     icon: PackagePlus,
-    color: "text-slate-500",
+    color: MOVEMENT_ICON_CLASS.initial_stock,
   },
 ];
 

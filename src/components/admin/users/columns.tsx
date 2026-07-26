@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { Store } from "lucide-react";
 
 import { ProfileWithShopType } from "@/actions/admin/users";
+import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -95,14 +96,12 @@ export const columns: ColumnDef<ProfileWithShopType>[] = [
       const status = row.getValue("status") as string;
       return (
         <Badge
-          variant={
-            status === "active"
-              ? "success"
-              : status === "pending"
-                ? "warning"
-                : "outline"
-          }
-          className="capitalize"
+          variant={status === "active" ? "default" : "outline"}
+          className={cn(
+            "capitalize",
+            status === "pending" &&
+              "border-none bg-[#C78AD0]/20 text-[#7A3483] dark:bg-[#C78AD0]/20 dark:text-[#DDB6E2]"
+          )}
         >
           {status}
         </Badge>
@@ -133,8 +132,8 @@ export const columns: ColumnDef<ProfileWithShopType>[] = [
                 variant="secondary"
                 className={`flex items-center gap-1 px-1.5 py-0.5 text-[9px] font-medium ${
                   isWrite
-                    ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-400"
-                    : "border-blue-500/20 bg-blue-500/10 text-blue-700 dark:bg-blue-400/10 dark:text-blue-400"
+                    ? "border-[#7A3483]/20 bg-[#7A3483]/10 text-[#7A3483] dark:bg-[#C78AD0]/10 dark:text-[#DDB6E2]"
+                    : "border-[#C78AD0]/30 bg-[#C78AD0]/10 text-[#7A3483]/80 dark:bg-[#C78AD0]/10 dark:text-[#C78AD0]"
                 } border transition-all hover:scale-105`}
               >
                 <Store className="h-2.5 w-2.5 opacity-70" />
@@ -144,8 +143,8 @@ export const columns: ColumnDef<ProfileWithShopType>[] = [
                 <span
                   className={`ml-0.5 flex h-3.5 items-center rounded-sm px-1 text-[9px] font-bold uppercase ${
                     isWrite
-                      ? "bg-emerald-500/20 text-emerald-800 dark:text-emerald-200"
-                      : "bg-blue-500/20 text-blue-800 dark:text-blue-200"
+                      ? "bg-[#7A3483]/20 text-[#441D49] dark:text-[#DDB6E2]"
+                      : "bg-[#C78AD0]/20 text-[#7A3483] dark:text-[#C78AD0]"
                   } `}
                 >
                   {isWrite ? "Write" : "Read"}

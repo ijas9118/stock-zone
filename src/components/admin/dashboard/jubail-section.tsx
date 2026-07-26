@@ -1,137 +1,192 @@
 "use client";
 
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { useMemo, useState } from "react";
+import {
+  Bar,
+  BarChart,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 import { DashboardData } from "@/actions/admin/dashboard";
+import { ACCENT_RAMP } from "@/lib/chart-colors";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface JubailSectionProps {
   data: DashboardData["jubail"];
 }
 
-const DONUT_COLORS = [
-  "#6366f1",
-  "#0ea5e9",
-  "#f59e0b",
-  "#f43f5e",
-  "#8b5cf6",
-  "#06b6d4",
-  "#ec4899",
-];
+type Direction = "in" | "out";
+
+interface MovementRow {
+  name: string;
+  totalIn: number;
+  totalOut: number;
+}
+
+function topFive(rows: MovementRow[], direction: Direction) {
+  const metric = (r: MovementRow) =>
+    direction === "in" ? r.totalIn : r.totalOut;
+  return rows
+    .filter((r) => metric(r) > 0)
+    .sort((a, b) => metric(b) - metric(a))
+    .slice(0, 5)
+    .map((r) => ({ name: r.name, value: metric(r) }));
+}
+
+function RankedBarChart({
+  rows,
+  emptyLabel,
+}: {
+  rows: { name: string; value: number }[];
+  emptyLabel: string;
+}) {
+  if (rows.length === 0) {
+    return (
+      <p className="text-muted-foreground py-10 text-center text-sm">
+        {emptyLabel}
+      </p>
+    );
+  }
+
+  return (
+    <ResponsiveContainer width="100%" height={240}>
+      <BarChart data={rows} layout="vertical" margin={{ left: 8, right: 24 }}>
+        <XAxis type="number" hide />
+        <YAxis
+          type="category"
+          dataKey="name"
+          width={110}
+          tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
+          tickLine={false}
+          axisLine={false}
+        />
+        <Tooltip
+          cursor={{ fill: "var(--muted)", opacity: 0.4 }}
+          contentStyle={{
+            background: "var(--popover)",
+            border: "1px solid var(--border)",
+            borderRadius: 8,
+            color: "var(--popover-foreground)",
+            fontSize: 12,
+          }}
+        />
+        <Bar dataKey="value" radius={[0, 6, 6, 0]} maxBarSize={22}>
+          {rows.map((r, i) => (
+            <Cell key={r.name} fill={ACCENT_RAMP[i % ACCENT_RAMP.length]} />
+          ))}
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
 
 export function JubailSection({ data }: JubailSectionProps) {
+  const [categoryDirection, setCategoryDirection] = useState<Direction>("out");
+  const [subcategoryDirection, setSubcategoryDirection] =
+    useState<Direction>("out");
+  const [selectedCategory, setSelectedCategory] = useState(
+    data.available ? (data.categories[0] ?? "") : ""
+  );
+
+  const categoryRows = useMemo(
+    () =>
+      data.available ? topFive(data.categoryMovement, categoryDirection) : [],
+    [data, categoryDirection]
+  );
+
+  const subcategoryRows = useMemo(() => {
+    if (!data.available) return [];
+    const scoped = data.subcategoryMovement.filter(
+      (s) => s.category === selectedCategory
+    );
+    return topFive(scoped, subcategoryDirection);
+  }, [data, selectedCategory, subcategoryDirection]);
+
   if (!data.available) {
     return null;
   }
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card className="border shadow-none">
-          <CardHeader>
-            <CardTitle className="text-base font-medium">
-              Category-wise Stock
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {data.categoryDistribution.length === 0 ? (
-              <p className="text-muted-foreground py-10 text-center text-sm">
-                No stock data available.
-              </p>
-            ) : (
-              <ResponsiveContainer width="100%" height={220}>
-                <PieChart>
-                  <Pie
-                    data={data.categoryDistribution}
-                    dataKey="value"
-                    nameKey="name"
-                    innerRadius={50}
-                    outerRadius={80}
-                    paddingAngle={2}
-                    label={({ name }) => name}
-                  >
-                    {data.categoryDistribution.map((d, i) => (
-                      <Cell
-                        key={d.name}
-                        fill={DONUT_COLORS[i % DONUT_COLORS.length]}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      background: "var(--popover)",
-                      border: "1px solid var(--border)",
-                      color: "var(--popover-foreground)",
-                      fontSize: 12,
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            )}
-          </CardContent>
-        </Card>
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <Card className="border shadow-none">
+        <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
+          <CardTitle className="text-base font-medium">
+            Top Categories
+          </CardTitle>
+          <Select
+            value={categoryDirection}
+            onValueChange={(v) => setCategoryDirection(v as Direction)}
+          >
+            <SelectTrigger className="h-8 w-[90px] text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="in">IN</SelectItem>
+              <SelectItem value="out">OUT</SelectItem>
+            </SelectContent>
+          </Select>
+        </CardHeader>
+        <CardContent>
+          <RankedBarChart
+            rows={categoryRows}
+            emptyLabel="No movement in the last 30 days."
+          />
+        </CardContent>
+      </Card>
 
-        <Card className="border shadow-none">
-          <CardHeader>
-            <CardTitle className="text-base font-medium">
-              Stock by Category
-            </CardTitle>
-            <CardDescription>Quantity and low-stock count</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {data.categoryTable.length === 0 ? (
-              <p className="text-muted-foreground py-10 text-center text-sm">
-                No categories to show.
-              </p>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Category</TableHead>
-                    <TableHead className="text-right">Quantity</TableHead>
-                    <TableHead className="text-right">Low Stock</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.categoryTable.map((c) => (
-                    <TableRow key={c.category}>
-                      <TableCell className="font-medium">
-                        {c.category}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {c.quantity.toLocaleString()}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {c.lowStockCount > 0 ? (
-                          <span className="font-medium text-red-600">
-                            {c.lowStockCount}
-                          </span>
-                        ) : (
-                          "-"
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      <Card className="border shadow-none">
+        <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
+          <CardTitle className="text-base font-medium">
+            Top Subcategories
+          </CardTitle>
+          <div className="flex items-center gap-2">
+            <Select
+              value={selectedCategory}
+              onValueChange={setSelectedCategory}
+            >
+              <SelectTrigger className="h-8 w-[130px] text-xs">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                {data.categories.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select
+              value={subcategoryDirection}
+              onValueChange={(v) => setSubcategoryDirection(v as Direction)}
+            >
+              <SelectTrigger className="h-8 w-[90px] text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="in">IN</SelectItem>
+                <SelectItem value="out">OUT</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <RankedBarChart
+            rows={subcategoryRows}
+            emptyLabel="No movement for this category."
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 }

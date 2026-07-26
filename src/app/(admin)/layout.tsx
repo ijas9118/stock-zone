@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { getAuthContext } from "@/lib/supabase/server";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { AdminThemeScope } from "@/components/dashboard/admin-theme-scope";
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
 import { DashboardNavbar } from "@/components/dashboard/dashboard-navbar";
 
@@ -20,6 +21,7 @@ export default async function DashboardLayout({
 
   return (
     <SidebarProvider>
+      <AdminThemeScope />
       <AppSidebar
         role={role}
         user={{

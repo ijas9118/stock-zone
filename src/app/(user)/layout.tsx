@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { getAuthContext } from "@/lib/supabase/server";
+import { AdminThemeScope } from "@/components/dashboard/admin-theme-scope";
 import { BottomTabBar } from "@/components/user/layout/bottom-tab-bar";
 import { UserNavbar } from "@/components/user/layout/user-navbar";
 
@@ -22,6 +23,7 @@ export default async function UserLayout({
 
   return (
     <div className="bg-background flex min-h-screen flex-col">
+      <AdminThemeScope />
       <UserNavbar
         user={{
           email: auth.email,

@@ -51,7 +51,7 @@ export const columns: ColumnDef<LocationWithWarehouse>[] = [
     header: "Status",
     cell: ({ row }) =>
       row.original.is_active ? (
-        <Badge variant="secondary" className="text-[10px]">
+        <Badge variant="default" className="text-[10px]">
           Active
         </Badge>
       ) : (

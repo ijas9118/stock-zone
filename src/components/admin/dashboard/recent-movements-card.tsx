@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 
+import { DELTA_COLOR_CLASS, MOVEMENT_BADGE_CLASS } from "@/lib/movement-colors";
 import { cn } from "@/lib/utils";
 import {
   Card,
@@ -32,15 +33,6 @@ const TYPE_LABELS: Record<string, string> = {
   adjustment: "Adjustment",
 };
 
-const TYPE_STYLES: Record<string, string> = {
-  in: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300",
-  out: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300",
-  transfer_in: "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300",
-  transfer_out: "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300",
-  adjustment:
-    "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
-};
-
 export function RecentMovementsCard({ movements }: RecentMovementsCardProps) {
   return (
     <Card className="border shadow-none">
@@ -67,7 +59,8 @@ export function RecentMovementsCard({ movements }: RecentMovementsCardProps) {
                     <span
                       className={cn(
                         "rounded px-1.5 py-0.5 text-[10px] font-semibold",
-                        TYPE_STYLES[m.type] ?? "bg-muted text-muted-foreground"
+                        MOVEMENT_BADGE_CLASS[m.type] ??
+                          "bg-muted text-muted-foreground"
                       )}
                     >
                       {TYPE_LABELS[m.type] ?? m.type}
@@ -84,7 +77,9 @@ export function RecentMovementsCard({ movements }: RecentMovementsCardProps) {
                 <span
                   className={cn(
                     "shrink-0 text-sm font-semibold",
-                    m.quantityDelta >= 0 ? "text-indigo-600" : "text-rose-600"
+                    m.quantityDelta >= 0
+                      ? DELTA_COLOR_CLASS.positive
+                      : DELTA_COLOR_CLASS.negative
                   )}
                 >
                   {m.quantityDelta >= 0 ? "+" : ""}

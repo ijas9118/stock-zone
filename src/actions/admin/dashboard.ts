@@ -146,7 +146,7 @@ export async function getDashboardData(filters: DashboardFilters = {}) {
           "id, type, quantity_delta, created_at, products(name, sku), warehouses(name), profiles:created_by(full_name, email)"
         )
         .order("created_at", { ascending: false })
-        .limit(8);
+        .limit(5);
       if (shopTypeId) q = q.eq("shop_type_id", shopTypeId);
       if (warehouseId) q = q.eq("warehouse_id", warehouseId);
       return q;
@@ -248,13 +248,15 @@ export async function getDashboardData(filters: DashboardFilters = {}) {
     jubail: isJubailSelected
       ? {
           available: true as const,
-          categoryDistribution: movers.categoryDistribution,
-          categoryTable: movers.categoryTable,
+          categories: movers.categories,
+          categoryMovement: movers.categoryMovement,
+          subcategoryMovement: movers.subcategoryMovement,
         }
       : {
           available: false as const,
-          categoryDistribution: [],
-          categoryTable: [],
+          categories: [],
+          categoryMovement: [],
+          subcategoryMovement: [],
         },
   };
 }
@@ -283,13 +285,9 @@ async function getMoversAndCategory(
   const periodStart = new Date();
   periodStart.setDate(periodStart.getDate() - MOVEMENT_DAYS);
 
-  const productSelect = includeCategory
-    ? "name, sku, minimum_stock_quantity, category, categories(category_name)"
-    : "name, sku, minimum_stock_quantity";
-
   let stockQuery = adminClient
     .from("stock")
-    .select(`quantity, product_id, products!inner(${productSelect})`);
+    .select("quantity, product_id, products!inner(name, sku)");
   if (shopTypeId) stockQuery = stockQuery.eq("shop_type_id", shopTypeId);
   if (warehouseId) stockQuery = stockQuery.eq("warehouse_id", warehouseId);
 
@@ -302,18 +300,34 @@ async function getMoversAndCategory(
   if (warehouseId)
     movementQuery = movementQuery.eq("warehouse_id", warehouseId);
 
-  const [{ data: stockRows }, { data: outMovements }] = await Promise.all([
-    stockQuery,
-    movementQuery,
-  ]);
+  // Category/subcategory performance needs every movement type (not just
+  // OUT) tagged with the product's category + subcategory, so it can be
+  // toggled between IN and OUT views.
+  let categoryMovementQuery = adminClient
+    .from("stock_movements")
+    .select(
+      "quantity_delta, products!inner(categories(category_name), subcategories(subcategory_name))"
+    )
+    .gte("created_at", periodStart.toISOString());
+  if (shopTypeId)
+    categoryMovementQuery = categoryMovementQuery.eq(
+      "shop_type_id",
+      shopTypeId
+    );
+  if (warehouseId)
+    categoryMovementQuery = categoryMovementQuery.eq(
+      "warehouse_id",
+      warehouseId
+    );
 
-  type ProductJoin = {
-    name: string;
-    sku: string | null;
-    minimum_stock_quantity?: number;
-    category?: string | null;
-    categories?: { category_name: string } | { category_name: string }[] | null;
-  };
+  const [{ data: stockRows }, { data: outMovements }, categoryMovementResult] =
+    await Promise.all([
+      stockQuery,
+      movementQuery,
+      includeCategory ? categoryMovementQuery : Promise.resolve({ data: null }),
+    ]);
+
+  type ProductJoin = { name: string; sku: string | null };
 
   const outByProduct = new Map<
     string,
@@ -340,10 +354,6 @@ async function getMoversAndCategory(
     string,
     { name: string; sku: string | null; outQty: number }
   >();
-  const categoryMap = new Map<
-    string,
-    { category: string; quantity: number; lowStockCount: number }
-  >();
 
   (stockRows || []).forEach((row) => {
     const product = (
@@ -358,43 +368,73 @@ async function getMoversAndCategory(
         outQty: outByProduct.get(row.product_id)?.outQty ?? 0,
       });
     }
-
-    if (includeCategory) {
-      const category = Array.isArray(product.categories)
-        ? product.categories[0]
-        : product.categories;
-      const categoryName = category?.category_name ?? "Uncategorized";
-      const minQty = product.minimum_stock_quantity ?? 10;
-
-      const existing = categoryMap.get(categoryName) ?? {
-        category: categoryName,
-        quantity: 0,
-        lowStockCount: 0,
-      };
-      existing.quantity += row.quantity;
-      if (row.quantity <= minQty) existing.lowStockCount++;
-      categoryMap.set(categoryName, existing);
-    }
   });
 
   const slowMovers = Array.from(stockedProducts.values())
     .sort((a, b) => a.outQty - b.outQty)
     .slice(0, 5);
 
-  const categoryTable = Array.from(categoryMap.values()).sort(
-    (a, b) => b.quantity - a.quantity
-  );
-  const categoryDistribution = categoryTable.map((c) => ({
-    name: c.category,
-    value: c.quantity,
-  }));
+  type CategoryProductJoin = {
+    categories?: { category_name: string } | { category_name: string }[] | null;
+    subcategories?:
+      | { subcategory_name: string }
+      | { subcategory_name: string }[]
+      | null;
+  };
+
+  const categoryMovementMap = new Map<
+    string,
+    { name: string; totalIn: number; totalOut: number }
+  >();
+  const subcategoryMovementMap = new Map<
+    string,
+    { name: string; category: string; totalIn: number; totalOut: number }
+  >();
+
+  (categoryMovementResult.data || []).forEach((row) => {
+    const product = (
+      Array.isArray(row.products) ? row.products[0] : row.products
+    ) as CategoryProductJoin | null;
+    if (!product) return;
+
+    const category = Array.isArray(product.categories)
+      ? product.categories[0]
+      : product.categories;
+    const subcategory = Array.isArray(product.subcategories)
+      ? product.subcategories[0]
+      : product.subcategories;
+    const categoryName = category?.category_name ?? "Uncategorized";
+    const subcategoryName = subcategory?.subcategory_name ?? "Uncategorized";
+    const delta = row.quantity_delta;
+
+    const catEntry = categoryMovementMap.get(categoryName) ?? {
+      name: categoryName,
+      totalIn: 0,
+      totalOut: 0,
+    };
+    if (delta > 0) catEntry.totalIn += delta;
+    else if (delta < 0) catEntry.totalOut += Math.abs(delta);
+    categoryMovementMap.set(categoryName, catEntry);
+
+    const subKey = `${categoryName}::${subcategoryName}`;
+    const subEntry = subcategoryMovementMap.get(subKey) ?? {
+      name: subcategoryName,
+      category: categoryName,
+      totalIn: 0,
+      totalOut: 0,
+    };
+    if (delta > 0) subEntry.totalIn += delta;
+    else if (delta < 0) subEntry.totalOut += Math.abs(delta);
+    subcategoryMovementMap.set(subKey, subEntry);
+  });
 
   return {
     available: true as const,
     fastMovers,
     slowMovers,
-    categoryDistribution,
-    categoryTable,
+    categories: Array.from(categoryMovementMap.keys()).sort(),
+    categoryMovement: Array.from(categoryMovementMap.values()),
+    subcategoryMovement: Array.from(subcategoryMovementMap.values()),
   };
 }
 

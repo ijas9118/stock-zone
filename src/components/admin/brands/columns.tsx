@@ -20,7 +20,7 @@ export const columns: ColumnDef<Brand>[] = [
     cell: ({ row }) => {
       const isActive = row.original.is_active;
       return (
-        <Badge variant={isActive ? "success" : "secondary"}>
+        <Badge variant={isActive ? "default" : "secondary"}>
           {isActive ? "Active" : "Inactive"}
         </Badge>
       );

@@ -2,6 +2,10 @@
 
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 
+import {
+  getLocationsForStockIds,
+  StockLocationOption,
+} from "@/lib/stock-locations";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Database } from "@/lib/supabase/database.types";
 import { getAuthContext } from "@/lib/supabase/server";
@@ -34,6 +38,7 @@ export type StockWithDetails = StockRow & {
     level: string | null;
     slot: string | null;
   } | null;
+  all_locations?: StockLocationOption[];
 };
 
 async function verifyUserPermission(
@@ -171,8 +176,20 @@ export async function getStocks(
         throw new Error("Failed to fetch stocks");
       }
 
+      const stocks = data as unknown as StockWithDetails[];
+
+      // Batched (single-query) lookup of all bin locations for this page's
+      // stock rows — never loop-query per row.
+      const locationsByStockId = await getLocationsForStockIds(
+        adminClient,
+        stocks.map((s) => s.id)
+      );
+      stocks.forEach((s) => {
+        s.all_locations = locationsByStockId.get(s.id) ?? [];
+      });
+
       return {
-        stocks: data as unknown as StockWithDetails[],
+        stocks,
         totalCount: count || 0,
       };
     },
@@ -372,6 +389,95 @@ export async function updateStockLocation(
       .eq("id", stockId);
 
     if (error) throw error;
+
+    revalidateTag("admin:stocks", "default");
+    revalidatePath("/admin/stock");
+    revalidatePath("/");
+    return { success: true };
+  } catch (err: unknown) {
+    return {
+      error: err instanceof Error ? err.message : "An unknown error occurred",
+    };
+  }
+}
+
+export type { StockLocationOption };
+
+/**
+ * All bin locations currently assigned to a stock row, via the
+ * `stock_locations` junction table (many-to-many).
+ *
+ * NOTE: `stock_locations` isn't in the generated Database types yet — run
+ * `pnpm db:types` and this can drop the `as never`/`any` casts.
+ */
+export async function getStockLocations(
+  stockId: string
+): Promise<StockLocationOption[]> {
+  const auth = await getAuthContext();
+  if (!auth.isAuthenticated || auth.role !== "admin") return [];
+
+  const adminClient = createAdminClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- table not in generated types yet
+  const { data, error } = await (adminClient as any)
+    .from("stock_locations")
+    .select("locations(id, location_code, zone, rack, level, slot)")
+    .eq("stock_id", stockId);
+
+  if (error) {
+    console.error("Error fetching stock locations:", error);
+    return [];
+  }
+
+  return ((data || []) as { locations: StockLocationOption | null }[])
+    .map((row) => row.locations)
+    .filter((loc): loc is StockLocationOption => !!loc);
+}
+
+/**
+ * Persist the full set of bin locations for a stock row. Keeps the legacy
+ * `stock.location_id` column in sync (first pick = primary), so existing
+ * single-location displays (tables, lists) keep working unchanged, while
+ * `stock_locations` holds the complete set.
+ */
+export async function updateStockLocations(
+  stockId: string,
+  locationIds: string[]
+) {
+  try {
+    const auth = await getAuthContext();
+    if (!auth.isAuthenticated || auth.role !== "admin")
+      throw new Error("Unauthorized");
+
+    const adminClient = createAdminClient();
+
+    const { error: stockError } = await adminClient
+      .from("stock")
+      .update({
+        location_id: locationIds[0] ?? null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", stockId);
+    if (stockError) throw stockError;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- table not in generated types yet
+    const { error: deleteError } = await (adminClient as any)
+      .from("stock_locations")
+      .delete()
+      .eq("stock_id", stockId);
+    if (deleteError) throw deleteError;
+
+    if (locationIds.length > 0) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- table not in generated types yet
+      const { error: insertError } = await (adminClient as any)
+        .from("stock_locations")
+        .insert(
+          locationIds.map((locationId) => ({
+            stock_id: stockId,
+            location_id: locationId,
+          }))
+        );
+      if (insertError) throw insertError;
+    }
 
     revalidateTag("admin:stocks", "default");
     revalidatePath("/admin/stock");
