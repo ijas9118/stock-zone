@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 
 import { StockMovementWithDetails } from "@/actions/admin/stock-movements";
-import { MOVEMENT_BADGE_CLASS } from "@/lib/movement-colors";
+import { DELTA_COLOR_CLASS, MOVEMENT_BADGE_CLASS } from "@/lib/movement-colors";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -153,8 +153,8 @@ export function StockMovementDetailView({
               className={cn(
                 "flex flex-col items-start gap-0.5 lg:items-end",
                 isPositive
-                  ? "text-[#441D49] dark:text-[#DDB6E2]"
-                  : "text-[#7A3483] dark:text-[#C78AD0]"
+                  ? DELTA_COLOR_CLASS.positive
+                  : DELTA_COLOR_CLASS.negative
               )}
             >
               <div className="flex items-center gap-1.5 font-mono text-4xl font-bold lg:text-5xl">

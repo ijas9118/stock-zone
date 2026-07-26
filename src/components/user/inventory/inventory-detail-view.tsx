@@ -172,7 +172,15 @@ export function InventoryDetailView({
               <p className="text-muted-foreground text-xs font-medium">
                 Bin Location
               </p>
-              {stock.locations ? (
+              {stock.all_locations && stock.all_locations.length > 0 ? (
+                <div className="space-y-1">
+                  {stock.all_locations.map((loc) => (
+                    <p key={loc.id} className="font-mono text-sm font-semibold">
+                      {loc.location_code}
+                    </p>
+                  ))}
+                </div>
+              ) : stock.locations ? (
                 <>
                   <p className="font-mono text-sm font-semibold">
                     {stock.locations.location_code}
@@ -281,7 +289,7 @@ export function InventoryDetailView({
                   <span
                     className={cn(
                       "h-2 w-2 shrink-0 rounded-full",
-                      m.quantity_delta >= 0 ? "bg-[#C78AD0]" : "bg-[#441D49]"
+                      m.quantity_delta >= 0 ? "bg-[#441D49]" : "bg-red-500"
                     )}
                   />
                   <div className="min-w-0 flex-1">

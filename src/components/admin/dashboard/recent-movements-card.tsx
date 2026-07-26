@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 
-import { ACCENT } from "@/lib/chart-colors";
+import { DELTA_COLOR_CLASS, MOVEMENT_BADGE_CLASS } from "@/lib/movement-colors";
 import { cn } from "@/lib/utils";
 import {
   Card,
@@ -33,18 +33,6 @@ const TYPE_LABELS: Record<string, string> = {
   adjustment: "Adjustment",
 };
 
-// Same accent family throughout, no other hues — shade signals the type.
-const TYPE_STYLES: Record<string, string> = {
-  in: "bg-[#441D49]/10 text-[#441D49] dark:bg-[#441D49]/40 dark:text-[#DDB6E2]",
-  out: "bg-[#7A3483]/10 text-[#7A3483] dark:bg-[#7A3483]/40 dark:text-[#DDB6E2]",
-  transfer_in:
-    "bg-[#A346AF]/10 text-[#A346AF] dark:bg-[#A346AF]/40 dark:text-[#DDB6E2]",
-  transfer_out:
-    "bg-[#A346AF]/10 text-[#A346AF] dark:bg-[#A346AF]/40 dark:text-[#DDB6E2]",
-  adjustment:
-    "bg-[#C78AD0]/25 text-[#7A3483] dark:bg-[#C78AD0]/25 dark:text-[#DDB6E2]",
-};
-
 export function RecentMovementsCard({ movements }: RecentMovementsCardProps) {
   return (
     <Card className="border shadow-none">
@@ -71,7 +59,8 @@ export function RecentMovementsCard({ movements }: RecentMovementsCardProps) {
                     <span
                       className={cn(
                         "rounded px-1.5 py-0.5 text-[10px] font-semibold",
-                        TYPE_STYLES[m.type] ?? "bg-muted text-muted-foreground"
+                        MOVEMENT_BADGE_CLASS[m.type] ??
+                          "bg-muted text-muted-foreground"
                       )}
                     >
                       {TYPE_LABELS[m.type] ?? m.type}
@@ -86,10 +75,12 @@ export function RecentMovementsCard({ movements }: RecentMovementsCardProps) {
                   </p>
                 </div>
                 <span
-                  className="shrink-0 text-sm font-semibold"
-                  style={{
-                    color: m.quantityDelta >= 0 ? ACCENT[900] : ACCENT[500],
-                  }}
+                  className={cn(
+                    "shrink-0 text-sm font-semibold",
+                    m.quantityDelta >= 0
+                      ? DELTA_COLOR_CLASS.positive
+                      : DELTA_COLOR_CLASS.negative
+                  )}
                 >
                   {m.quantityDelta >= 0 ? "+" : ""}
                   {m.quantityDelta}

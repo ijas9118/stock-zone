@@ -1,5 +1,9 @@
 "use server";
 
+import {
+  getLocationsForStockIds,
+  StockLocationOption,
+} from "@/lib/stock-locations";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Database } from "@/lib/supabase/database.types";
 import { getAuthContext } from "@/lib/supabase/server";
@@ -32,6 +36,7 @@ export type UserStockWithDetails =
       level: string | null;
       slot: string | null;
     } | null;
+    all_locations?: StockLocationOption[];
   };
 
 export async function getUserStocks(
@@ -136,8 +141,20 @@ export async function getUserStocks(
     throw new Error("Failed to fetch inventory");
   }
 
+  const stocks = data as unknown as UserStockWithDetails[];
+
+  // Batched (single-query) lookup of all bin locations for this page's
+  // stock rows — never loop-query per row.
+  const locationsByStockId = await getLocationsForStockIds(
+    adminClient,
+    stocks.map((s) => s.id)
+  );
+  stocks.forEach((s) => {
+    s.all_locations = locationsByStockId.get(s.id) ?? [];
+  });
+
   return {
-    stocks: data as unknown as UserStockWithDetails[],
+    stocks,
     totalCount: count || 0,
   };
 }
@@ -246,7 +263,13 @@ export async function getUserStockById(stockId: string) {
     return null;
   }
 
-  return data as unknown as UserStockWithDetails;
+  const stock = data as unknown as UserStockWithDetails;
+  const locationsByStockId = await getLocationsForStockIds(adminClient, [
+    stock.id,
+  ]);
+  stock.all_locations = locationsByStockId.get(stock.id) ?? [];
+
+  return stock;
 }
 
 export type PendingTransfer = {

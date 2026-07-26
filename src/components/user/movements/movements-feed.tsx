@@ -3,7 +3,7 @@
 import { format } from "date-fns";
 
 import { UserRecentMovement } from "@/actions/user/stock-movements";
-import { MOVEMENT_BADGE_CLASS } from "@/lib/movement-colors";
+import { DELTA_COLOR_CLASS, MOVEMENT_BADGE_CLASS } from "@/lib/movement-colors";
 import { cn } from "@/lib/utils";
 import {
   Table,
@@ -81,8 +81,8 @@ export function MovementsFeed({ movements }: MovementsFeedProps) {
                 className={cn(
                   "text-right text-sm font-semibold whitespace-nowrap",
                   m.quantity_delta >= 0
-                    ? "text-[#441D49] dark:text-[#DDB6E2]"
-                    : "text-[#7A3483] dark:text-[#C78AD0]"
+                    ? DELTA_COLOR_CLASS.positive
+                    : DELTA_COLOR_CLASS.negative
                 )}
               >
                 {m.quantity_delta >= 0 ? "+" : ""}

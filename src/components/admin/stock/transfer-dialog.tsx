@@ -67,7 +67,7 @@ export function StockTransferDialog({
     defaultValues: {
       destWarehouseId: "",
       transactUomId: "",
-      transactQty: 1,
+      transactQty: undefined as unknown as number,
       notes: "",
     },
   });
@@ -220,8 +220,18 @@ export function StockTransferDialog({
                     type="number"
                     step="any"
                     min="0.000001"
+                    placeholder="0"
+                    className="[appearance:textfield] border-[#7A3483] bg-black text-white placeholder:text-zinc-500 focus-visible:ring-[#A346AF] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    value={field.value ?? ""}
+                    onChange={(e) =>
+                      field.onChange(
+                        (e.target.value === ""
+                          ? ""
+                          : Number(e.target.value)) as number
+                      )
+                    }
+                    onFocus={(e) => e.target.select()}
                   />
                 </FormControl>
                 <FormMessage />

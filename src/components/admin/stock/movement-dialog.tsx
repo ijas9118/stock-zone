@@ -128,7 +128,7 @@ export function StockMovementDialog({
       warehouseId: initialData?.warehouse_id || "",
       shopTypeId: initialData?.shop_type_id || "",
       transactUomId: "",
-      transactQty: 1,
+      transactQty: undefined as unknown as number,
       adjustmentDirection: "add",
       subType: "",
       notes: "",
@@ -476,12 +476,22 @@ export function StockMovementDialog({
                     type="number"
                     min="0.000001"
                     step="any"
+                    placeholder="0"
+                    className="[appearance:textfield] border-[#7A3483] bg-black text-white placeholder:text-zinc-500 focus-visible:ring-[#A346AF] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    value={field.value ?? ""}
+                    onChange={(e) =>
+                      field.onChange(
+                        (e.target.value === ""
+                          ? ""
+                          : Number(e.target.value)) as number
+                      )
+                    }
+                    onFocus={(e) => e.target.select()}
                   />
                 </FormControl>
                 {conversionHint ? (
-                  <FormDescription className="text-xs text-blue-600 dark:text-blue-400">
+                  <FormDescription className="text-xs text-[#7A3483] dark:text-[#C78AD0]">
                     {conversionHint}
                   </FormDescription>
                 ) : (

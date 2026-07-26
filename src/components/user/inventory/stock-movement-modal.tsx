@@ -214,7 +214,7 @@ function InForm({ stock, uomOptions, onSuccess }: InFormProps) {
                     min="0.000001"
                     step="any"
                     placeholder="0"
-                    className="[appearance:textfield] border-violet-600 bg-black text-white placeholder:text-zinc-500 focus-visible:ring-violet-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    className="[appearance:textfield] border-[#7A3483] bg-black text-white placeholder:text-zinc-500 focus-visible:ring-[#A346AF] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     {...field}
                     value={field.value ?? ""}
                     onChange={(e) =>
@@ -401,7 +401,7 @@ function OutForm({ stock, uomOptions, onSuccess }: OutFormProps) {
                     min="0.000001"
                     step="any"
                     placeholder="0"
-                    className="[appearance:textfield] border-violet-600 bg-black text-white placeholder:text-zinc-500 focus-visible:ring-violet-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    className="[appearance:textfield] border-[#7A3483] bg-black text-white placeholder:text-zinc-500 focus-visible:ring-[#A346AF] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     {...field}
                     value={field.value ?? ""}
                     onChange={(e) =>
@@ -613,7 +613,7 @@ function TransferForm({ stock, uomOptions, onSuccess }: TransferFormProps) {
                     min="0.000001"
                     step="any"
                     placeholder="0"
-                    className="[appearance:textfield] border-violet-600 bg-black text-white placeholder:text-zinc-500 focus-visible:ring-violet-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    className="[appearance:textfield] border-[#7A3483] bg-black text-white placeholder:text-zinc-500 focus-visible:ring-[#A346AF] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     {...field}
                     value={field.value ?? ""}
                     onChange={(e) =>
@@ -827,7 +827,7 @@ function AdjustmentForm({ stock, uomOptions, onSuccess }: AdjustmentFormProps) {
                     min="0.000001"
                     step="any"
                     placeholder="0"
-                    className="[appearance:textfield] border-violet-600 bg-black text-white placeholder:text-zinc-500 focus-visible:ring-violet-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    className="[appearance:textfield] border-[#7A3483] bg-black text-white placeholder:text-zinc-500 focus-visible:ring-[#A346AF] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     {...field}
                     value={field.value ?? ""}
                     onChange={(e) =>

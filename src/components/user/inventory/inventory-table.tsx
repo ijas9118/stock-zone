@@ -77,6 +77,8 @@ export function InventoryTable({ stocks }: InventoryTableProps) {
                       {stock.locations && (
                         <span className="text-muted-foreground/60 font-mono text-[10px]">
                           · {stock.locations.location_code}
+                          {(stock.all_locations?.length ?? 0) > 1 &&
+                            ` +${stock.all_locations!.length - 1}`}
                         </span>
                       )}
                       <Badge
@@ -101,6 +103,8 @@ export function InventoryTable({ stocks }: InventoryTableProps) {
                     {stock.locations && (
                       <span className="text-muted-foreground/70 font-mono text-[10px]">
                         Bin {stock.locations.location_code}
+                        {(stock.all_locations?.length ?? 0) > 1 &&
+                          ` +${stock.all_locations!.length - 1}`}
                       </span>
                     )}
                   </div>

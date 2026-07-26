@@ -2,6 +2,10 @@
 
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 
+import {
+  getLocationsForStockIds,
+  StockLocationOption,
+} from "@/lib/stock-locations";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Database } from "@/lib/supabase/database.types";
 import { getAuthContext } from "@/lib/supabase/server";
@@ -34,6 +38,7 @@ export type StockWithDetails = StockRow & {
     level: string | null;
     slot: string | null;
   } | null;
+  all_locations?: StockLocationOption[];
 };
 
 async function verifyUserPermission(
@@ -171,8 +176,20 @@ export async function getStocks(
         throw new Error("Failed to fetch stocks");
       }
 
+      const stocks = data as unknown as StockWithDetails[];
+
+      // Batched (single-query) lookup of all bin locations for this page's
+      // stock rows — never loop-query per row.
+      const locationsByStockId = await getLocationsForStockIds(
+        adminClient,
+        stocks.map((s) => s.id)
+      );
+      stocks.forEach((s) => {
+        s.all_locations = locationsByStockId.get(s.id) ?? [];
+      });
+
       return {
-        stocks: data as unknown as StockWithDetails[],
+        stocks,
         totalCount: count || 0,
       };
     },
@@ -384,14 +401,7 @@ export async function updateStockLocation(
   }
 }
 
-export interface StockLocationOption {
-  id: string;
-  location_code: string;
-  zone: string | null;
-  rack: string | null;
-  level: string | null;
-  slot: string | null;
-}
+export type { StockLocationOption };
 
 /**
  * All bin locations currently assigned to a stock row, via the

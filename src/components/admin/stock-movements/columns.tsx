@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 import { StockMovementWithDetails } from "@/actions/admin/stock-movements";
-import { MOVEMENT_BADGE_CLASS } from "@/lib/movement-colors";
+import { DELTA_COLOR_CLASS, MOVEMENT_BADGE_CLASS } from "@/lib/movement-colors";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
@@ -121,8 +121,8 @@ export const columns: ColumnDef<StockMovementWithDetails>[] = [
           className={cn(
             "flex items-center gap-1 font-mono text-[11px] font-bold sm:text-xs md:text-sm",
             isPositive
-              ? "text-[#441D49] dark:text-[#DDB6E2]"
-              : "text-[#7A3483] dark:text-[#C78AD0]"
+              ? DELTA_COLOR_CLASS.positive
+              : DELTA_COLOR_CLASS.negative
           )}
         >
           {isPositive ? (
