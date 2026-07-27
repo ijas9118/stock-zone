@@ -97,6 +97,44 @@ export async function getLowStockReport() {
     });
 }
 
+export async function getStockOutReport() {
+  await verifyAdmin();
+  const adminClient = createAdminClient();
+
+  const { data, error } = await adminClient
+    .from("stock")
+    .select(
+      "quantity, products!inner(name, sku, minimum_stock_quantity, categories(category_name)), warehouses(name), shop_types(name)"
+    )
+    .eq("quantity", 0);
+
+  if (error) throw new Error("Failed to fetch stock out report");
+
+  return (data || []).map((row) => {
+    const product = Array.isArray(row.products)
+      ? row.products[0]
+      : row.products;
+    const category = Array.isArray(product?.categories)
+      ? product?.categories[0]
+      : product?.categories;
+    const warehouse = Array.isArray(row.warehouses)
+      ? row.warehouses[0]
+      : row.warehouses;
+    const shopType = Array.isArray(row.shop_types)
+      ? row.shop_types[0]
+      : row.shop_types;
+
+    return {
+      "Product Name": product?.name ?? "",
+      SKU: product?.sku ?? "",
+      Category: category?.category_name ?? "Uncategorized",
+      "Shop Type": shopType?.name ?? "",
+      Warehouse: warehouse?.name ?? "",
+      "Minimum Stock": product?.minimum_stock_quantity ?? "",
+    };
+  });
+}
+
 export async function getStockMovementsReport(
   params: {
     dateFrom?: string;

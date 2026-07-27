@@ -36,6 +36,16 @@ interface StockFiltersProps {
   initialCategories: Category[];
 }
 
+const SORT_OPTIONS = [
+  { value: "none", label: "Default" },
+  { value: "name_asc", label: "Name (A-Z)" },
+  { value: "name_desc", label: "Name (Z-A)" },
+  { value: "sku_asc", label: "SKU (A-Z)" },
+  { value: "sku_desc", label: "SKU (Z-A)" },
+  { value: "quantity_asc", label: "Quantity (Low-High)" },
+  { value: "quantity_desc", label: "Quantity (High-Low)" },
+] as const;
+
 export function StockFilters({
   initialWarehouses,
   initialShopTypes,
@@ -55,6 +65,7 @@ export function StockFilters({
     shop_type_id: searchParams.get("shop_type_id"),
     category_id: searchParams.get("category_id"),
     sub_category_id: searchParams.get("sub_category_id"),
+    stock_status: searchParams.get("stock_status"),
     q: searchParams.get("q"),
   };
 
@@ -94,6 +105,29 @@ export function StockFilters({
   function handleReset() {
     startTransition(() => {
       router.push(pathname);
+    });
+  }
+
+  const currentSort = (() => {
+    const sortBy = searchParams.get("sort_by");
+    const sortDir = searchParams.get("sort_dir");
+    if (!sortBy) return "none";
+    return `${sortBy}_${sortDir ?? "asc"}`;
+  })();
+
+  function handleSortChange(value: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value === "none") {
+      params.delete("sort_by");
+      params.delete("sort_dir");
+    } else {
+      const [sortBy, sortDir] = value.split("_");
+      params.set("sort_by", sortBy);
+      params.set("sort_dir", sortDir);
+    }
+    params.set("page", "1");
+    startTransition(() => {
+      router.push(`?${params.toString()}`);
     });
   }
 
@@ -190,6 +224,20 @@ export function StockFilters({
               ))}
             </SelectContent>
           </Select>
+
+          {/* Sort */}
+          <Select value={currentSort} onValueChange={handleSortChange}>
+            <SelectTrigger className="bg-background border-muted-foreground/15 h-8 w-[170px] rounded-lg text-xs shadow-none">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              {SORT_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Reset (Desktop) */}
@@ -279,6 +327,25 @@ export function StockFilters({
                   {initialShopTypes.map((s) => (
                     <SelectItem key={s.id} value={s.id}>
                       {s.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Sort */}
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-muted-foreground/70 text-[10px] font-bold tracking-wider uppercase">
+                Sort By
+              </Label>
+              <Select value={currentSort} onValueChange={handleSortChange}>
+                <SelectTrigger className="bg-background border-muted-foreground/15 h-9 w-full rounded-lg text-sm shadow-none">
+                  <SelectValue placeholder="Default" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SORT_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
                     </SelectItem>
                   ))}
                 </SelectContent>

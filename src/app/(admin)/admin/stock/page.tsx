@@ -2,7 +2,7 @@ import { Suspense } from "react";
 
 import { getCategories } from "@/actions/admin/categories";
 import { getShops } from "@/actions/admin/shops";
-import { getStocks } from "@/actions/admin/stock";
+import { getStocks, StockSortBy, StockSortDir } from "@/actions/admin/stock";
 import { getWarehouses } from "@/actions/admin/warehouses";
 import { ADMIN_PAGE_SIZE } from "@/lib/config";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,6 +19,9 @@ interface StockPageProps {
     shop_type_id?: string;
     category_id?: string;
     sub_category_id?: string;
+    stock_status?: string;
+    sort_by?: string;
+    sort_dir?: string;
     page?: string;
     pageSize?: string;
   }>;
@@ -49,6 +52,9 @@ export default async function StockPage({ searchParams }: StockPageProps) {
     shop_type_id,
     category_id,
     sub_category_id,
+    stock_status,
+    sort_by,
+    sort_dir,
     page,
     pageSize,
   } = params_res;
@@ -68,6 +74,9 @@ export default async function StockPage({ searchParams }: StockPageProps) {
       shopTypeId: shop_type_id,
       categoryId: category_id,
       subCategoryId: sub_category_id,
+      stockStatus: stock_status === "out" ? "out" : undefined,
+      sortBy: sort_by as StockSortBy | undefined,
+      sortDir: sort_dir as StockSortDir | undefined,
       page: currentPage,
       pageSize: currentPageSize,
     }),

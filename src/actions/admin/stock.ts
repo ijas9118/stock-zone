@@ -94,6 +94,9 @@ async function verifyAdminRead() {
   return auth.userId;
 }
 
+export type StockSortBy = "name" | "sku" | "quantity";
+export type StockSortDir = "asc" | "desc";
+
 export async function getStocks(
   params: {
     warehouseId?: string;
@@ -101,6 +104,9 @@ export async function getStocks(
     categoryId?: string;
     subCategoryId?: string;
     query?: string;
+    stockStatus?: "out";
+    sortBy?: StockSortBy;
+    sortDir?: StockSortDir;
     page?: number;
     pageSize?: number;
   } = {}
@@ -112,6 +118,9 @@ export async function getStocks(
     categoryId,
     subCategoryId,
     query,
+    stockStatus,
+    sortBy,
+    sortDir = "asc",
     page = 1,
     pageSize = 8,
   } = params;
@@ -166,6 +175,25 @@ export async function getStocks(
         );
       }
 
+      if (stockStatus === "out") {
+        supabaseQuery = supabaseQuery.eq("quantity", 0);
+      }
+
+      const ascending = sortDir === "asc";
+      if (sortBy === "quantity") {
+        supabaseQuery = supabaseQuery.order("quantity", { ascending });
+      } else if (sortBy === "name") {
+        supabaseQuery = supabaseQuery.order("name", {
+          ascending,
+          referencedTable: "products",
+        });
+      } else if (sortBy === "sku") {
+        supabaseQuery = supabaseQuery.order("sku", {
+          ascending,
+          referencedTable: "products",
+        });
+      }
+
       const from = (page - 1) * pageSize;
       const to = from + pageSize - 1;
 
@@ -200,6 +228,9 @@ export async function getStocks(
       categoryId || "",
       subCategoryId || "",
       query || "",
+      stockStatus || "",
+      sortBy || "",
+      sortDir,
       String(page),
       String(pageSize),
     ],

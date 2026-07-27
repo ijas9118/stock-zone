@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import {
   getLowStockReport,
   getStockMovementsReport,
+  getStockOutReport,
   getStockSummaryReport,
 } from "@/actions/admin/reports";
 import { exportRowsToExcel } from "@/lib/reports/export-excel";
@@ -38,6 +39,14 @@ const REPORTS = [
     filename: "low-stock-reorder",
   },
   {
+    id: "stock-out",
+    title: "Stock Out",
+    description:
+      "Products currently at zero quantity, by warehouse and shop type.",
+    fetch: getStockOutReport,
+    filename: "stock-out",
+  },
+  {
     id: "stock-movements",
     title: "Stock Movements (Last 30 Days)",
     description: "IN / OUT / Transfer / Adjustment log for the past 30 days.",
@@ -59,8 +68,11 @@ export function ReportsList() {
       }
       exportRowsToExcel(rows, report.filename, report.title);
       toast.success(`${report.title} downloaded`);
-    } catch {
-      toast.error("Failed to generate report");
+    } catch (err) {
+      console.error(`Failed to generate "${report.title}" report:`, err);
+      toast.error(
+        err instanceof Error ? err.message : "Failed to generate report"
+      );
     } finally {
       setLoadingId(null);
     }
