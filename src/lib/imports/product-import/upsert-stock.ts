@@ -7,6 +7,7 @@ import { LookupMaps, NormalizedRow } from "./types";
 
 interface StockUpsertResult {
   insertedStockRows: number;
+  skippedExistingStockRows: number;
   failedRows: number;
   errors: { row: number; error: string }[];
 }
@@ -18,6 +19,7 @@ export async function upsertStock(
 ): Promise<StockUpsertResult> {
   const result: StockUpsertResult = {
     insertedStockRows: 0,
+    skippedExistingStockRows: 0,
     failedRows: 0,
     errors: [],
   };
@@ -86,24 +88,55 @@ export async function upsertStock(
     });
   });
 
-  const stocksToUpsert = Array.from(stockMap.values());
+  const candidateStocks = Array.from(stockMap.values());
+
+  // A CSV import must never overwrite the live quantity of a stock row that
+  // already exists — that quantity may have moved via adjustments/sales/
+  // transfers since the row was created, and the CSV only knows the
+  // product's *initial* stock figure. Only genuinely new (product,
+  // warehouse, shop_type) combinations get their quantity set here.
+  const productIds = Array.from(
+    new Set(candidateStocks.map((s) => s.product_id))
+  );
+  const existingKeys = new Set<string>();
+  if (productIds.length > 0) {
+    const { data: existingStock, error: existingError } = await supabase
+      .from("stock")
+      .select("product_id, warehouse_id, shop_type_id")
+      .in("product_id", productIds);
+
+    if (existingError) {
+      result.failedRows += candidateStocks.length;
+      result.errors.push({
+        row: -1,
+        error: `Failed to check existing stock rows: ${existingError.message}`,
+      });
+      return result;
+    }
+
+    (existingStock || []).forEach((s) => {
+      existingKeys.add(`${s.product_id}:${s.warehouse_id}:${s.shop_type_id}`);
+    });
+  }
+
+  const stocksToInsert = candidateStocks.filter(
+    (s) =>
+      !existingKeys.has(`${s.product_id}:${s.warehouse_id}:${s.shop_type_id}`)
+  );
+  result.skippedExistingStockRows =
+    candidateStocks.length - stocksToInsert.length;
 
   const CHUNK_SIZE = 500;
-  for (let i = 0; i < stocksToUpsert.length; i += CHUNK_SIZE) {
-    const chunk = stocksToUpsert.slice(i, i + CHUNK_SIZE);
+  for (let i = 0; i < stocksToInsert.length; i += CHUNK_SIZE) {
+    const chunk = stocksToInsert.slice(i, i + CHUNK_SIZE);
 
-    const { data, error } = await supabase
-      .from("stock")
-      .upsert(chunk, {
-        onConflict: "product_id, warehouse_id, shop_type_id",
-      })
-      .select();
+    const { data, error } = await supabase.from("stock").insert(chunk).select();
 
     if (error) {
       result.failedRows += chunk.length; // Approximate, as we aggregated
       result.errors.push({
         row: -1, // Cannot easily trace back to specific row here due to aggregation
-        error: `Batch stock upsert failed: ${error.message}`,
+        error: `Batch stock insert failed: ${error.message}`,
       });
     } else if (data) {
       result.insertedStockRows += data.length;
