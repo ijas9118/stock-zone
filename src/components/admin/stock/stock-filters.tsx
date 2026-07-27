@@ -142,7 +142,7 @@ export function StockFilters({
           className="bg-background border-muted-foreground/15 h-8 gap-1.5 text-xs md:hidden"
         >
           <SlidersHorizontal className="h-3.5 w-3.5" />
-          Filters
+          Filter
           {hasFilters && (
             <span className="bg-primary text-primary-foreground flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold">
               {activeFilterCount}
@@ -264,7 +264,7 @@ export function StockFilters({
         >
           <SheetHeader className="border-b px-4 py-4">
             <SheetTitle className="text-left text-base font-semibold">
-              Filters
+              Filter
             </SheetTitle>
             <SheetDescription className="text-left text-xs">
               Refine your stock view

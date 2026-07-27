@@ -6,6 +6,12 @@ import * as XLSX from "xlsx";
  * browser environment detection which can misfire under bundlers, silently
  * throwing instead of downloading anything.
  */
+// Excel sheet names can't contain : \ / ? * [ ] and are capped at 31 chars.
+function sanitizeSheetName(name: string) {
+  const cleaned = name.replace(/[:\\/?*[\]]/g, "-").trim();
+  return (cleaned || "Report").slice(0, 31);
+}
+
 export function exportRowsToExcel(
   rows: Record<string, string | number>[],
   filename: string,
@@ -13,7 +19,11 @@ export function exportRowsToExcel(
 ) {
   const worksheet = XLSX.utils.json_to_sheet(rows);
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+  XLSX.utils.book_append_sheet(
+    workbook,
+    worksheet,
+    sanitizeSheetName(sheetName)
+  );
 
   const buffer = XLSX.write(workbook, { type: "array", bookType: "xlsx" });
   const blob = new Blob([buffer], {

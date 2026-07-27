@@ -180,31 +180,61 @@ export async function getStocks(
       }
 
       const ascending = sortDir === "asc";
-      if (sortBy === "quantity") {
-        supabaseQuery = supabaseQuery.order("quantity", { ascending });
-      } else if (sortBy === "name") {
-        supabaseQuery = supabaseQuery.order("name", {
-          ascending,
-          referencedTable: "products",
+      let stocks: StockWithDetails[];
+      let count: number | null;
+
+      if (sortBy === "name" || sortBy === "sku") {
+        // PostgREST can't reorder the parent (stock) rows by a to-one
+        // embedded resource's column — `products.order=...` is silently a
+        // no-op at the server level. Fetch the full filtered set in one
+        // query and sort in-memory instead; this table is small enough
+        // (product x warehouse x shop_type rows) that this stays a single,
+        // cheap query rather than N+1 or a full scan concern.
+        const {
+          data,
+          error,
+          count: totalCount,
+        } = await supabaseQuery.range(0, 4999);
+
+        if (error) {
+          console.error("Error fetching stocks:", error);
+          throw new Error("Failed to fetch stocks");
+        }
+
+        const allStocks = data as unknown as StockWithDetails[];
+        allStocks.sort((a, b) => {
+          const aVal = (a.products?.[sortBy] ?? "").toLowerCase();
+          const bVal = (b.products?.[sortBy] ?? "").toLowerCase();
+          return ascending
+            ? aVal.localeCompare(bVal)
+            : bVal.localeCompare(aVal);
         });
-      } else if (sortBy === "sku") {
-        supabaseQuery = supabaseQuery.order("sku", {
-          ascending,
-          referencedTable: "products",
-        });
+
+        const from = (page - 1) * pageSize;
+        stocks = allStocks.slice(from, from + pageSize);
+        count = totalCount;
+      } else {
+        if (sortBy === "quantity") {
+          supabaseQuery = supabaseQuery.order("quantity", { ascending });
+        }
+
+        const from = (page - 1) * pageSize;
+        const to = from + pageSize - 1;
+
+        const {
+          data,
+          error,
+          count: totalCount,
+        } = await supabaseQuery.range(from, to);
+
+        if (error) {
+          console.error("Error fetching stocks:", error);
+          throw new Error("Failed to fetch stocks");
+        }
+
+        stocks = data as unknown as StockWithDetails[];
+        count = totalCount;
       }
-
-      const from = (page - 1) * pageSize;
-      const to = from + pageSize - 1;
-
-      const { data, error, count } = await supabaseQuery.range(from, to);
-
-      if (error) {
-        console.error("Error fetching stocks:", error);
-        throw new Error("Failed to fetch stocks");
-      }
-
-      const stocks = data as unknown as StockWithDetails[];
 
       // Batched (single-query) lookup of all bin locations for this page's
       // stock rows — never loop-query per row.
