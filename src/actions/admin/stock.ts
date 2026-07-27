@@ -432,8 +432,6 @@ export async function updateStockLocation(
   }
 }
 
-export type { StockLocationOption };
-
 /**
  * All bin locations currently assigned to a stock row, via the
  * `stock_locations` junction table (many-to-many).
