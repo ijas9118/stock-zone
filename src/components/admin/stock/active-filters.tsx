@@ -69,6 +69,15 @@ export function ActiveFilters({
     });
   }
 
+  const stockStatus = searchParams.get("stock_status");
+  if (stockStatus === "out") {
+    activeFilters.push({
+      key: "stock_status",
+      label: "Stock",
+      value: "Out of Stock only",
+    });
+  }
+
   if (activeFilters.length === 0) return null;
 
   function removeFilter(key: string) {

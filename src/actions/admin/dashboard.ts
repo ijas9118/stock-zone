@@ -143,7 +143,7 @@ export async function getDashboardData(filters: DashboardFilters = {}) {
       let q = adminClient
         .from("stock_movements")
         .select(
-          "id, type, quantity_delta, created_at, products(name, sku), warehouses(name), profiles:created_by(full_name, email)"
+          "id, type, quantity_delta, created_at, notes, products(name, sku), warehouses(name), profiles:created_by(full_name, email)"
         )
         .order("created_at", { ascending: false })
         .limit(5);
@@ -228,6 +228,7 @@ export async function getDashboardData(filters: DashboardFilters = {}) {
       productSku: product?.sku ?? null,
       warehouseName: warehouse?.name ?? "Unknown warehouse",
       userName: createdBy?.full_name ?? createdBy?.email ?? "Unknown user",
+      notes: m.notes ?? null,
     };
   });
 

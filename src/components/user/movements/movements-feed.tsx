@@ -65,6 +65,11 @@ export function MovementsFeed({ movements }: MovementsFeedProps) {
                   {m.product_sku ? `${m.product_sku} · ` : ""}
                   {m.warehouse_name} · {m.shop_type_name}
                 </p>
+                {m.notes && (
+                  <p className="text-muted-foreground/80 truncate text-xs italic">
+                    &ldquo;{m.notes}&rdquo;
+                  </p>
+                )}
               </TableCell>
               <TableCell>
                 <span

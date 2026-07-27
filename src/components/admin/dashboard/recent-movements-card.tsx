@@ -19,6 +19,7 @@ interface RecentMovement {
   productSku: string | null;
   warehouseName: string;
   userName: string;
+  notes?: string | null;
 }
 
 interface RecentMovementsCardProps {
@@ -73,6 +74,11 @@ export function RecentMovementsCard({ movements }: RecentMovementsCardProps) {
                     {m.warehouseName} · {m.userName} ·{" "}
                     {format(new Date(m.createdAt), "MMM d, h:mm a")}
                   </p>
+                  {m.notes && (
+                    <p className="text-muted-foreground/80 truncate text-xs italic">
+                      &ldquo;{m.notes}&rdquo;
+                    </p>
+                  )}
                 </div>
                 <span
                   className={cn(

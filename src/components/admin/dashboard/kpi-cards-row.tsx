@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   ArrowRightLeft,
   Boxes,
@@ -29,6 +30,7 @@ export function KpiCardsRow({ kpis }: KpiCardsRowProps) {
       subtext: "Across current selection",
       icon: Boxes,
       accent: ACCENT[900],
+      href: undefined as string | undefined,
     },
     {
       label: "Low Stock",
@@ -36,6 +38,7 @@ export function KpiCardsRow({ kpis }: KpiCardsRowProps) {
       subtext: "At or below reorder point",
       icon: TriangleAlert,
       accent: ACCENT[700],
+      href: undefined as string | undefined,
     },
     {
       label: "Out of Stock",
@@ -45,6 +48,7 @@ export function KpiCardsRow({ kpis }: KpiCardsRowProps) {
       // Intentional exception to the accent-only palette — this one needs
       // to read as a critical alert at a glance.
       accent: kpis.outOfStock > 0 ? "#dc2626" : ACCENT[500],
+      href: "/admin/stock?stock_status=out",
     },
     {
       label: "Movements Today",
@@ -52,6 +56,7 @@ export function KpiCardsRow({ kpis }: KpiCardsRowProps) {
       subtext: "IN / OUT / Transfer / Adjustment",
       icon: ArrowRightLeft,
       accent: ACCENT[300],
+      href: undefined as string | undefined,
     },
     {
       label: "Pending Transfers",
@@ -59,36 +64,50 @@ export function KpiCardsRow({ kpis }: KpiCardsRowProps) {
       subtext: "Awaiting completion",
       icon: PackageSearch,
       accent: ACCENT[900],
+      href: undefined as string | undefined,
     },
   ];
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-      {cards.map((c) => (
-        <Card
-          key={c.label}
-          className="flex h-full flex-col border-t-2 shadow-none"
-          style={{ borderTopColor: c.accent }}
-        >
-          <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-            <CardTitle className="text-muted-foreground min-h-8 text-xs leading-4 font-medium">
-              {c.label}
-            </CardTitle>
-            <span
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
-              style={{ background: `${c.accent}1f` }}
-            >
-              <c.icon className="h-4 w-4" style={{ color: c.accent }} />
-            </span>
-          </CardHeader>
-          <CardContent className="flex flex-1 flex-col justify-center">
-            <div className="text-3xl leading-none font-bold tabular-nums sm:text-4xl">
-              {c.value}
-            </div>
-            <p className="text-muted-foreground mt-1.5 text-xs">{c.subtext}</p>
-          </CardContent>
-        </Card>
-      ))}
+      {cards.map((c) => {
+        const card = (
+          <Card
+            className={`flex h-full flex-col border-t-2 shadow-none ${
+              c.href ? "hover:bg-muted/40 transition-colors" : ""
+            }`}
+            style={{ borderTopColor: c.accent }}
+          >
+            <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
+              <CardTitle className="text-muted-foreground min-h-8 text-xs leading-4 font-medium">
+                {c.label}
+              </CardTitle>
+              <span
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
+                style={{ background: `${c.accent}1f` }}
+              >
+                <c.icon className="h-4 w-4" style={{ color: c.accent }} />
+              </span>
+            </CardHeader>
+            <CardContent className="flex flex-1 flex-col justify-center">
+              <div className="text-3xl leading-none font-bold tabular-nums sm:text-4xl">
+                {c.value}
+              </div>
+              <p className="text-muted-foreground mt-1.5 text-xs">
+                {c.subtext}
+              </p>
+            </CardContent>
+          </Card>
+        );
+
+        return c.href ? (
+          <Link key={c.label} href={c.href}>
+            {card}
+          </Link>
+        ) : (
+          <div key={c.label}>{card}</div>
+        );
+      })}
     </div>
   );
 }

@@ -94,6 +94,13 @@ async function verifyAdminRead() {
   return auth.userId;
 }
 
+export type StockSortBy = "name" | "sku" | "quantity";
+export type StockSortDir = "asc" | "desc";
+
+// Upper bound for the in-memory name/SKU sort fallback below — comfortably
+// above the current stock table size (product x warehouse x shop_type rows).
+const MAX_SORTABLE_ROWS = 4999;
+
 export async function getStocks(
   params: {
     warehouseId?: string;
@@ -101,6 +108,9 @@ export async function getStocks(
     categoryId?: string;
     subCategoryId?: string;
     query?: string;
+    stockStatus?: "out";
+    sortBy?: StockSortBy;
+    sortDir?: StockSortDir;
     page?: number;
     pageSize?: number;
   } = {}
@@ -112,6 +122,9 @@ export async function getStocks(
     categoryId,
     subCategoryId,
     query,
+    stockStatus,
+    sortBy,
+    sortDir = "asc",
     page = 1,
     pageSize = 8,
   } = params;
@@ -166,17 +179,66 @@ export async function getStocks(
         );
       }
 
-      const from = (page - 1) * pageSize;
-      const to = from + pageSize - 1;
-
-      const { data, error, count } = await supabaseQuery.range(from, to);
-
-      if (error) {
-        console.error("Error fetching stocks:", error);
-        throw new Error("Failed to fetch stocks");
+      if (stockStatus === "out") {
+        supabaseQuery = supabaseQuery.eq("quantity", 0);
       }
 
-      const stocks = data as unknown as StockWithDetails[];
+      const ascending = sortDir === "asc";
+      let stocks: StockWithDetails[];
+      let count: number | null;
+
+      if (sortBy === "name" || sortBy === "sku") {
+        // PostgREST can't reorder the parent (stock) rows by a to-one
+        // embedded resource's column — `products.order=...` is silently a
+        // no-op at the server level. Fetch the full filtered set in one
+        // query and sort in-memory instead; this table is small enough
+        // (product x warehouse x shop_type rows) that this stays a single,
+        // cheap query rather than N+1 or a full scan concern.
+        const {
+          data,
+          error,
+          count: totalCount,
+        } = await supabaseQuery.range(0, MAX_SORTABLE_ROWS - 1);
+
+        if (error) {
+          console.error("Error fetching stocks:", error);
+          throw new Error("Failed to fetch stocks");
+        }
+
+        const allStocks = data as unknown as StockWithDetails[];
+        allStocks.sort((a, b) => {
+          const aVal = (a.products?.[sortBy] ?? "").toLowerCase();
+          const bVal = (b.products?.[sortBy] ?? "").toLowerCase();
+          return ascending
+            ? aVal.localeCompare(bVal)
+            : bVal.localeCompare(aVal);
+        });
+
+        const from = (page - 1) * pageSize;
+        stocks = allStocks.slice(from, from + pageSize);
+        count = totalCount;
+      } else {
+        if (sortBy === "quantity") {
+          supabaseQuery = supabaseQuery.order("quantity", { ascending });
+        }
+
+        const from = (page - 1) * pageSize;
+        const to = from + pageSize - 1;
+
+        const {
+          data,
+          error,
+          count: totalCount,
+        } = await supabaseQuery.range(from, to);
+
+        if (error) {
+          console.error("Error fetching stocks:", error);
+          throw new Error("Failed to fetch stocks");
+        }
+
+        stocks = data as unknown as StockWithDetails[];
+        count = totalCount;
+      }
 
       // Batched (single-query) lookup of all bin locations for this page's
       // stock rows — never loop-query per row.
@@ -200,6 +262,9 @@ export async function getStocks(
       categoryId || "",
       subCategoryId || "",
       query || "",
+      stockStatus || "",
+      sortBy || "",
+      sortDir,
       String(page),
       String(pageSize),
     ],
@@ -400,8 +465,6 @@ export async function updateStockLocation(
     };
   }
 }
-
-export type { StockLocationOption };
 
 /**
  * All bin locations currently assigned to a stock row, via the
