@@ -228,6 +228,22 @@ export default function ImportProductsPage() {
                       {result.updatedProducts}
                     </p>
                   </div>
+                  <div className="bg-card rounded-lg border p-4">
+                    <p className="text-muted-foreground text-sm font-medium">
+                      Stock Rows Inserted
+                    </p>
+                    <p className="text-2xl font-bold text-green-600">
+                      {result.insertedStockRows}
+                    </p>
+                  </div>
+                  <div className="bg-card rounded-lg border p-4">
+                    <p className="text-muted-foreground text-sm font-medium">
+                      Existing Stock Left Untouched
+                    </p>
+                    <p className="text-2xl font-bold text-blue-600">
+                      {result.skippedExistingStockRows}
+                    </p>
+                  </div>
                 </div>
 
                 <div className="mt-4 flex justify-between">

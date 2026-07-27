@@ -20,6 +20,7 @@ export async function processCsvImport(
     insertedProducts: 0,
     updatedProducts: 0,
     insertedStockRows: 0,
+    skippedExistingStockRows: 0,
     upsertedUomConversions: 0,
     failedRows: 0,
     errors: [],
@@ -76,6 +77,7 @@ export async function processCsvImport(
     // Step 6: Upsert stock
     const stockResult = await upsertStock(supabase, validRows, lookups);
     result.insertedStockRows = stockResult.insertedStockRows;
+    result.skippedExistingStockRows = stockResult.skippedExistingStockRows;
     result.failedRows += stockResult.failedRows;
     result.errors.push(...stockResult.errors);
   } catch (err: unknown) {
