@@ -37,7 +37,7 @@ interface StockFiltersProps {
 }
 
 const SORT_OPTIONS = [
-  { value: "none", label: "Default" },
+  { value: "none", label: "Sort by" },
   { value: "name_asc", label: "Name (A-Z)" },
   { value: "name_desc", label: "Name (Z-A)" },
   { value: "sku_asc", label: "SKU (A-Z)" },
@@ -142,7 +142,7 @@ export function StockFilters({
           className="bg-background border-muted-foreground/15 h-8 gap-1.5 text-xs md:hidden"
         >
           <SlidersHorizontal className="h-3.5 w-3.5" />
-          Filter
+          Filters
           {hasFilters && (
             <span className="bg-primary text-primary-foreground flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold">
               {activeFilterCount}
@@ -264,7 +264,7 @@ export function StockFilters({
         >
           <SheetHeader className="border-b px-4 py-4">
             <SheetTitle className="text-left text-base font-semibold">
-              Filter
+              Filters
             </SheetTitle>
             <SheetDescription className="text-left text-xs">
               Refine your stock view
@@ -340,7 +340,7 @@ export function StockFilters({
               </Label>
               <Select value={currentSort} onValueChange={handleSortChange}>
                 <SelectTrigger className="bg-background border-muted-foreground/15 h-9 w-full rounded-lg text-sm shadow-none">
-                  <SelectValue placeholder="Default" />
+                  <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
                   {SORT_OPTIONS.map((opt) => (

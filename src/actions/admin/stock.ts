@@ -97,6 +97,10 @@ async function verifyAdminRead() {
 export type StockSortBy = "name" | "sku" | "quantity";
 export type StockSortDir = "asc" | "desc";
 
+// Upper bound for the in-memory name/SKU sort fallback below — comfortably
+// above the current stock table size (product x warehouse x shop_type rows).
+const MAX_SORTABLE_ROWS = 4999;
+
 export async function getStocks(
   params: {
     warehouseId?: string;
@@ -194,7 +198,7 @@ export async function getStocks(
           data,
           error,
           count: totalCount,
-        } = await supabaseQuery.range(0, 4999);
+        } = await supabaseQuery.range(0, MAX_SORTABLE_ROWS - 1);
 
         if (error) {
           console.error("Error fetching stocks:", error);
