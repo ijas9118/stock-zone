@@ -3,7 +3,12 @@
 import { format } from "date-fns";
 
 import { UserRecentMovement } from "@/actions/user/stock-movements";
-import { DELTA_COLOR_CLASS, MOVEMENT_BADGE_CLASS } from "@/lib/movement-colors";
+import {
+  DELTA_COLOR_CLASS,
+  MOVEMENT_BADGE_CLASS,
+  MOVEMENT_SUB_TYPE_LABELS,
+  MOVEMENT_TYPE_LABELS,
+} from "@/lib/movement-colors";
 import { cn } from "@/lib/utils";
 import {
   Table,
@@ -13,14 +18,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-const TYPE_LABELS: Record<string, string> = {
-  in: "IN",
-  out: "OUT",
-  transfer_in: "Transfer In",
-  transfer_out: "Transfer Out",
-  adjustment: "Adjustment",
-};
 
 interface MovementsFeedProps {
   movements: UserRecentMovement[];
@@ -42,7 +39,7 @@ export function MovementsFeed({ movements }: MovementsFeedProps) {
       <Table className="min-w-[680px] table-fixed">
         <colgroup>
           <col />
-          <col className="w-[100px]" />
+          <col className="w-[140px]" />
           <col className="w-[72px]" />
           <col className="w-[160px]" />
           <col className="w-[140px]" />
@@ -72,15 +69,22 @@ export function MovementsFeed({ movements }: MovementsFeedProps) {
                 )}
               </TableCell>
               <TableCell>
-                <span
-                  className={cn(
-                    "rounded px-1.5 py-0.5 text-[10px] font-semibold whitespace-nowrap",
-                    MOVEMENT_BADGE_CLASS[m.type] ??
-                      "bg-muted text-muted-foreground"
+                <div className="flex flex-col gap-0.5">
+                  <span
+                    className={cn(
+                      "rounded px-1.5 py-0.5 text-[10px] font-semibold whitespace-nowrap",
+                      MOVEMENT_BADGE_CLASS[m.type] ??
+                        "bg-muted text-muted-foreground"
+                    )}
+                  >
+                    {MOVEMENT_TYPE_LABELS[m.type] ?? m.type}
+                  </span>
+                  {m.sub_type && MOVEMENT_SUB_TYPE_LABELS[m.sub_type] && (
+                    <span className="text-muted-foreground text-[10px]">
+                      {MOVEMENT_SUB_TYPE_LABELS[m.sub_type]}
+                    </span>
                   )}
-                >
-                  {TYPE_LABELS[m.type] ?? m.type}
-                </span>
+                </div>
               </TableCell>
               <TableCell
                 className={cn(

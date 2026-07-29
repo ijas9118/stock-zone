@@ -11,7 +11,8 @@ export const MOVEMENT_BADGE_CLASS: Record<string, string> = {
   out: "bg-red-500/10 text-red-700 dark:bg-red-500/20 dark:text-red-400",
   transfer_in:
     "bg-[#A346AF]/10 text-[#A346AF] dark:bg-[#A346AF]/30 dark:text-[#DDB6E2]",
-  transfer_out: "bg-red-500/10 text-red-700 dark:bg-red-500/20 dark:text-red-400",
+  transfer_out:
+    "bg-red-500/10 text-red-700 dark:bg-red-500/20 dark:text-red-400",
   adjustment:
     "bg-[#C78AD0]/20 text-[#7A3483] dark:bg-[#C78AD0]/20 dark:text-[#DDB6E2]",
   return:
@@ -37,4 +38,35 @@ export const MOVEMENT_ICON_CLASS: Record<string, string> = {
 export const DELTA_COLOR_CLASS = {
   positive: "text-[#441D49] dark:text-[#DDB6E2]",
   negative: "text-red-600 dark:text-red-400",
+};
+
+// Human labels for the top-level movement type — shared by the admin Stock
+// Movements table and the staff Activity feed so both read identically.
+export const MOVEMENT_TYPE_LABELS: Record<string, string> = {
+  in: "Stock In",
+  out: "Stock Out",
+  transfer_in: "Transfer In",
+  transfer_out: "Transfer Out",
+  adjustment: "Adjustment",
+};
+
+// Human labels for the movement's specific reason (sub_type) — shown
+// alongside the type label so staff/admin can see *why*, not just in/out.
+export const MOVEMENT_SUB_TYPE_LABELS: Record<string, string> = {
+  sent_from_shop: "Sent from Shop",
+  supplier_delivery: "Supplier Delivery",
+  customer_return: "Customer Return",
+  initial_stock: "Initial Stock",
+  sent_to_shop: "Sent to Shop",
+  sent_to_customer: "Sent to Customer",
+  sent_to_samti: "Sent to Samti Shop",
+  sent_to_yanbu: "Sent to Yanbu",
+  sent_to_tz_showroom: "Sent to TZ Showroom",
+  supplier_return: "Supplier Return",
+  stock_count_correction: "Stock Count Correction",
+  system_mistake: "System Mistake",
+  damaged_goods: "Damaged Goods",
+  expired_goods: "Expired Goods",
+  missing_lost: "Missing / Lost",
+  found_extra_stock: "Found Extra Stock",
 };
