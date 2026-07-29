@@ -1,6 +1,7 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { Database } from "@/lib/supabase/database.types";
 import { getAuthContext } from "@/lib/supabase/server";
 
 async function verifyAdmin() {
@@ -139,6 +140,8 @@ export async function getStockMovementsReport(
   params: {
     dateFrom?: string;
     dateTo?: string;
+    type?: Database["public"]["Enums"]["movement_type"];
+    subType?: Database["public"]["Enums"]["movement_sub_type"];
   } = {}
 ) {
   await verifyAdmin();
@@ -155,12 +158,14 @@ export async function getStockMovementsReport(
   let query = adminClient
     .from("stock_movements")
     .select(
-      "created_at, type, quantity_delta, products!inner(name, sku), warehouses(name), shop_types(name), profiles:created_by(full_name, email)"
+      "created_at, type, sub_type, quantity_delta, notes, products!inner(name, sku), warehouses(name), shop_types(name), profiles:created_by(full_name, email)"
     )
     .gte("created_at", dateFrom)
     .order("created_at", { ascending: false });
 
   if (params.dateTo) query = query.lte("created_at", params.dateTo);
+  if (params.type) query = query.eq("type", params.type);
+  if (params.subType) query = query.eq("sub_type", params.subType);
 
   const { data, error } = await query;
   if (error) throw new Error("Failed to fetch stock movements report");
@@ -182,12 +187,14 @@ export async function getStockMovementsReport(
     return {
       Date: new Date(row.created_at).toLocaleString(),
       Type: row.type,
+      "Sub Type": row.sub_type ?? "",
       "Product Name": product?.name ?? "",
       SKU: product?.sku ?? "",
       "Shop Type": shopType?.name ?? "",
       Warehouse: warehouse?.name ?? "",
       "Quantity Change": row.quantity_delta,
       "Created By": createdBy?.full_name ?? createdBy?.email ?? "",
+      Notes: row.notes ?? "",
     };
   });
 }

@@ -66,7 +66,9 @@ const SUB_TYPE_OPTIONS: Record<
   ],
   out: [
     { value: "sent_to_customer", label: "Sent to Customer" },
-    { value: "sent_to_shop", label: "Sent to Shop" },
+    { value: "sent_to_samti", label: "Transfer to Samti" },
+    { value: "sent_to_yanbu", label: "Transfer to Yanbu" },
+    { value: "sent_to_tz_showroom", label: "Transfer to TZ Showroom" },
     { value: "supplier_return", label: "Supplier Return" },
   ],
   adjustment: [
