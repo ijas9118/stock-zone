@@ -12,7 +12,11 @@ import {
 } from "lucide-react";
 
 import { StockMovementWithDetails } from "@/actions/admin/stock-movements";
-import { DELTA_COLOR_CLASS, MOVEMENT_BADGE_CLASS } from "@/lib/movement-colors";
+import {
+  DELTA_COLOR_CLASS,
+  MOVEMENT_BADGE_CLASS,
+  MOVEMENT_SUB_TYPE_LABELS,
+} from "@/lib/movement-colors";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
@@ -44,25 +48,6 @@ const typeConfig = {
   },
 };
 
-const SUB_TYPE_LABELS: Record<string, string> = {
-  sent_from_shop: "Sent from Shop",
-  supplier_delivery: "Supplier Delivery",
-  customer_return: "Customer Return",
-  initial_stock: "Initial Stock",
-  sent_to_shop: "Sent to Shop",
-  sent_to_customer: "Sent to Customer",
-  sent_to_samti: "Sent to Samti Shop",
-  sent_to_yanbu: "Sent to Yanbu",
-  sent_to_tz_showroom: "Sent to TZ Showroom",
-  supplier_return: "Supplier Return",
-  stock_count_correction: "Stock Count Correction",
-  system_mistake: "System Mistake",
-  damaged_goods: "Damaged Goods",
-  expired_goods: "Expired Goods",
-  missing_lost: "Missing / Lost",
-  found_extra_stock: "Found Extra Stock",
-};
-
 export const columns: ColumnDef<StockMovementWithDetails>[] = [
   {
     accessorKey: "type",
@@ -87,9 +72,9 @@ export const columns: ColumnDef<StockMovementWithDetails>[] = [
             <Icon className="h-3 w-3" />
             {config.label}
           </Badge>
-          {subType && SUB_TYPE_LABELS[subType] && (
+          {subType && MOVEMENT_SUB_TYPE_LABELS[subType] && (
             <span className="text-muted-foreground pl-0.5 text-[10px]">
-              {SUB_TYPE_LABELS[subType]}
+              {MOVEMENT_SUB_TYPE_LABELS[subType]}
             </span>
           )}
         </div>
