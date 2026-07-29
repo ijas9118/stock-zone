@@ -51,6 +51,9 @@ const SUB_TYPE_LABELS: Record<string, string> = {
   initial_stock: "Initial Stock",
   sent_to_shop: "Sent to Shop",
   sent_to_customer: "Sent to Customer",
+  sent_to_samti: "Sent to Samti Shop",
+  sent_to_yanbu: "Sent to Yanbu",
+  sent_to_tz_showroom: "Sent to TZ Showroom",
   supplier_return: "Supplier Return",
   stock_count_correction: "Stock Count Correction",
   system_mistake: "System Mistake",
@@ -120,9 +123,7 @@ export const columns: ColumnDef<StockMovementWithDetails>[] = [
         <div
           className={cn(
             "flex items-center gap-1 font-mono text-[11px] font-bold sm:text-xs md:text-sm",
-            isPositive
-              ? DELTA_COLOR_CLASS.positive
-              : DELTA_COLOR_CLASS.negative
+            isPositive ? DELTA_COLOR_CLASS.positive : DELTA_COLOR_CLASS.negative
           )}
         >
           {isPositive ? (

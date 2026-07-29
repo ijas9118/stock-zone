@@ -832,6 +832,9 @@ export type Database = {
         | "initial_stock"
         | "sent_to_shop"
         | "sent_to_customer"
+        | "sent_to_samti"
+        | "sent_to_yanbu"
+        | "sent_to_tz_showroom"
         | "supplier_return"
         | "stock_count_correction"
         | "system_mistake"
@@ -996,6 +999,9 @@ export const Constants = {
         "initial_stock",
         "sent_to_shop",
         "sent_to_customer",
+        "sent_to_samti",
+        "sent_to_yanbu",
+        "sent_to_tz_showroom",
         "supplier_return",
         "stock_count_correction",
         "system_mistake",

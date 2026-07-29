@@ -48,7 +48,9 @@ const IN_SUB_TYPES: { value: MovementSubType; label: string }[] = [
 
 const OUT_SUB_TYPES: { value: MovementSubType; label: string }[] = [
   { value: "sent_to_customer", label: "Customer Delivery" },
-  { value: "sent_to_shop", label: "Transfer to Shop" },
+  { value: "sent_to_samti", label: "Sent to Samti Shop" },
+  { value: "sent_to_yanbu", label: "Sent to Yanbu" },
+  { value: "sent_to_tz_showroom", label: "Sent to TZ Showroom" },
   { value: "supplier_return", label: "Return to Supplier" },
 ];
 
