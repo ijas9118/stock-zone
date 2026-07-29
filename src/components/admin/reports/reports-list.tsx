@@ -76,7 +76,7 @@ const OUT_REASON_OPTIONS: { value: MovementSubType; label: string }[] = [
   { value: "supplier_return", label: "Supplier Return" },
 ];
 
-function StockOutByReasonCard() {
+function StockMovementsByTypesCard() {
   const [loading, setLoading] = useState(false);
   const [reason, setReason] = useState<MovementSubType | "all">("all");
 
@@ -91,13 +91,17 @@ function StockOutByReasonCard() {
         toast.info("No data available for this report.");
         return;
       }
-      const filenameParts = ["stock-out-by-reason", reason].filter(
+      const filenameParts = ["stock-movements-by-types", reason].filter(
         (p) => p !== "all"
       );
-      exportRowsToExcel(rows, filenameParts.join("-"), "Stock Out by Reason");
-      toast.success("Stock Out by Reason downloaded");
+      exportRowsToExcel(
+        rows,
+        filenameParts.join("-"),
+        "Stock Movements by Types"
+      );
+      toast.success("Stock Movements by Types downloaded");
     } catch (err) {
-      console.error("Failed to generate Stock Out by Reason report:", err);
+      console.error("Failed to generate Stock Movements by Types report:", err);
       toast.error(
         err instanceof Error ? err.message : "Failed to generate report"
       );
@@ -110,7 +114,7 @@ function StockOutByReasonCard() {
     <Card className="border shadow-none">
       <CardHeader>
         <CardTitle className="text-base font-medium">
-          Stock Out by Reason
+          Stock Movements by Types
         </CardTitle>
         <CardDescription>
           Customer Delivery, Sent to Samti/Yanbu/TZ Showroom, Supplier Return —
@@ -197,7 +201,7 @@ export function ReportsList() {
           </CardContent>
         </Card>
       ))}
-      <StockOutByReasonCard />
+      <StockMovementsByTypesCard />
     </div>
   );
 }
