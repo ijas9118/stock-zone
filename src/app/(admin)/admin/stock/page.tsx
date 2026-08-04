@@ -74,7 +74,10 @@ export default async function StockPage({ searchParams }: StockPageProps) {
       shopTypeId: shop_type_id,
       categoryId: category_id,
       subCategoryId: sub_category_id,
-      stockStatus: stock_status === "out" ? "out" : undefined,
+      stockStatus:
+        stock_status === "out" || stock_status === "low"
+          ? stock_status
+          : undefined,
       sortBy: sort_by as StockSortBy | undefined,
       sortDir: sort_dir as StockSortDir | undefined,
       page: currentPage,

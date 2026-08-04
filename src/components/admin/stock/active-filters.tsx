@@ -76,6 +76,12 @@ export function ActiveFilters({
       label: "Stock",
       value: "Out of Stock only",
     });
+  } else if (stockStatus === "low") {
+    activeFilters.push({
+      key: "stock_status",
+      label: "Stock",
+      value: "Low Stock only",
+    });
   }
 
   if (activeFilters.length === 0) return null;
