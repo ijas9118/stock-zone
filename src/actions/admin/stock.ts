@@ -22,6 +22,7 @@ export type StockWithDetails = StockRow & {
     sku: string | null;
     category: string | null;
     sub_category: string | null;
+    minimum_stock_quantity: number;
     categories: { category_name: string } | null;
     subcategories: { subcategory_name: string } | null;
     product_uom_conversions: Array<{
@@ -109,7 +110,7 @@ export async function getStocks(
     categoryId?: string;
     subCategoryId?: string;
     query?: string;
-    stockStatus?: "out";
+    stockStatus?: "out" | "low";
     sortBy?: StockSortBy;
     sortDir?: StockSortDir;
     page?: number;
@@ -143,6 +144,7 @@ export async function getStocks(
             sku,
             category,
             sub_category,
+            minimum_stock_quantity,
             categories(category_name),
             subcategories(subcategory_name),
             product_uom_conversions(conversion_factor, units_of_measure(uom_code, full_name))
@@ -190,13 +192,16 @@ export async function getStocks(
       let stocks: StockWithDetails[];
       let count: number | null;
 
-      if (sortBy === "name" || sortBy === "sku") {
-        // PostgREST can't reorder the parent (stock) rows by a to-one
-        // embedded resource's column — `products.order=...` is silently a
-        // no-op at the server level. Fetch the full filtered set in one
-        // query and sort in-memory instead; this table is small enough
-        // (product x warehouse x shop_type rows) that this stays a single,
-        // cheap query rather than N+1 or a full scan concern.
+      // "Low stock" compares stock.quantity against the product's own
+      // minimum_stock_quantity — two different tables' columns, which
+      // PostgREST can't filter on in one query. Same for name/SKU sort:
+      // PostgREST can't reorder the parent (stock) rows by a to-one
+      // embedded resource's column — `products.order=...` is silently a
+      // no-op at the server level. Both fall back to fetching the full
+      // filtered set in one query and doing the rest in-memory; this table
+      // is small enough (product x warehouse x shop_type rows) that this
+      // stays a single, cheap query rather than N+1 or a full scan concern.
+      if (sortBy === "name" || sortBy === "sku" || stockStatus === "low") {
         const {
           data,
           error,
@@ -208,18 +213,31 @@ export async function getStocks(
           throw new Error("Failed to fetch stocks");
         }
 
-        const allStocks = data as unknown as StockWithDetails[];
-        allStocks.sort((a, b) => {
-          const aVal = (a.products?.[sortBy] ?? "").toLowerCase();
-          const bVal = (b.products?.[sortBy] ?? "").toLowerCase();
-          return ascending
-            ? aVal.localeCompare(bVal)
-            : bVal.localeCompare(aVal);
-        });
+        let allStocks = data as unknown as StockWithDetails[];
+
+        if (stockStatus === "low") {
+          allStocks = allStocks.filter(
+            (s) => s.quantity <= (s.products?.minimum_stock_quantity ?? 10)
+          );
+        }
+
+        if (sortBy === "name" || sortBy === "sku") {
+          allStocks.sort((a, b) => {
+            const aVal = (a.products?.[sortBy] ?? "").toLowerCase();
+            const bVal = (b.products?.[sortBy] ?? "").toLowerCase();
+            return ascending
+              ? aVal.localeCompare(bVal)
+              : bVal.localeCompare(aVal);
+          });
+        } else if (sortBy === "quantity") {
+          allStocks.sort((a, b) =>
+            ascending ? a.quantity - b.quantity : b.quantity - a.quantity
+          );
+        }
 
         const from = (page - 1) * pageSize;
         stocks = allStocks.slice(from, from + pageSize);
-        count = totalCount;
+        count = stockStatus === "low" ? allStocks.length : totalCount;
       } else {
         if (sortBy === "quantity") {
           supabaseQuery = supabaseQuery.order("quantity", { ascending });

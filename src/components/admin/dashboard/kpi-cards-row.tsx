@@ -38,7 +38,7 @@ export function KpiCardsRow({ kpis }: KpiCardsRowProps) {
       subtext: "At or below reorder point",
       icon: TriangleAlert,
       accent: ACCENT[700],
-      href: undefined as string | undefined,
+      href: "/admin/stock?stock_status=low",
     },
     {
       label: "Out of Stock",
