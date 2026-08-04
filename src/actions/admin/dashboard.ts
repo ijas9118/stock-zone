@@ -321,12 +321,30 @@ async function getMoversAndCategory(
       warehouseId
     );
 
-  const [{ data: stockRows }, { data: outMovements }, categoryMovementResult] =
-    await Promise.all([
-      stockQuery,
-      movementQuery,
-      includeCategory ? categoryMovementQuery : Promise.resolve({ data: null }),
-    ]);
+  // All categories/subcategories, not just ones with movement in the period —
+  // otherwise a category with zero activity in the last 30 days silently
+  // disappears from both the chart and the category picker, even though it
+  // has real stock.
+  const categoriesListQuery = adminClient
+    .from("categories")
+    .select("category_name");
+  const subcategoriesListQuery = adminClient
+    .from("subcategories")
+    .select("subcategory_name, categories(category_name)");
+
+  const [
+    { data: stockRows },
+    { data: outMovements },
+    categoryMovementResult,
+    categoriesListResult,
+    subcategoriesListResult,
+  ] = await Promise.all([
+    stockQuery,
+    movementQuery,
+    includeCategory ? categoryMovementQuery : Promise.resolve({ data: null }),
+    includeCategory ? categoriesListQuery : Promise.resolve({ data: null }),
+    includeCategory ? subcategoriesListQuery : Promise.resolve({ data: null }),
+  ]);
 
   type ProductJoin = { name: string; sku: string | null };
 
@@ -391,6 +409,29 @@ async function getMoversAndCategory(
     string,
     { name: string; category: string; totalIn: number; totalOut: number }
   >();
+
+  // Seed every real category/subcategory at zero first, so ones with no
+  // movement in the period still show up (in the picker and the chart)
+  // instead of silently vanishing.
+  (categoriesListResult.data || []).forEach((c) => {
+    categoryMovementMap.set(c.category_name, {
+      name: c.category_name,
+      totalIn: 0,
+      totalOut: 0,
+    });
+  });
+  (subcategoriesListResult.data || []).forEach((s) => {
+    const category = Array.isArray(s.categories)
+      ? s.categories[0]
+      : s.categories;
+    const categoryName = category?.category_name ?? "Uncategorized";
+    subcategoryMovementMap.set(`${categoryName}::${s.subcategory_name}`, {
+      name: s.subcategory_name,
+      category: categoryName,
+      totalIn: 0,
+      totalOut: 0,
+    });
+  });
 
   (categoryMovementResult.data || []).forEach((row) => {
     const product = (

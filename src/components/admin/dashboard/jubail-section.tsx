@@ -37,8 +37,10 @@ interface MovementRow {
 function topFive(rows: MovementRow[], direction: Direction) {
   const metric = (r: MovementRow) =>
     direction === "in" ? r.totalIn : r.totalOut;
+  // No `> 0` filter here on purpose: categories/subcategories with zero
+  // movement in the period still need to appear (sorted last) rather than
+  // silently vanishing from the chart and the category picker.
   return rows
-    .filter((r) => metric(r) > 0)
     .sort((a, b) => metric(b) - metric(a))
     .slice(0, 5)
     .map((r) => ({ name: r.name, value: metric(r) }));
