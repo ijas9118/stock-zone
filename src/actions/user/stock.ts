@@ -1,5 +1,6 @@
 "use server";
 
+import { splitSearchWords } from "@/lib/search";
 import {
   getLocationsForStockIds,
   StockLocationOption,
@@ -123,10 +124,12 @@ export async function getUserStocks(
   }
 
   if (query) {
-    supabaseQuery = supabaseQuery.or(
-      `name.ilike.%${query}%,sku.ilike.%${query}%`,
-      { referencedTable: "products" }
-    );
+    splitSearchWords(query).forEach((word) => {
+      supabaseQuery = supabaseQuery.or(
+        `name.ilike.%${word}%,sku.ilike.%${word}%`,
+        { referencedTable: "products" }
+      );
+    });
   }
 
   const from = (page - 1) * pageSize;

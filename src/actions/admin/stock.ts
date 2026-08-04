@@ -2,6 +2,7 @@
 
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 
+import { splitSearchWords } from "@/lib/search";
 import {
   getLocationsForStockIds,
   StockLocationOption,
@@ -173,10 +174,12 @@ export async function getStocks(
       }
 
       if (query) {
-        supabaseQuery = supabaseQuery.or(
-          `name.ilike.%${query}%,sku.ilike.%${query}%`,
-          { referencedTable: "products" }
-        );
+        splitSearchWords(query).forEach((word) => {
+          supabaseQuery = supabaseQuery.or(
+            `name.ilike.%${word}%,sku.ilike.%${word}%`,
+            { referencedTable: "products" }
+          );
+        });
       }
 
       if (stockStatus === "out") {
