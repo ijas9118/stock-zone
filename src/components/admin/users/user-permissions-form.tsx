@@ -109,18 +109,20 @@ export function UserPermissionsForm({ user }: UserPermissionsFormProps) {
         },
         {
           key: "perm_do_purchase",
-          label: "Purchase Entry",
-          description: "Allow adding stock via purchase orders.",
+          label: "Stock In",
+          description:
+            "Allow adding stock (supplier delivery, customer return, initial stock).",
         },
         {
           key: "perm_do_sale",
-          label: "Sale/Deduction",
-          description: "Allow deducting stock for sales.",
+          label: "Stock Out",
+          description:
+            "Allow removing stock (customer delivery, sent to shop, supplier return).",
         },
         {
           key: "perm_do_return",
-          label: "Sales Return",
-          description: "Allow adding stock back via returns.",
+          label: "Process Returns",
+          description: "Allow recording customer/supplier returns.",
         },
       ],
     },
