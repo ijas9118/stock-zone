@@ -11,16 +11,24 @@ async function verifyAdmin() {
     throw new Error("Forbidden: Admin access required");
 }
 
-export async function getStockSummaryReport() {
+export async function getStockSummaryReport(
+  params: { categoryId?: string } = {}
+) {
   await verifyAdmin();
   const adminClient = createAdminClient();
 
-  const { data, error } = await adminClient
+  let query = adminClient
     .from("stock")
     .select(
       "quantity, products!inner(name, sku, minimum_stock_quantity, categories(category_name)), warehouses(name), shop_types(name)"
     )
     .order("quantity", { ascending: false });
+
+  if (params.categoryId) {
+    query = query.eq("products.category", params.categoryId);
+  }
+
+  const { data, error } = await query;
 
   if (error) throw new Error("Failed to fetch stock summary report");
 

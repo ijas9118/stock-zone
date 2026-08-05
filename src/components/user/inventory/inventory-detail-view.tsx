@@ -59,6 +59,7 @@ export function InventoryDetailView({
 
   const minQty = stock.products?.minimum_stock_quantity ?? 10;
   const isLowStock = stock.quantity <= minQty;
+  const isOutOfStock = stock.quantity <= 0;
   const stockRatio =
     minQty > 0
       ? Math.max(
@@ -321,19 +322,25 @@ export function InventoryDetailView({
             <span
               className={cn(
                 "font-bold",
-                isLowStock
-                  ? "text-[#441D49] dark:text-[#DDB6E2]"
-                  : "text-[#7A3483] dark:text-[#C78AD0]"
+                isOutOfStock
+                  ? "text-red-600 dark:text-red-400"
+                  : isLowStock
+                    ? "text-orange-500 dark:text-orange-300"
+                    : "text-[#7A3483] dark:text-[#C78AD0]"
               )}
             >
-              {isLowStock ? "Low" : "Healthy"}
+              {isOutOfStock ? "Out of Stock" : isLowStock ? "Low" : "Healthy"}
             </span>
           </div>
           <div className="bg-muted h-2.5 w-full overflow-hidden rounded-full">
             <div
               className={cn(
                 "h-full rounded-full",
-                isLowStock ? "bg-[#441D49]" : "bg-[#C78AD0]"
+                isOutOfStock
+                  ? "bg-red-600"
+                  : isLowStock
+                    ? "bg-orange-400"
+                    : "bg-[#C78AD0]"
               )}
               style={{ width: `${stockRatio}%` }}
             />
@@ -343,8 +350,8 @@ export function InventoryDetailView({
           </p>
 
           {isLowStock ? (
-            <div className="mt-4 rounded-lg border border-[#441D49]/30 bg-[#441D49]/10 p-3 text-center dark:border-[#441D49]/40 dark:bg-[#441D49]/20">
-              <div className="flex items-center justify-center gap-2 text-[#441D49] dark:text-[#DDB6E2]">
+            <div className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-center dark:border-red-500/40 dark:bg-red-500/20">
+              <div className="flex items-center justify-center gap-2 text-red-600 dark:text-red-400">
                 <AlertTriangle className="h-4 w-4" />
                 <p className="text-xs font-bold tracking-wider uppercase">
                   Reorder Needed

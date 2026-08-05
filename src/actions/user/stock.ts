@@ -247,6 +247,7 @@ export async function getUserStockById(stockId: string) {
         sku,
         category,
         sub_category,
+        minimum_stock_quantity,
         categories(category_name),
         subcategories(subcategory_name),
         units_of_measure(full_name, uom_code),

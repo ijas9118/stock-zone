@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
+import { Category, getCategories } from "@/actions/admin/categories";
 import {
   getLowStockReport,
   getStockMovementsReport,
@@ -152,6 +153,86 @@ function StockMovementsByTypesCard() {
   );
 }
 
+function UpdatedStockQuantityCard() {
+  const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoryId, setCategoryId] = useState<string>("all");
+
+  useEffect(() => {
+    getCategories({ pageSize: 100 }).then((r) => setCategories(r.categories));
+  }, []);
+
+  async function handleDownload() {
+    setLoading(true);
+    try {
+      const rows = await getStockSummaryReport({
+        categoryId: categoryId === "all" ? undefined : categoryId,
+      });
+      if (rows.length === 0) {
+        toast.info("No data available for this report.");
+        return;
+      }
+      const categoryName = categories.find(
+        (c) => c.id === categoryId
+      )?.category_name;
+      const filenameParts = ["updated-stock-quantity", categoryName].filter(
+        Boolean
+      );
+      exportRowsToExcel(
+        rows,
+        filenameParts.join("-"),
+        "Updated Stock Quantity"
+      );
+      toast.success("Updated Stock Quantity downloaded");
+    } catch (err) {
+      console.error("Failed to generate Updated Stock Quantity report:", err);
+      toast.error(
+        err instanceof Error ? err.message : "Failed to generate report"
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <Card className="border shadow-none">
+      <CardHeader>
+        <CardTitle className="text-base font-medium">
+          Updated Stock Quantity
+        </CardTitle>
+        <CardDescription>
+          Current quantity for every product right now — pick a category first,
+          or export all of them.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <Select value={categoryId} onValueChange={setCategoryId}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="All Categories" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Categories</SelectItem>
+            {categories.map((c) => (
+              <SelectItem key={c.id} value={c.id}>
+                {c.category_name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Button onClick={handleDownload} disabled={loading} className="w-full">
+          {loading ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Icons.reports className="mr-2 h-4 w-4" />
+          )}
+          Download Excel
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
 export function ReportsList() {
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
@@ -202,6 +283,7 @@ export function ReportsList() {
         </Card>
       ))}
       <StockMovementsByTypesCard />
+      <UpdatedStockQuantityCard />
     </div>
   );
 }
