@@ -325,7 +325,7 @@ export function InventoryDetailView({
                 isOutOfStock
                   ? "text-red-600 dark:text-red-400"
                   : isLowStock
-                    ? "text-orange-600 dark:text-orange-400"
+                    ? "text-orange-500 dark:text-orange-300"
                     : "text-[#7A3483] dark:text-[#C78AD0]"
               )}
             >
@@ -339,7 +339,7 @@ export function InventoryDetailView({
                 isOutOfStock
                   ? "bg-red-600"
                   : isLowStock
-                    ? "bg-orange-500"
+                    ? "bg-orange-400"
                     : "bg-[#C78AD0]"
               )}
               style={{ width: `${stockRatio}%` }}
