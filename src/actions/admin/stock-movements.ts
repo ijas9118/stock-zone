@@ -32,8 +32,8 @@ async function verifyAdmin() {
   if (!auth.isAuthenticated) throw new Error("Unauthorized");
   const role = auth.role;
 
-  if (role !== "admin") {
-    throw new Error("Forbidden: Admin access required");
+  if (role !== "admin" && role !== "manager") {
+    throw new Error("Forbidden: Admin or manager access required");
   }
 }
 

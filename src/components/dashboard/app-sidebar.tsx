@@ -141,12 +141,19 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
       title: "Operations",
       icon: Icons.stock,
       items: [
-        {
-          title: "Warehouses",
-          href: "/manager/warehouses",
-          icon: Icons.warehouses,
-        },
         { title: "Products", href: "/manager/products", icon: Icons.products },
+        { title: "Stock", href: "/manager/stock", icon: Icons.stock },
+        {
+          title: "Stock Movements",
+          href: "/manager/stock-movements",
+          icon: Icons.transfer,
+        },
+      ],
+    },
+    {
+      title: "Reports",
+      items: [
+        { title: "Reports", href: "/manager/reports", icon: Icons.reports },
       ],
     },
   ];

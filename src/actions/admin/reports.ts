@@ -7,8 +7,8 @@ import { getAuthContext } from "@/lib/supabase/server";
 async function verifyAdmin() {
   const auth = await getAuthContext();
   if (!auth.isAuthenticated) throw new Error("Unauthorized");
-  if (auth.role !== "admin")
-    throw new Error("Forbidden: Admin access required");
+  if (auth.role !== "admin" && auth.role !== "manager")
+    throw new Error("Forbidden: Admin or manager access required");
 }
 
 export async function getStockSummaryReport(

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   ArrowRightLeft,
   Boxes,
@@ -23,6 +24,9 @@ interface KpiCardsRowProps {
 // Each card gets its own shade from the same 5-step ramp, darkest -> lightest,
 // so all five feel like one family while still reading as distinct.
 export function KpiCardsRow({ kpis }: KpiCardsRowProps) {
+  const pathname = usePathname();
+  const basePath = pathname.startsWith("/manager") ? "/manager" : "/admin";
+
   const cards = [
     {
       label: "Total Stock Units",
@@ -38,7 +42,7 @@ export function KpiCardsRow({ kpis }: KpiCardsRowProps) {
       subtext: "At or below reorder point",
       icon: TriangleAlert,
       accent: ACCENT[700],
-      href: "/admin/stock?stock_status=low",
+      href: `${basePath}/stock?stock_status=low`,
     },
     {
       label: "Out of Stock",
@@ -48,7 +52,7 @@ export function KpiCardsRow({ kpis }: KpiCardsRowProps) {
       // Intentional exception to the accent-only palette — this one needs
       // to read as a critical alert at a glance.
       accent: kpis.outOfStock > 0 ? "#dc2626" : ACCENT[500],
-      href: "/admin/stock?stock_status=out",
+      href: `${basePath}/stock?stock_status=out`,
     },
     {
       label: "Movements Today",

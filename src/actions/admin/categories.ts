@@ -16,6 +16,11 @@ async function verifyAdmin() {
     throw new Error("Forbidden: Admin access required");
 }
 
+async function verifyAuthenticated() {
+  const auth = await getAuthContext();
+  if (!auth.isAuthenticated) throw new Error("Unauthorized");
+}
+
 /* -------------------------------------------------------------------------- */
 /*                                 CATEGORIES                                 */
 /* -------------------------------------------------------------------------- */
@@ -23,7 +28,7 @@ async function verifyAdmin() {
 export async function getCategories(
   params: { query?: string; page?: number; pageSize?: number } = {}
 ) {
-  await verifyAdmin();
+  await verifyAuthenticated();
   const { query, page = 1, pageSize = 8 } = params;
 
   return unstable_cache(
@@ -168,7 +173,7 @@ export async function getSubcategories(
     pageSize?: number;
   } = {}
 ) {
-  await verifyAdmin();
+  await verifyAuthenticated();
   const { query, categoryId, page = 1, pageSize = 8 } = params;
 
   return unstable_cache(

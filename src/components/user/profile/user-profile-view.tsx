@@ -72,28 +72,28 @@ function InfoCard({
 const permissionItems = [
   {
     key: "perm_do_purchase",
-    label: "Purchase / Receive Stock",
+    label: "Stock In",
     icon: TrendingUp,
     iconBg: "bg-emerald-500/10",
     iconColor: "text-emerald-600 dark:text-emerald-400",
   },
   {
     key: "perm_do_sale",
-    label: "Record Sales",
+    label: "Stock Out",
     icon: TrendingDown,
     iconBg: "bg-red-500/10",
     iconColor: "text-red-600 dark:text-red-400",
   },
   {
     key: "perm_do_transfer",
-    label: "Transfer Stock",
+    label: "Stock Transfer",
     icon: ArrowRightLeft,
     iconBg: "bg-blue-500/10",
     iconColor: "text-blue-600 dark:text-blue-400",
   },
   {
     key: "perm_do_adjustment",
-    label: "Adjust Stock",
+    label: "Stock Adjustment",
     icon: Edit,
     iconBg: "bg-amber-500/10",
     iconColor: "text-amber-600 dark:text-amber-400",
